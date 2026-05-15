@@ -14,7 +14,12 @@ public class PlayerMovement : MonoBehaviour
     [field: SerializeField, Tooltip("Sprint speed")]
     public float SprintSpeed { get; private set; } = 6f;
 
+    [Header("Noise Settings")]
+    [SerializeField] private float _walkNoiseVolume = 5f;
+    [SerializeField] private float _sprintNoiseVolume = 15f;
+    [SerializeField] private float _stepInterval = 0.5f;
 
+    private float _stepTimer;
 
     [Header("Physics Config")]
     [SerializeField] private float gravity = -9.81f;
@@ -65,11 +70,32 @@ public class PlayerMovement : MonoBehaviour
             targetSpeed = _inputHandler.IsSprinting ? SprintSpeed : WalkSpeed;
             _controller.Move(moveDirection * targetSpeed * Time.deltaTime);
 
+            HandleFootstepNoise();
+
             // Footsteps SFX
+        }
+        else
+        {
+            _stepTimer = _stepInterval;
         }
 
         UpdateAnimator(targetSpeed);
 
+    }
+
+    private void HandleFootstepNoise()
+    {
+        _stepTimer -= Time.deltaTime;
+
+        if (_stepTimer <= 0f)
+        {
+            float currentVolume = _inputHandler.IsSprinting ? _sprintNoiseVolume : _walkNoiseVolume;
+
+            NoiseManager.EmitNoise(transform.position, currentVolume);
+
+            // adjust interval if running 
+            _stepTimer = _inputHandler.IsSprinting ? _stepInterval * 0.6f : _stepInterval;
+        }
     }
 
     private void UpdateAnimator(float targetSpeed)

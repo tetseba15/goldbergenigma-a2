@@ -12,7 +12,9 @@ public class EnemyAI : MonoBehaviour
     [SerializeField, Tooltip("Chase speed")]
     private float _chaseSpeed = 5.5f;
 
-    private enum AIState { Patrol, Chase, Idle }
+    public enum AIState { Patrol, Chase, Idle, Investigate }
+
+    private Vector3 _investigateTarget;
 
     [Header("References")]
     [SerializeField] private Transform _lookAtTarget;
@@ -39,6 +41,16 @@ public class EnemyAI : MonoBehaviour
     //Esta ref no hace falta, está guardada en el PlayerTarget pero la dejo por las dudas y comento la que está sin usar momentaneamente
     //[SerializeField] private PlayerFlashlight _playerFlashlight;
     //[SerializeField] private float _flashlightRepelSpeed = 5f;
+
+    private void OnEnable()
+    {
+        NoiseManager.OnNoiseEmitted += HearNoise;
+    }
+
+    private void OnDisable()
+    {
+        NoiseManager.OnNoiseEmitted -= HearNoise;
+    }
 
 
     private void Awake()
@@ -76,9 +88,11 @@ public class EnemyAI : MonoBehaviour
             case AIState.Chase:
                 HandleChase();
                 break;
-                
-                // Investigate
+            case AIState.Investigate: 
+                HandleInvestigate(); 
+                break;
         }
+
         _animator.SetFloat("Speed", _agent.velocity.magnitude / _agent.speed);
         UpdateLookAt();
     }
@@ -108,6 +122,31 @@ public class EnemyAI : MonoBehaviour
         if (_currentState == AIState.Chase && sqrDistanceToPlayer > (_viewRadious * 1.5f) * (_viewRadious * 1.5f))
         {
             ChangeState(AIState.Patrol);
+        }
+    }
+
+    private void HandleInvestigate()
+    {
+        _agent.speed = _patrolSpeed; 
+        _agent.SetDestination(_investigateTarget);
+
+        
+        if (!_agent.pathPending && _agent.remainingDistance < 0.5f)
+        {
+            ChangeState(AIState.Patrol);
+        }
+    }
+
+    private void HearNoise(Vector3 noisePosition, float noiseVolume)
+    {
+        if (_playerInSafeZone || _currentState == AIState.Chase) return;
+
+        float sqrDistanceToNoise = (noisePosition - transform.position).sqrMagnitude;
+
+        if (sqrDistanceToNoise <= (noiseVolume * noiseVolume))
+        {
+            _investigateTarget = noisePosition;
+            ChangeState(AIState.Investigate);
         }
     }
 
