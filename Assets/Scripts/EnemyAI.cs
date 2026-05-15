@@ -275,7 +275,7 @@ public class EnemyAI : MonoBehaviour
         Gizmos.DrawLine(transform.position, transform.position + viewAngleLeft * _viewAngle);
         Gizmos.DrawLine(transform.position, transform.position + viewAngleRight * _viewAngle);
 
-        if (PlayerTarget.Instance.PlayerTransform != null && _currentState == AIState.Chase)
+        if (PlayerTarget.Instance != null && PlayerTarget.Instance.PlayerTransform != null && _currentState == AIState.Chase)
         {
             Gizmos.color = Color.red;
             Gizmos.DrawLine(transform.position, PlayerTarget.Instance.PlayerTransform.position);
