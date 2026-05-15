@@ -15,7 +15,6 @@ public class EnemyAI : MonoBehaviour
     private enum AIState { Patrol, Chase, Idle }
 
     [Header("References")]
-    [SerializeField] private Transform _playerTransform;
     [SerializeField] private Transform _lookAtTarget;
 
     [Space(20)]
@@ -26,7 +25,6 @@ public class EnemyAI : MonoBehaviour
     [SerializeField, Range(1f, 360f)] private float _viewAngle = 90f;
 
     [Space(10)]
-    [SerializeField] private LayerMask _targetMask;
     [SerializeField] private LayerMask _obstacleMask;
 
     private NavMeshAgent _agent;
@@ -36,9 +34,12 @@ public class EnemyAI : MonoBehaviour
     private bool _playerInSafeZone = false;
 
     [Header("Flashlight Settings")]
-    [SerializeField] private PlayerFlashlight _playerFlashlight;
     [SerializeField] private float _flashlightRepelDistance = 10f;
-    [SerializeField] private float _flashlightRepelSpeed = 5f;
+
+    //Esta ref no hace falta, está guardada en el PlayerTarget pero la dejo por las dudas y comento la que está sin usar momentaneamente
+    //[SerializeField] private PlayerFlashlight _playerFlashlight;
+    //[SerializeField] private float _flashlightRepelSpeed = 5f;
+
 
     private void Awake()
     {
@@ -57,6 +58,12 @@ public class EnemyAI : MonoBehaviour
 
     void Update()
     {
+        if (PlayerTarget.Instance == null)
+        {
+            if (_currentState == AIState.Chase) ChangeState(AIState.Patrol);
+            return;
+        }
+
         CheckSensors();
         CheckFlashlight();
 
@@ -69,6 +76,8 @@ public class EnemyAI : MonoBehaviour
             case AIState.Chase:
                 HandleChase();
                 break;
+                
+                // Investigate
         }
         _animator.SetFloat("Speed", _agent.velocity.magnitude / _agent.speed);
         UpdateLookAt();
@@ -78,14 +87,17 @@ public class EnemyAI : MonoBehaviour
     {
         if (_playerInSafeZone) return;
 
-        Vector3 directionToPlayer = (_playerTransform.position - transform.position).normalized;
-        float distanceToPlayer = Vector3.Distance(transform.position, _playerTransform.position);
+        Transform target = PlayerTarget.Instance.PlayerTransform;
 
-        if (distanceToPlayer <= _viewRadious)
+        Vector3 directionToPlayer = target.position - transform.position;
+        float sqrDistanceToPlayer = directionToPlayer.sqrMagnitude;
+
+        if (sqrDistanceToPlayer <= (_viewRadious * _viewRadious))
         {
             if (Vector3.Angle(transform.forward, directionToPlayer) < _viewAngle / 2f)
             {
-                if (!Physics.Raycast(transform.position, directionToPlayer, distanceToPlayer, _obstacleMask))
+                float distanceToPlayer = Mathf.Sqrt(sqrDistanceToPlayer);
+                if (!Physics.Raycast(transform.position, directionToPlayer.normalized, distanceToPlayer, _obstacleMask))
                 {
                     ChangeState(AIState.Chase);
                     return;
@@ -93,7 +105,7 @@ public class EnemyAI : MonoBehaviour
             }
         }
 
-        if (_currentState == AIState.Chase && distanceToPlayer > _viewRadious * 1.5f)
+        if (_currentState == AIState.Chase && sqrDistanceToPlayer > (_viewRadious * 1.5f) * (_viewRadious * 1.5f))
         {
             ChangeState(AIState.Patrol);
         }
@@ -101,23 +113,46 @@ public class EnemyAI : MonoBehaviour
 
     private void CheckFlashlight()
     {
-        if (_playerFlashlight == null || !_playerFlashlight.IsOn()) return;
+        //if (_playerFlashlight == null || !_playerFlashlight.IsOn()) return;
 
-        float distanceToPlayer = Vector3.Distance(transform.position, _playerTransform.position);
-        if (distanceToPlayer > _flashlightRepelDistance) return;
+        //float distanceToPlayer = Vector3.Distance(transform.position, _playerTransform.position);
+        //if (distanceToPlayer > _flashlightRepelDistance) return;
 
-        // Verificar si la linterna apunta hacia la nena
-        Vector3 directionToEnemy = (transform.position - _playerTransform.position).normalized;
-        float angle = Vector3.Angle(_playerTransform.forward, directionToEnemy);
+        //// Verificar si la linterna apunta hacia la nena
+        //Vector3 directionToEnemy = (transform.position - _playerTransform.position).normalized;
+        //float angle = Vector3.Angle(_playerTransform.forward, directionToEnemy);
+
+        //if (angle < 30f)
+        //{
+        //    // La linterna apunta a la nena, alejarse
+        //    Vector3 fleeDirection = (transform.position - _playerTransform.position).normalized;
+        //    Vector3 fleeTarget = transform.position + fleeDirection * _flashlightRepelDistance;
+
+        //    NavMeshHit hit;
+        //    if (NavMesh.SamplePosition(fleeTarget, out hit, _flashlightRepelDistance, NavMesh.AllAreas))
+        //    {
+        //        _agent.SetDestination(hit.position);
+        //    }
+
+        //    ChangeState(AIState.Patrol);
+        //}
+
+        if (PlayerTarget.Instance.Flashlight == null || !PlayerTarget.Instance.Flashlight.IsOn()) return;
+
+        Transform target = PlayerTarget.Instance.PlayerTransform;
+        float sqrDistanceToPlayer = (transform.position - target.position).sqrMagnitude;
+
+        if (sqrDistanceToPlayer > (_flashlightRepelDistance * _flashlightRepelDistance)) return;
+
+        Vector3 directionToEnemy = (transform.position - target.position).normalized;
+        float angle = Vector3.Angle(target.forward, directionToEnemy);
 
         if (angle < 30f)
         {
-            // La linterna apunta a la nena, alejarse
-            Vector3 fleeDirection = (transform.position - _playerTransform.position).normalized;
+            Vector3 fleeDirection = (transform.position - target.position).normalized;
             Vector3 fleeTarget = transform.position + fleeDirection * _flashlightRepelDistance;
 
-            NavMeshHit hit;
-            if (NavMesh.SamplePosition(fleeTarget, out hit, _flashlightRepelDistance, NavMesh.AllAreas))
+            if (NavMesh.SamplePosition(fleeTarget, out NavMeshHit hit, _flashlightRepelDistance, NavMesh.AllAreas))
             {
                 _agent.SetDestination(hit.position);
             }
@@ -141,8 +176,7 @@ public class EnemyAI : MonoBehaviour
     private void HandleChase()
     {
         _agent.speed = _chaseSpeed;
-
-        _agent.SetDestination(_playerTransform.position);
+        _agent.SetDestination(PlayerTarget.Instance.PlayerTransform.position);
     }
 
     private void HandlePatrol()
@@ -166,7 +200,7 @@ public class EnemyAI : MonoBehaviour
         {
             _lookAtTarget.position = Vector3.Lerp(
                 _lookAtTarget.position,
-                _playerTransform.position + Vector3.up * 1.5f,
+                PlayerTarget.Instance.PlayerTransform.position + Vector3.up * 1.5f,
                 Time.deltaTime * 5f
             );
         }
@@ -202,10 +236,10 @@ public class EnemyAI : MonoBehaviour
         Gizmos.DrawLine(transform.position, transform.position + viewAngleLeft * _viewAngle);
         Gizmos.DrawLine(transform.position, transform.position + viewAngleRight * _viewAngle);
 
-        if (_playerTransform != null && _currentState == AIState.Chase)
+        if (PlayerTarget.Instance.PlayerTransform != null && _currentState == AIState.Chase)
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawLine(transform.position, _playerTransform.position);
+            Gizmos.DrawLine(transform.position, PlayerTarget.Instance.PlayerTransform.position);
         }
     }
 

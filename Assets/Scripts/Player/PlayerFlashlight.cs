@@ -15,8 +15,10 @@ public class PlayerFlashlight : MonoBehaviour
     [SerializeField, Tooltip("% when the flashlights begins to malfunction")]
     private float _flickerThreshold = 20f;
 
-    private float _currentBattery;
     private bool _isOn = false;
+    public bool IsOn() => _isOn;
+
+    private float _currentBattery;
     private float _baseIntensity;
 
     private PlayerInputHandler _inputHandler;
@@ -103,5 +105,5 @@ public class PlayerFlashlight : MonoBehaviour
     {
         _currentBattery = Mathf.Clamp(_currentBattery + amount, 0f, _maxBattery);
     }
-    public bool IsOn() => _isOn;
+    
 }
