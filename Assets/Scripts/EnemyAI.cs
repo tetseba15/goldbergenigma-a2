@@ -41,6 +41,10 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float _flashlightRepelDistance = 10f;
     [SerializeField] private float _flashlightRepelSpeed = 5f;
 
+    [Header("Audio Settings")]
+    [SerializeField] private AudioSource _enemyAudioSource;
+    [SerializeField] private AudioClip _hurtSound;
+
     private void Awake()
     {
         _agent = GetComponent<NavMeshAgent>();
@@ -78,7 +82,11 @@ public class EnemyAI : MonoBehaviour
     
     public void HolyWaterImpact()
     {
-        
+        if (_enemyAudioSource != null && _hurtSound != null)
+        {
+            _enemyAudioSource.PlayOneShot(_hurtSound);
+        }
+
         if (_enemySpawnPoints != null && _enemySpawnPoints.Length > 0)
         {
             

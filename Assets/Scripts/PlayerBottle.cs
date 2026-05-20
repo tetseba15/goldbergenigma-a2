@@ -9,10 +9,10 @@ public class HolyWaterController : MonoBehaviour
     [SerializeField] private GameObject _bottleVisual;
     [SerializeField] private Animator _bottleAnimator;
 
-    // 🟢 NUEVO: Referencias para el sistema de sonido
+    
     [Header("Audio")]
-    [SerializeField] private AudioSource _audioSource;   // El altavoz
-    [SerializeField] private AudioClip _throwSound;     // El archivo de sonido (.mp3/.wav)
+    [SerializeField] private AudioSource _audioSource;   
+    [SerializeField] private AudioClip _throwSound;     
 
     [Header("Configuración")]
     [SerializeField] private float _animationDuration;
@@ -48,7 +48,7 @@ public class HolyWaterController : MonoBehaviour
         _isUsing = true;
         _bottleVisual.SetActive(true);
 
-        // 🟢 NUEVO: Reproducir el sonido justo cuando se lanza
+        
         if (_audioSource != null && _throwSound != null)
         {
             _audioSource.PlayOneShot(_throwSound);
