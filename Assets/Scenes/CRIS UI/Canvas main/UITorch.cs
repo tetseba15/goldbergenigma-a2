@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UILinterna : MonoBehaviour
+public class UITorch : MonoBehaviour
 {
     public Slider BatterySlider;
 
