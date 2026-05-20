@@ -6,11 +6,8 @@ using UnityEngine.AI;
 public class EnemyAI : MonoBehaviour
 {
     [Header("Speed settings")]
-    [SerializeField, Tooltip("Patrol speed")]
-    private float _patrolSpeed = 2f;
-
-    [SerializeField, Tooltip("Chase speed")]
-    private float _chaseSpeed = 5.5f;
+    [SerializeField, Tooltip("Patrol speed")] private float _patrolSpeed = 2f;
+    [SerializeField, Tooltip("Chase speed")] private float _chaseSpeed = 5.5f;
 
     private enum AIState { Patrol, Chase, Idle }
 
@@ -20,6 +17,10 @@ public class EnemyAI : MonoBehaviour
 
     [Space(20)]
     [SerializeField] private Transform[] _patrolWaypoints;
+
+    
+    [Header("Enemy Spawns Points")]
+    [SerializeField] private Transform[] _enemySpawnPoints;
 
     [Header("Vision Settings")]
     [SerializeField, Range(1f, 50f)] private float _viewRadious = 15f;
@@ -72,6 +73,20 @@ public class EnemyAI : MonoBehaviour
         }
         _animator.SetFloat("Speed", _agent.velocity.magnitude / _agent.speed);
         UpdateLookAt();
+    }
+
+    
+    public void HolyWaterImpact()
+    {
+        
+        if (_enemySpawnPoints != null && _enemySpawnPoints.Length > 0)
+        {
+            
+            int indiceAleatorio = UnityEngine.Random.Range(0, _enemySpawnPoints.Length);
+            _agent.Warp(_enemySpawnPoints[indiceAleatorio].position);
+        }
+        
+        ChangeState(AIState.Patrol);
     }
 
     private void CheckSensors()
@@ -141,7 +156,6 @@ public class EnemyAI : MonoBehaviour
     private void HandleChase()
     {
         _agent.speed = _chaseSpeed;
-
         _agent.SetDestination(_playerTransform.position);
     }
 
@@ -181,6 +195,7 @@ public class EnemyAI : MonoBehaviour
     {
         _playerInSafeZone = value;
     }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
