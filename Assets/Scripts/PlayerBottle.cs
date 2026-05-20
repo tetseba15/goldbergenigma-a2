@@ -9,11 +9,14 @@ public class HolyWaterController : MonoBehaviour
     [SerializeField] private GameObject _bottleVisual;
     [SerializeField] private Animator _bottleAnimator;
 
+    // 🟢 NUEVO: Referencias para el sistema de sonido
+    [Header("Audio")]
+    [SerializeField] private AudioSource _audioSource;   // El altavoz
+    [SerializeField] private AudioClip _throwSound;     // El archivo de sonido (.mp3/.wav)
+
     [Header("Configuración")]
     [SerializeField] private float _animationDuration;
-
-    // 🟢 NUEVO: Distancia máxima a la que el agua bendita salpica y asusta al enemigo
-    [SerializeField] private float _effectDistance;
+    [SerializeField] private float _effectDistance = 6f;
 
     private bool _isUsing = false;
 
@@ -45,26 +48,27 @@ public class HolyWaterController : MonoBehaviour
         _isUsing = true;
         _bottleVisual.SetActive(true);
 
+        // 🟢 NUEVO: Reproducir el sonido justo cuando se lanza
+        if (_audioSource != null && _throwSound != null)
+        {
+            _audioSource.PlayOneShot(_throwSound);
+        }
+
         if (_bottleAnimator != null)
         {
             _bottleAnimator.SetTrigger("Throw");
         }
 
-        // 🟢 NUEVO: Buscamos al enemigo en el mapa mediante su etiqueta (Tag)
         GameObject enemyObject = GameObject.FindWithTag("Enemy");
         if (enemyObject != null)
         {
-            // Calculamos qué tan lejos está el enemigo de nosotros
             float distanceToEnemy = Vector3.Distance(transform.position, enemyObject.transform.position);
 
-            // Si está dentro de nuestro rango de salpicadura
             if (distanceToEnemy <= _effectDistance)
             {
-                // Conseguimos el componente de IA del enemigo
                 EnemyAI enemyAI = enemyObject.GetComponent<EnemyAI>();
                 if (enemyAI != null)
                 {
-                    // ¡Activamos el efecto en el enemigo!
                     enemyAI.HolyWaterImpact();
                 }
             }
