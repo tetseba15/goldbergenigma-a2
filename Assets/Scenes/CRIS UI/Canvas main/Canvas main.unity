@@ -293,7 +293,7 @@ GameObject:
   - component: {fileID: 458133808}
   - component: {fileID: 458133809}
   m_Layer: 5
-  m_Name: Slider
+  m_Name: SliderWater
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -381,7 +381,7 @@ GameObject:
   - component: {fileID: 612962465}
   - component: {fileID: 612962466}
   m_Layer: 5
-  m_Name: Slider
+  m_Name: SliderBatery
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -581,6 +581,7 @@ GameObject:
   - component: {fileID: 712062618}
   - component: {fileID: 712062620}
   - component: {fileID: 712062619}
+  - component: {fileID: 712062621}
   m_Layer: 5
   m_Name: Handle
   m_TagString: Untagged
@@ -620,7 +621,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.82793164, g: 0.93962264, b: 0.9295272, a: 1}
+  m_Color: {r: 0.5264151, g: 0.96877456, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -645,6 +646,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 712062617}
   m_CullTransparentMesh: 1
+--- !u!114 &712062621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 712062617}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f30d13172d08b8c41a4c86ef9d458402, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SliderBottleHoly
+  BottleHolyWaterSlider: {fileID: 712062619}
 --- !u!1 &776216816
 GameObject:
   m_ObjectHideFlags: 0

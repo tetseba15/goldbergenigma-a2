@@ -2,20 +2,20 @@ using UnityEngine;
 using UnityEngine.UI;
 public class SliderBottleHoly : MonoBehaviour
 {
-    public Slider BottleHolyWaterSlider;
+    public Image BottleHolyWaterSlider;
 
     private void OnEnable()
     {
-        GameEvent.HolyWater += UpdateHolyWater;
+        GameEvent.OnHolyWater += UpdateHolyWater;
 
     }
     private void OnDestroy()
     {
-        GameEvent.HolyWater -= UpdateHolyWater;
+        GameEvent.OnHolyWater -= UpdateHolyWater;
     }
     private void UpdateHolyWater(float current, float max)
     {
-        BottleHolyWaterSlider.value = (current / max);
+        BottleHolyWaterSlider.fillAmount = (current / max);
 
     }
 }
