@@ -38,13 +38,26 @@ public class EnemyAI : MonoBehaviour
     [Header("Flashlight Settings")]
     [SerializeField] private float _flashlightRepelDistance = 10f;
 
-    //Esta ref no hace falta, está guardada en el PlayerTarget pero la dejo por las dudas y comento la que está sin usar momentaneamente
-    //[SerializeField] private PlayerFlashlight _playerFlashlight;
-    //[SerializeField] private float _flashlightRepelSpeed = 5f;
+    [Header("Teleport Settings")]
+    [SerializeField] private float _minTeleportDistance = 8f;
+    [SerializeField] private float _maxTeleportDistance = 15f;
+    private int _noSpawnAreaMask;
+    private SpawnZone[] _spawnZones;
+
+    [Header("Appear Settings")]
+    [SerializeField] private float _minAppearDuration = 20f;
+    [SerializeField] private float _maxAppearDuration = 40f;
+    private float _appearTimer = 0f;
+    private float _currentAppearDuration;
+
+    [Header("Spawn Settings")]
+    [SerializeField] private EnemySpawnEnabler _spawnEnabler;
 
     private void OnEnable()
     {
         NoiseManager.OnNoiseEmitted += HearNoise;
+        _appearTimer = 0f;
+        _currentAppearDuration = UnityEngine.Random.Range(_minAppearDuration, _maxAppearDuration);
     }
 
     private void OnDisable()
@@ -52,12 +65,15 @@ public class EnemyAI : MonoBehaviour
         NoiseManager.OnNoiseEmitted -= HearNoise;
     }
 
-
     private void Awake()
     {
         _agent = GetComponent<NavMeshAgent>();
         _animator = GetComponentInChildren<Animator>();
-        _currentState = AIState.Patrol;
+        _currentState = AIState.Chase;
+
+        int noSpawnArea = NavMesh.GetAreaFromName("NoSpawn");
+        _noSpawnAreaMask = NavMesh.AllAreas & ~(1 << noSpawnArea);
+        _spawnZones = FindObjectsByType<SpawnZone>(FindObjectsSortMode.None);
     }
 
     void Start()
@@ -76,6 +92,17 @@ public class EnemyAI : MonoBehaviour
             return;
         }
 
+        if (_spawnEnabler != null)
+        {
+            _appearTimer += Time.deltaTime;
+            if (_appearTimer >= _currentAppearDuration)
+            {
+                _appearTimer = 0f;
+                _spawnEnabler.DespawnEnemy();
+                return;
+            }
+        }
+
         CheckSensors();
         CheckFlashlight();
 
@@ -88,13 +115,54 @@ public class EnemyAI : MonoBehaviour
             case AIState.Chase:
                 HandleChase();
                 break;
-            case AIState.Investigate: 
-                HandleInvestigate(); 
+            case AIState.Investigate:
+                HandleInvestigate();
                 break;
         }
 
         _animator.SetFloat("Speed", _agent.velocity.magnitude / _agent.speed);
         UpdateLookAt();
+    }
+
+    private void TeleportNearPlayer()
+    {
+        if (PlayerTarget.Instance == null) return;
+
+        Transform player = PlayerTarget.Instance.PlayerTransform;
+
+        for (int i = 0; i < 10; i++)
+        {
+            float angle = UnityEngine.Random.Range(0f, 360f) * Mathf.Deg2Rad;
+            float distance = UnityEngine.Random.Range(_minTeleportDistance, _maxTeleportDistance);
+
+            Vector3 offset = new Vector3(Mathf.Sin(angle) * distance, 0f, Mathf.Cos(angle) * distance);
+            Vector3 candidatePos = player.position + offset;
+
+            if (NavMesh.SamplePosition(candidatePos, out NavMeshHit hit, 2f, _noSpawnAreaMask))
+            {
+                bool inSpawnZone = false;
+                foreach (var zone in _spawnZones)
+                {
+                    if (zone.Contains(hit.position))
+                    {
+                        inSpawnZone = true;
+                        break;
+                    }
+                }
+
+                if (inSpawnZone)
+                {
+                    _agent.Warp(hit.position);
+                    ChangeState(AIState.Chase);
+                    return;
+                }
+            }
+        }
+    }
+
+    public void TeleportNow()
+    {
+        TeleportNearPlayer();
     }
 
     private void CheckSensors()
@@ -118,22 +186,16 @@ public class EnemyAI : MonoBehaviour
                 }
             }
         }
-
-        if (_currentState == AIState.Chase && sqrDistanceToPlayer > (_viewRadious * 1.5f) * (_viewRadious * 1.5f))
-        {
-            ChangeState(AIState.Patrol);
-        }
     }
 
     private void HandleInvestigate()
     {
-        _agent.speed = _patrolSpeed; 
+        _agent.speed = _patrolSpeed;
         _agent.SetDestination(_investigateTarget);
 
-        
         if (!_agent.pathPending && _agent.remainingDistance < 0.5f)
         {
-            ChangeState(AIState.Patrol);
+            ChangeState(AIState.Chase);
         }
     }
 
@@ -152,30 +214,6 @@ public class EnemyAI : MonoBehaviour
 
     private void CheckFlashlight()
     {
-        //if (_playerFlashlight == null || !_playerFlashlight.IsOn()) return;
-
-        //float distanceToPlayer = Vector3.Distance(transform.position, _playerTransform.position);
-        //if (distanceToPlayer > _flashlightRepelDistance) return;
-
-        //// Verificar si la linterna apunta hacia la nena
-        //Vector3 directionToEnemy = (transform.position - _playerTransform.position).normalized;
-        //float angle = Vector3.Angle(_playerTransform.forward, directionToEnemy);
-
-        //if (angle < 30f)
-        //{
-        //    // La linterna apunta a la nena, alejarse
-        //    Vector3 fleeDirection = (transform.position - _playerTransform.position).normalized;
-        //    Vector3 fleeTarget = transform.position + fleeDirection * _flashlightRepelDistance;
-
-        //    NavMeshHit hit;
-        //    if (NavMesh.SamplePosition(fleeTarget, out hit, _flashlightRepelDistance, NavMesh.AllAreas))
-        //    {
-        //        _agent.SetDestination(hit.position);
-        //    }
-
-        //    ChangeState(AIState.Patrol);
-        //}
-
         if (PlayerTarget.Instance.Flashlight == null || !PlayerTarget.Instance.Flashlight.IsOn()) return;
 
         Transform target = PlayerTarget.Instance.PlayerTransform;
@@ -196,20 +234,14 @@ public class EnemyAI : MonoBehaviour
                 _agent.SetDestination(hit.position);
             }
 
-            ChangeState(AIState.Patrol);
+            ChangeState(AIState.Investigate);
         }
     }
 
     private void ChangeState(AIState newState)
     {
         if (_currentState == newState) return;
-
         _currentState = newState;
-
-        if (_currentState == AIState.Patrol)
-        {
-            _agent.SetDestination(_patrolWaypoints[_currentWaypointIndex].position);
-        }
     }
 
     private void HandleChase()
@@ -254,6 +286,7 @@ public class EnemyAI : MonoBehaviour
     {
         _playerInSafeZone = value;
     }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
