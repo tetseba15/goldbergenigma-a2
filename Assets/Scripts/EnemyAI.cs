@@ -5,12 +5,8 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class EnemyAI : MonoBehaviour
 {
-    [Header("Speed settings")]
-    [SerializeField, Tooltip("Patrol speed")]
-    private float _patrolSpeed = 2f;
-
-    [SerializeField, Tooltip("Chase speed")]
-    private float _chaseSpeed = 5.5f;
+    [Header("Enemy Data")]
+    [SerializeField] private EnemyData _data;
 
     public enum AIState { Patrol, Chase, Idle, Investigate }
 
@@ -22,10 +18,6 @@ public class EnemyAI : MonoBehaviour
     [Space(20)]
     [SerializeField] private Transform[] _patrolWaypoints;
 
-    [Header("Vision Settings")]
-    [SerializeField, Range(1f, 50f)] private float _viewRadious = 15f;
-    [SerializeField, Range(1f, 360f)] private float _viewAngle = 90f;
-
     [Space(10)]
     [SerializeField] private LayerMask _obstacleMask;
 
@@ -34,19 +26,8 @@ public class EnemyAI : MonoBehaviour
     private AIState _currentState;
     private int _currentWaypointIndex;
     private bool _playerInSafeZone = false;
-
-    [Header("Flashlight Settings")]
-    [SerializeField] private float _flashlightRepelDistance = 10f;
-
-    [Header("Teleport Settings")]
-    [SerializeField] private float _minTeleportDistance = 8f;
-    [SerializeField] private float _maxTeleportDistance = 15f;
     private int _noSpawnAreaMask;
     private SpawnZone[] _spawnZones;
-
-    [Header("Appear Settings")]
-    [SerializeField] private float _minAppearDuration = 20f;
-    [SerializeField] private float _maxAppearDuration = 40f;
     private float _appearTimer = 0f;
     private float _currentAppearDuration;
 
@@ -57,7 +38,7 @@ public class EnemyAI : MonoBehaviour
     {
         NoiseManager.OnNoiseEmitted += HearNoise;
         _appearTimer = 0f;
-        _currentAppearDuration = UnityEngine.Random.Range(_minAppearDuration, _maxAppearDuration);
+        _currentAppearDuration = UnityEngine.Random.Range(_data.minAppearDuration, _data.maxAppearDuration);
     }
 
     private void OnDisable()
@@ -133,7 +114,7 @@ public class EnemyAI : MonoBehaviour
         for (int i = 0; i < 10; i++)
         {
             float angle = UnityEngine.Random.Range(0f, 360f) * Mathf.Deg2Rad;
-            float distance = UnityEngine.Random.Range(_minTeleportDistance, _maxTeleportDistance);
+            float distance = UnityEngine.Random.Range(_data.minTeleportDistance, _data.maxTeleportDistance);
 
             Vector3 offset = new Vector3(Mathf.Sin(angle) * distance, 0f, Mathf.Cos(angle) * distance);
             Vector3 candidatePos = player.position + offset;
@@ -174,9 +155,9 @@ public class EnemyAI : MonoBehaviour
         Vector3 directionToPlayer = target.position - transform.position;
         float sqrDistanceToPlayer = directionToPlayer.sqrMagnitude;
 
-        if (sqrDistanceToPlayer <= (_viewRadious * _viewRadious))
+        if (sqrDistanceToPlayer <= (_data.viewRadius * _data.viewRadius))
         {
-            if (Vector3.Angle(transform.forward, directionToPlayer) < _viewAngle / 2f)
+            if (Vector3.Angle(transform.forward, directionToPlayer) < _data.viewAngle / 2f)
             {
                 float distanceToPlayer = Mathf.Sqrt(sqrDistanceToPlayer);
                 if (!Physics.Raycast(transform.position, directionToPlayer.normalized, distanceToPlayer, _obstacleMask))
@@ -190,7 +171,7 @@ public class EnemyAI : MonoBehaviour
 
     private void HandleInvestigate()
     {
-        _agent.speed = _patrolSpeed;
+        _agent.speed = _data.patrolSpeed;
         _agent.SetDestination(_investigateTarget);
 
         if (!_agent.pathPending && _agent.remainingDistance < 0.5f)
@@ -219,7 +200,7 @@ public class EnemyAI : MonoBehaviour
         Transform target = PlayerTarget.Instance.PlayerTransform;
         float sqrDistanceToPlayer = (transform.position - target.position).sqrMagnitude;
 
-        if (sqrDistanceToPlayer > (_flashlightRepelDistance * _flashlightRepelDistance)) return;
+        if (sqrDistanceToPlayer > (_data.flashlightRepelDistance * _data.flashlightRepelDistance)) return;
 
         Vector3 directionToEnemy = (transform.position - target.position).normalized;
         float angle = Vector3.Angle(target.forward, directionToEnemy);
@@ -227,9 +208,9 @@ public class EnemyAI : MonoBehaviour
         if (angle < 30f)
         {
             Vector3 fleeDirection = (transform.position - target.position).normalized;
-            Vector3 fleeTarget = transform.position + fleeDirection * _flashlightRepelDistance;
+            Vector3 fleeTarget = transform.position + fleeDirection * _data.flashlightRepelDistance;
 
-            if (NavMesh.SamplePosition(fleeTarget, out NavMeshHit hit, _flashlightRepelDistance, NavMesh.AllAreas))
+            if (NavMesh.SamplePosition(fleeTarget, out NavMeshHit hit, _data.flashlightRepelDistance, NavMesh.AllAreas))
             {
                 _agent.SetDestination(hit.position);
             }
@@ -246,7 +227,7 @@ public class EnemyAI : MonoBehaviour
 
     private void HandleChase()
     {
-        _agent.speed = _chaseSpeed;
+        _agent.speed = _data.chaseSpeed;
         _agent.SetDestination(PlayerTarget.Instance.PlayerTransform.position);
     }
 
@@ -254,7 +235,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (_patrolWaypoints.Length == 0) return;
 
-        _agent.speed = _patrolSpeed;
+        _agent.speed = _data.patrolSpeed;
 
         if (!_agent.pathPending && _agent.remainingDistance < 0.5f)
         {
@@ -298,15 +279,17 @@ public class EnemyAI : MonoBehaviour
     #region Debug Gizmos
     private void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, _viewRadious);
+        if (_data == null) return;
 
-        Vector3 viewAngleLeft = DirFromAngle(transform.eulerAngles.y, -_viewAngle / 2f);
-        Vector3 viewAngleRight = DirFromAngle(transform.eulerAngles.y, _viewAngle / 2f);
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, _data.viewRadius);
+
+        Vector3 viewAngleLeft = DirFromAngle(transform.eulerAngles.y, -_data.viewAngle / 2f);
+        Vector3 viewAngleRight = DirFromAngle(transform.eulerAngles.y, _data.viewAngle / 2f);
 
         Gizmos.color = Color.blue;
-        Gizmos.DrawLine(transform.position, transform.position + viewAngleLeft * _viewAngle);
-        Gizmos.DrawLine(transform.position, transform.position + viewAngleRight * _viewAngle);
+        Gizmos.DrawLine(transform.position, transform.position + viewAngleLeft * _data.viewAngle);
+        Gizmos.DrawLine(transform.position, transform.position + viewAngleRight * _data.viewAngle);
 
         if (PlayerTarget.Instance != null && PlayerTarget.Instance.PlayerTransform != null && _currentState == AIState.Chase)
         {
