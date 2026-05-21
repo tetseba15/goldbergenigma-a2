@@ -224,6 +224,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1437114420486906927}
   - component: {fileID: 29156177150452168}
+  - component: {fileID: 5510738027739567238}
   - component: {fileID: 6980403248561330221}
   m_Layer: 5
   m_Name: BottleHolyWater
@@ -259,6 +260,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2478271089021950485}
   m_CullTransparentMesh: 1
+--- !u!114 &5510738027739567238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2478271089021950485}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f30d13172d08b8c41a4c86ef9d458402, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SliderBottleHoly
+  BottleHolyWaterSlider: {fileID: 6980403248561330221}
 --- !u!114 &6980403248561330221
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -793,6 +807,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3278115075934390978, guid: 3518603ad10f33e4b8953acc4ffa57b4, type: 3}
+      propertyPath: m_Value
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6285029932091815288, guid: 3518603ad10f33e4b8953acc4ffa57b4, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -816,8 +834,22 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1379897243721221563, guid: 3518603ad10f33e4b8953acc4ffa57b4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6766505987976523651}
   m_SourcePrefab: {fileID: 100100000, guid: 3518603ad10f33e4b8953acc4ffa57b4, type: 3}
+--- !u!114 &5681774023255567106 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3278115075934390978, guid: 3518603ad10f33e4b8953acc4ffa57b4, type: 3}
+  m_PrefabInstance: {fileID: 7180852261241528768}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8107009494012650619}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Slider
 --- !u!114 &7217068923298764507 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 544846388226651931, guid: 3518603ad10f33e4b8953acc4ffa57b4, type: 3}
@@ -829,6 +861,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+--- !u!1 &8107009494012650619 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1379897243721221563, guid: 3518603ad10f33e4b8953acc4ffa57b4, type: 3}
+  m_PrefabInstance: {fileID: 7180852261241528768}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6766505987976523651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8107009494012650619}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9d28d2a702190141af66dc4d2eb6d8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UITorch
+  BatterySlider: {fileID: 5681774023255567106}
 --- !u!224 &9000503571081608652 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2256221338067311628, guid: 3518603ad10f33e4b8953acc4ffa57b4, type: 3}
