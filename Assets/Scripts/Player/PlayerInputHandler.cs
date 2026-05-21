@@ -13,6 +13,7 @@ public class PlayerInputHandler : MonoBehaviour
     public bool IsSprinting { get; private set; }
     public bool IsCrouching { get; private set; }
     public bool IsInteracting { get; private set; }
+    public bool IsInspectingFlashlight { get; private set; }
     public bool CancelInput { get; private set; }
     public bool FlashlightInput { get; private set; }
 
@@ -30,6 +31,9 @@ public class PlayerInputHandler : MonoBehaviour
 
         _inputActions.Gameplay.Crouch.performed += ctx => IsCrouching = true;
         _inputActions.Gameplay.Crouch.canceled += ctx => IsCrouching = false;
+
+        _inputActions.Gameplay.InspectFlashlight.performed += ctx => IsInspectingFlashlight= true;
+        _inputActions.Gameplay.InspectFlashlight.canceled += ctx => IsInspectingFlashlight = false;
     }
 
     private void OnEnable()
