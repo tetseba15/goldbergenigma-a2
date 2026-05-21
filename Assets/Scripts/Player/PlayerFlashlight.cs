@@ -7,6 +7,8 @@ public class PlayerFlashlight : MonoBehaviour
     [Header("References")]
     [SerializeField, Tooltip("The spotlight of the player")]
     private Light _lightComponent;
+    [SerializeField, Tooltip("Flashlight Mesh renderer")]
+    private MeshRenderer _flashlightMeshRenderer;
 
     [Header("Batery Settings")]
     [SerializeField] private float _maxBattery = 100f;
@@ -32,8 +34,11 @@ public class PlayerFlashlight : MonoBehaviour
         if (_lightComponent != null)
         {
             _baseIntensity = _lightComponent.intensity;
-            _lightComponent.enabled = false; 
+            _lightComponent.enabled = false;
         }
+
+        if (_flashlightMeshRenderer != null)
+            _flashlightMeshRenderer.enabled = false;
 
         _currentBattery = _maxBattery;
     }
@@ -71,7 +76,7 @@ public class PlayerFlashlight : MonoBehaviour
         {
             _currentBattery = 0f;
             TurnOff();
-            return; 
+            return;
         }
 
         if (_currentBattery <= _flickerThreshold)
@@ -90,6 +95,8 @@ public class PlayerFlashlight : MonoBehaviour
     {
         _isOn = true;
         _lightComponent.enabled = true;
+        if (_flashlightMeshRenderer != null)
+            _flashlightMeshRenderer.enabled = true;
         // On SFX
     }
 
@@ -97,6 +104,8 @@ public class PlayerFlashlight : MonoBehaviour
     {
         _isOn = false;
         _lightComponent.enabled = false;
+        if (_flashlightMeshRenderer != null)
+            _flashlightMeshRenderer.enabled = false;
         // Off SFX
     }
 
@@ -105,5 +114,5 @@ public class PlayerFlashlight : MonoBehaviour
     {
         _currentBattery = Mathf.Clamp(_currentBattery + amount, 0f, _maxBattery);
     }
-    
+
 }
