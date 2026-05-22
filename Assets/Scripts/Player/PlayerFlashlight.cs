@@ -1,14 +1,19 @@
 using UnityEngine;
+using System;
 
 [RequireComponent(typeof(PlayerInputHandler))]
 [RequireComponent(typeof(PlayerInventory))]
 public class PlayerFlashlight : MonoBehaviour
 {
+    //                0.0 a 1.0
+    public event Action<float> OnBatteryChanged;
+
     [Header("References")]
     [SerializeField, Tooltip("The spotlight of the player")]
     private Light _lightComponent;
     [SerializeField, Tooltip("Flashlight Mesh renderer")]
     private MeshRenderer _flashlightMeshRenderer;
+
 
     [Header("Batery Settings")]
     [SerializeField] private float _maxBattery = 100f;
@@ -16,6 +21,26 @@ public class PlayerFlashlight : MonoBehaviour
     private float _drainRate = 1f;
     [SerializeField, Tooltip("% when the flashlights begins to malfunction")]
     private float _flickerThreshold = 20f;
+
+
+    [Header("Inspection Animation")]
+    [SerializeField, Tooltip("Flashlight Model (child of camera)")]
+    private Transform _flashlightModel;
+
+    [SerializeField] private float _inspectSpeed = 8f;
+
+    [Space(10)]
+    [SerializeField] private Vector3 _normalLocalPosition;
+    [SerializeField] private Vector3 _inspectLocalPosition;
+
+    [Space(10)]
+    [SerializeField] private Vector3 _normalLocalRotationEuler;
+    [SerializeField] private Vector3 _inspectLocalRotationEuler;
+
+    private Quaternion _normalLocalRotation;
+    private Quaternion _inspectLocalRotation;
+
+
 
     private bool _isOn = false;
     public bool IsOn() => _isOn;
@@ -43,6 +68,19 @@ public class PlayerFlashlight : MonoBehaviour
         _currentBattery = _maxBattery;
     }
 
+    private void Start()
+    {
+        _normalLocalRotation = Quaternion.Euler(_normalLocalRotationEuler);
+        _inspectLocalRotation = Quaternion.Euler(_inspectLocalRotationEuler);
+
+        if (_flashlightModel != null)
+        {
+            _normalLocalPosition = _flashlightModel.localPosition;
+            _normalLocalRotationEuler = _flashlightModel.localEulerAngles;
+            _normalLocalRotation = _flashlightModel.localRotation;
+        }
+    }
+
     private void Update()
     {
         HandleToggle();
@@ -51,6 +89,8 @@ public class PlayerFlashlight : MonoBehaviour
         {
             DrainBattery();
         }
+
+        HandleInspection();
     }
 
     private void HandleToggle()
@@ -71,6 +111,10 @@ public class PlayerFlashlight : MonoBehaviour
     private void DrainBattery()
     {
         _currentBattery -= _drainRate * Time.deltaTime;
+        _currentBattery = Mathf.Clamp(_currentBattery, 0f, _maxBattery);
+
+
+        OnBatteryChanged?.Invoke(_currentBattery / _maxBattery);
 
         if (_currentBattery <= 0f)
         {
@@ -109,10 +153,23 @@ public class PlayerFlashlight : MonoBehaviour
         // Off SFX
     }
 
-    // Recharge bateries later?
     public void RechargeBattery(float amount)
     {
         _currentBattery = Mathf.Clamp(_currentBattery + amount, 0f, _maxBattery);
+    }
+
+    private void HandleInspection()
+    {
+        if (_flashlightModel == null) return;
+
+        bool isInspecting = _inputHandler.IsInspectingFlashlight;
+
+        // Destiny (transform & rotation) based on inspect bool
+        Vector3 targetPosition = isInspecting ? _inspectLocalPosition : _normalLocalPosition;
+        Quaternion targetRotation = isInspecting ? _inspectLocalRotation : _normalLocalRotation;
+
+        _flashlightModel.localPosition = Vector3.Lerp(_flashlightModel.localPosition, targetPosition, Time.deltaTime * _inspectSpeed);
+        _flashlightModel.localRotation = Quaternion.Lerp(_flashlightModel.localRotation, targetRotation, Time.deltaTime * _inspectSpeed);
     }
 
 }
