@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Scenes/CasaTestDupe/NavMesh-NavMesh Manager.asset.meta
+guid: ca6ba68683e7ee6468ebf360e146307e
+========
+guid: f6d845da54a062e43b7e1aca93075ab0
+>>>>>>>> personaje:Assets/Scenes/CasaTest/NavMesh-NavMesh Manager.asset.meta
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 23800000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
