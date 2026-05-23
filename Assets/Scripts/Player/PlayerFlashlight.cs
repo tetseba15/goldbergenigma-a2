@@ -65,7 +65,7 @@ public class PlayerFlashlight : MonoBehaviour
         }
 
         if (_flashlightMeshRenderer != null)
-            _flashlightMeshRenderer.enabled = false;
+            //_flashlightMeshRenderer.enabled = false;
 
         _currentBattery = _maxBattery;
     }
@@ -141,8 +141,8 @@ public class PlayerFlashlight : MonoBehaviour
     {
         _isOn = true;
         _lightComponent.enabled = true;
-        if (_flashlightMeshRenderer != null)
-            _flashlightMeshRenderer.enabled = true;
+        //if (_flashlightMeshRenderer != null)
+        //    _flashlightMeshRenderer.enabled = true;
         // On SFX
     }
 
@@ -150,8 +150,8 @@ public class PlayerFlashlight : MonoBehaviour
     {
         _isOn = false;
         _lightComponent.enabled = false;
-        if (_flashlightMeshRenderer != null)
-            _flashlightMeshRenderer.enabled = false;
+        //if (_flashlightMeshRenderer != null)
+        //    _flashlightMeshRenderer.enabled = false;
         // Off SFX
     }
 
