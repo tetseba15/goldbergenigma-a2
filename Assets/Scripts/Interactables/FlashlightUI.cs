@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class FlashlightUI : MonoBehaviour
 {
     [Header("References")]
-    private PlayerFlashlight _flashlightLogic;
+    [SerializeField] private PlayerFlashlight _flashlightLogic;
     [SerializeField] private Image _batteryLedBar;
 
     [Header("Colors")]
