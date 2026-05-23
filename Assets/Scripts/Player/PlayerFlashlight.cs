@@ -13,6 +13,8 @@ public class PlayerFlashlight : MonoBehaviour
     private Light _lightComponent;
     [SerializeField, Tooltip("Flashlight Mesh renderer")]
     private MeshRenderer _flashlightMeshRenderer;
+    [SerializeField, Tooltip("Flashlight Canvas")]
+    private Canvas _canvasIndicator;
 
 
     [Header("Batery Settings")]
