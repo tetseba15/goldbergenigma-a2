@@ -11,10 +11,12 @@ public class PlayerFlashlight : MonoBehaviour
     [Header("References")]
     [SerializeField, Tooltip("The spotlight of the player")]
     private Light _lightComponent;
-    [SerializeField, Tooltip("Flashlight Mesh renderer")]
-    private MeshRenderer _flashlightMeshRenderer;
-    [SerializeField, Tooltip("Flashlight Canvas")]
-    private Canvas _canvasIndicator;
+    //[SerializeField, Tooltip("Flashlight Mesh renderer")]
+    //private MeshRenderer _flashlightMeshRenderer;
+    //[SerializeField, Tooltip("Flashlight Canvas")]
+    //private Canvas _canvasIndicator;
+
+    [SerializeField] private GameObject _flashlight;
 
 
     [Header("Batery Settings")]
@@ -64,8 +66,8 @@ public class PlayerFlashlight : MonoBehaviour
             _lightComponent.enabled = false;
         }
 
-        if (_flashlightMeshRenderer != null)
-            //_flashlightMeshRenderer.enabled = false;
+        if (_flashlight != null)
+            _flashlight.SetActive(false);
 
         _currentBattery = _maxBattery;
     }
