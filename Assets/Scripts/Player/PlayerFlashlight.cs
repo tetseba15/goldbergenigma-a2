@@ -8,6 +8,9 @@ public class PlayerFlashlight : MonoBehaviour
     //                0.0 a 1.0
     public event Action<float> OnBatteryChanged;
 
+    [Header("Events / Tutorials")]
+    [SerializeField] private FlashlightTutorial _tutorialSystem;
+
     [Header("References")]
     [SerializeField, Tooltip("The spotlight of the player")]
     private Light _lightComponent;
@@ -165,6 +168,9 @@ public class PlayerFlashlight : MonoBehaviour
     public void PickupFlashlight()
     {
         _flashlight.SetActive(true);
+
+        if (_tutorialSystem != null)
+            _tutorialSystem.TriggerTutorial();
     }
 
     private void HandleInspection()
