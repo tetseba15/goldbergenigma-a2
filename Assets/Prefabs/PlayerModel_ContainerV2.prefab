@@ -2869,7 +2869,7 @@ GameObject:
   - component: {fileID: 5760819962537930827}
   - component: {fileID: 8019756045248205437}
   m_Layer: 3
-  m_Name: PlayerModel_Container VARIANT 1
+  m_Name: PlayerModel_ContainerV2
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
