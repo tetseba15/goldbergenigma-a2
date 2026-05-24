@@ -14,6 +14,8 @@ public class PlayerFlashlight : MonoBehaviour
     [Header("References")]
     [SerializeField, Tooltip("The spotlight of the player")]
     private Light _lightComponent;
+    [SerializeField, Tooltip("The pointlight of the player")]
+    private Light _pointLightComponent;
     //[SerializeField, Tooltip("Flashlight Mesh renderer")]
     //private MeshRenderer _flashlightMeshRenderer;
     //[SerializeField, Tooltip("Flashlight Canvas")]
@@ -67,6 +69,7 @@ public class PlayerFlashlight : MonoBehaviour
         {
             _baseIntensity = _lightComponent.intensity;
             _lightComponent.enabled = false;
+            _pointLightComponent.enabled = false;
         }
 
         if (_flashlight != null)
@@ -146,6 +149,8 @@ public class PlayerFlashlight : MonoBehaviour
     {
         _isOn = true;
         _lightComponent.enabled = true;
+        _pointLightComponent.enabled = true;
+
         //if (_flashlightMeshRenderer != null)
         //    _flashlightMeshRenderer.enabled = true;
         // On SFX
@@ -155,6 +160,8 @@ public class PlayerFlashlight : MonoBehaviour
     {
         _isOn = false;
         _lightComponent.enabled = false;
+        _pointLightComponent.enabled = false;
+
         //if (_flashlightMeshRenderer != null)
         //    _flashlightMeshRenderer.enabled = false;
         // Off SFX
