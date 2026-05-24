@@ -13,8 +13,16 @@ public class FlashlightTutorial : MonoBehaviour
     [SerializeField] private PlayerInputHandler _inputHandler;
     [SerializeField] private PlayerFlashlight _flashlight;
 
+    [Header("Text")]
+    [SerializeField, TextArea(0, 5)] 
+    private string toggleAndHoldText = "Press [F] to toggle flashlight\nHold [R] to check battery";
+    [SerializeField] private string toggleFlashlightText = "Press [F] to toggle flashlight";
+    [SerializeField] private string inspectBatteryText = "Hold [R] to check battery";
+
     [Header("Settings")]
     [SerializeField] private float _fadeSpeed = 3f;
+
+
 
     private bool _isActive = false;
     private bool _isCompleted = false;
@@ -73,15 +81,15 @@ public class FlashlightTutorial : MonoBehaviour
     {
         if (_hasToggledF && !_hasInspectedR)
         {
-            _tutorialText.text = "Hold [R] to check battery";
+            _tutorialText.text = inspectBatteryText;
         }
         else if (!_hasToggledF && _hasInspectedR)
         {
-            _tutorialText.text = "Press [F] to toggle flashlight";
+            _tutorialText.text = toggleFlashlightText;
         }
         else
         {
-            _tutorialText.text = "Press [F] to toggle flashlight\nHold [R] to check battery";
+            _tutorialText.text = toggleAndHoldText;
         }
     }
 
