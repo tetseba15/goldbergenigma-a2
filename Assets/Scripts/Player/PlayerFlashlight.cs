@@ -162,9 +162,16 @@ public class PlayerFlashlight : MonoBehaviour
         _currentBattery = Mathf.Clamp(_currentBattery + amount, 0f, _maxBattery);
     }
 
+    public void PickupFlashlight()
+    {
+        _flashlight.SetActive(true);
+    }
+
     private void HandleInspection()
     {
         if (_flashlightModel == null) return;
+
+        if (!IsOn() && !_inputHandler.IsInspectingFlashlight) return;
 
         bool isInspecting = _inputHandler.IsInspectingFlashlight;
 
