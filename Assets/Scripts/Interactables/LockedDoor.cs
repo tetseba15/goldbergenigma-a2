@@ -6,8 +6,10 @@ public class LockedDoor : MonoBehaviour, IInteractable
     [SerializeField] private PlayerInventory.ItemType _requiredKey = PlayerInventory.ItemType.MansionKey;
     [SerializeField] private string _lockedMessage = "Está cerrada con llave.";
     [SerializeField] private string _unlockedMessage = "Abrir puerta";
+    [SerializeField] private string _closedMessage = "Cerrar puerta";
 
-    private bool _isOpened = false;
+    private bool _isUnlocked = false;
+    private bool _isOpen = false;
 
     private Animator animator;
 
@@ -18,7 +20,9 @@ public class LockedDoor : MonoBehaviour, IInteractable
 
     public string GetInteractPrompt(GameObject interactor)
     {
-        if (_isOpened) return "";
+        if (_isOpen && _isUnlocked) return _closedMessage;
+        if (!_isOpen && _isUnlocked) return _unlockedMessage;
+
 
         PlayerInventory inventory = interactor.GetComponent<PlayerInventory>();
         if (inventory != null)
@@ -31,12 +35,24 @@ public class LockedDoor : MonoBehaviour, IInteractable
 
     public void Interact(GameObject interactor)
     {
-        if (_isOpened) return;
+        if (_isUnlocked)
+        {
+            if (!_isOpen)
+            {
+                OpenDoor();
+            }
+            else
+            {
+                CloseDoor();
+            }
+
+            return;
+        }
 
         PlayerInventory inventory = interactor.GetComponent<PlayerInventory>();
         if (inventory != null && inventory.HasItem(_requiredKey))
         {
-            OpenDoor();
+            UnlockDoor();
         }
         else
         {
@@ -44,13 +60,24 @@ public class LockedDoor : MonoBehaviour, IInteractable
         }
     }
 
+    private void UnlockDoor()
+    {
+        _isUnlocked = true;
+        OpenDoor();
+        Debug.Log("Puerta abierta. Bienvenido a la mansión.");
+    }
+
     private void OpenDoor()
     {
-        _isOpened = true;
-        Debug.Log("Puerta abierta. Bienvenido a la mansión.");
-
         // Animation?
         animator.SetTrigger("Open");
+        _isOpen = true;
         //transform.Rotate(0, -90, 0);
+    }
+
+    private void CloseDoor()
+    {
+        animator.SetTrigger("Close");
+        _isOpen = false;
     }
 }
