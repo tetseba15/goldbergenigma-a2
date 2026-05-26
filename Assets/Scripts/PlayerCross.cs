@@ -2,29 +2,30 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class HolyWaterController : MonoBehaviour
+public class CrossController : MonoBehaviour
 {
     [Header("Referencias")]
     [SerializeField] private PlayerInventory _inventory;
-    [SerializeField] private GameObject _bottleVisual;
-    [SerializeField] private Animator _bottleAnimator;
+    [SerializeField] private GameObject _crossVisual;
+    [SerializeField] private Animator _crossAnimator;
 
-    
     [Header("Audio")]
-    [SerializeField] private AudioSource _audioSource;   
-    [SerializeField] private AudioClip _throwSound;     
+    [SerializeField] private AudioSource _audioSource;
+    [SerializeField] private AudioClip _crossSound;
 
     [Header("Configuración")]
     [SerializeField] private float _animationDuration;
     [SerializeField] private float _effectDistance;
+    
+    [SerializeField] private float _stunDuration;
 
     private bool _isUsing = false;
 
     void Start()
     {
-        if (_bottleVisual != null)
+        if (_crossVisual != null)
         {
-            _bottleVisual.SetActive(false);
+            _crossVisual.SetActive(false);
         }
     }
 
@@ -32,31 +33,31 @@ public class HolyWaterController : MonoBehaviour
     {
         if (Keyboard.current == null) return;
 
-        if (Keyboard.current.rKey.wasPressedThisFrame)
+        
+        if (Keyboard.current.cKey.wasPressedThisFrame)
         {
-            bool tieneItem = _inventory.HasItem(PlayerInventory.ItemType.Bottle);
+            bool tieneItem = _inventory.HasItem(PlayerInventory.ItemType.Cross);
 
             if (tieneItem && !_isUsing)
             {
-                StartCoroutine(UseHolyWaterRoutine());
+                StartCoroutine(UseCrossRoutine());
             }
         }
     }
 
-    private IEnumerator UseHolyWaterRoutine()
+    private IEnumerator UseCrossRoutine()
     {
         _isUsing = true;
-        _bottleVisual.SetActive(true);
+        _crossVisual.SetActive(true);
 
-        
-        if (_audioSource != null && _throwSound != null)
+        if (_audioSource != null && _crossSound != null)
         {
-            _audioSource.PlayOneShot(_throwSound);
+            _audioSource.PlayOneShot(_crossSound);
         }
 
-        if (_bottleAnimator != null)
+        if (_crossAnimator != null)
         {
-            _bottleAnimator.SetTrigger("Throw");
+            _crossAnimator.SetTrigger("Cross");
         }
 
         GameObject enemyObject = GameObject.FindWithTag("Enemy");
@@ -69,13 +70,13 @@ public class HolyWaterController : MonoBehaviour
                 EnemyAI enemyAI = enemyObject.GetComponent<EnemyAI>();
                 if (enemyAI != null)
                 {
-                    enemyAI.HolyWaterImpact();
+                    enemyAI.CrossImpact(_stunDuration);
                 }
             }
         }
 
         yield return new WaitForSeconds(_animationDuration);
-        _bottleVisual.SetActive(false);
+        _crossVisual.SetActive(false);
         _isUsing = false;
     }
 }

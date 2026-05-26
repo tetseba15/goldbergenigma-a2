@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -18,7 +19,6 @@ public class EnemyAI : MonoBehaviour
     [Space(20)]
     [SerializeField] private Transform[] _patrolWaypoints;
 
-    
     [Header("Enemy Spawns Points")]
     [SerializeField] private Transform[] _enemySpawnPoints;
 
@@ -35,6 +35,9 @@ public class EnemyAI : MonoBehaviour
     private AIState _currentState;
     private int _currentWaypointIndex;
     private bool _playerInSafeZone = false;
+
+    
+    private bool _isStunned = false;
 
     [Header("Flashlight Settings")]
     [SerializeField] private PlayerFlashlight _playerFlashlight;
@@ -62,6 +65,12 @@ public class EnemyAI : MonoBehaviour
 
     void Update()
     {
+        if (_isStunned)
+        {
+            _animator.SetFloat("Speed", 0f);
+            return;
+        }
+
         CheckSensors();
         CheckFlashlight();
 
@@ -89,10 +98,38 @@ public class EnemyAI : MonoBehaviour
 
         if (_enemySpawnPoints != null && _enemySpawnPoints.Length > 0)
         {
-            
             int indiceAleatorio = UnityEngine.Random.Range(0, _enemySpawnPoints.Length);
             _agent.Warp(_enemySpawnPoints[indiceAleatorio].position);
         }
+
+        ChangeState(AIState.Patrol);
+    }
+
+    
+    public void CrossImpact(float duration)
+    {
+        StartCoroutine(StunRoutine(duration));
+    }
+
+    
+    private IEnumerator StunRoutine(float duration)
+    {
+        _isStunned = true;
+        _agent.isStopped = true;      
+        _agent.velocity = Vector3.zero; 
+
+        if (_enemyAudioSource != null && _hurtSound != null)
+        {
+            _enemyAudioSource.PlayOneShot(_hurtSound);
+        }
+
+        
+        yield return new WaitForSeconds(duration);
+
+        
+        _isStunned = false;
+        _agent.isStopped = false;
+
         
         ChangeState(AIState.Patrol);
     }
@@ -129,13 +166,11 @@ public class EnemyAI : MonoBehaviour
         float distanceToPlayer = Vector3.Distance(transform.position, _playerTransform.position);
         if (distanceToPlayer > _flashlightRepelDistance) return;
 
-        // Verificar si la linterna apunta hacia la nena
         Vector3 directionToEnemy = (transform.position - _playerTransform.position).normalized;
         float angle = Vector3.Angle(_playerTransform.forward, directionToEnemy);
 
         if (angle < 30f)
         {
-            // La linterna apunta a la nena, alejarse
             Vector3 fleeDirection = (transform.position - _playerTransform.position).normalized;
             Vector3 fleeTarget = transform.position + fleeDirection * _flashlightRepelDistance;
 
@@ -206,7 +241,8 @@ public class EnemyAI : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        
+        if (other.CompareTag("Player") && !_isStunned)
         {
             GameManager.Instance.GameOver();
         }
