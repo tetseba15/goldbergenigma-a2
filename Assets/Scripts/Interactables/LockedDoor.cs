@@ -9,7 +9,12 @@ public class LockedDoor : MonoBehaviour, IInteractable
 
     private bool _isOpened = false;
 
-   
+    private Animator animator;
+
+    private void Awake()
+    {
+        animator = GetComponent<Animator>();
+    }
 
     public string GetInteractPrompt(GameObject interactor)
     {
@@ -45,6 +50,7 @@ public class LockedDoor : MonoBehaviour, IInteractable
         Debug.Log("Puerta abierta. Bienvenido a la mansión.");
 
         // Animation?
-        transform.Rotate(0, -90, 0); 
+        animator.SetTrigger("Open");
+        //transform.Rotate(0, -90, 0);
     }
 }
