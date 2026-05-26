@@ -48,9 +48,53 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -8068073526183931155, guid: fb282e6bb856eef41974ef7ed7e20ef5, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -7860152931066024033, guid: fb282e6bb856eef41974ef7ed7e20ef5, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: -3111565609762313623, guid: fb282e6bb856eef41974ef7ed7e20ef5, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: -398176645237113288, guid: fb282e6bb856eef41974ef7ed7e20ef5, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: fb282e6bb856eef41974ef7ed7e20ef5, type: 3}
       propertyPath: m_Name
       value: Door
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: fb282e6bb856eef41974ef7ed7e20ef5, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2573099123803100983, guid: fb282e6bb856eef41974ef7ed7e20ef5, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2691656108838891525, guid: fb282e6bb856eef41974ef7ed7e20ef5, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 6238047943373692249, guid: fb282e6bb856eef41974ef7ed7e20ef5, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7540319116422617008, guid: fb282e6bb856eef41974ef7ed7e20ef5, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7564565462159474107, guid: fb282e6bb856eef41974ef7ed7e20ef5, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8843422302210820390, guid: fb282e6bb856eef41974ef7ed7e20ef5, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -62,6 +106,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: fb282e6bb856eef41974ef7ed7e20ef5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7980323738366217224}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: fb282e6bb856eef41974ef7ed7e20ef5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5202119278018389074}
+    - targetCorrespondingSourceObject: {fileID: -8068073526183931155, guid: fb282e6bb856eef41974ef7ed7e20ef5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5281655839301045609}
   m_SourcePrefab: {fileID: 100100000, guid: fb282e6bb856eef41974ef7ed7e20ef5, type: 3}
 --- !u!1 &5466205337562938652 stripped
 GameObject:
@@ -102,6 +152,54 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67b1913c965ca3548bda226e5b247600, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LockedDoor
-  _requiredKey: 2
+  _requiredKey: 0
   _lockedMessage: "Est\xE1 cerrada con llave."
   _unlockedMessage: Abrir puerta
+  _closedMessage: Cerrar puerta
+--- !u!65 &5202119278018389074
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5466205337562938652}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.0253296, y: 2.084648, z: 0.087753296}
+  m_Center: {x: 0.44680786, y: 1.0485169, z: 0.034080505}
+--- !u!1 &6274293581953340064 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -8068073526183931155, guid: fb282e6bb856eef41974ef7ed7e20ef5, type: 3}
+  m_PrefabInstance: {fileID: 5123606653434150989}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &5281655839301045609
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6274293581953340064}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.04108561, y: 0.021773592, z: 0.0012534271}
+  m_Center: {x: 0.020607743, y: -0.010886796, z: 0.00062671356}
