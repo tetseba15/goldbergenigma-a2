@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -26,10 +27,15 @@ public class EnemyAI : MonoBehaviour
     private AIState _currentState;
     private int _currentWaypointIndex;
     private bool _playerInSafeZone = false;
+    private bool _isStunned = false;
     private int _noSpawnAreaMask;
     private SpawnZone[] _spawnZones;
     private float _appearTimer = 0f;
     private float _currentAppearDuration;
+
+    [Header("Audio Settings")]
+    [SerializeField] private AudioSource _enemyAudioSource;
+    [SerializeField] private AudioClip _hurtSound;
 
     [Header("Spawn Settings")]
     [SerializeField] private EnemySpawnEnabler _spawnEnabler;
@@ -67,6 +73,12 @@ public class EnemyAI : MonoBehaviour
 
     void Update()
     {
+        if (_isStunned)
+        {
+            _animator.SetFloat("Speed", 0f);
+            return;
+        }
+
         if (PlayerTarget.Instance == null)
         {
             if (_currentState == AIState.Chase) ChangeState(AIState.Patrol);
@@ -103,6 +115,40 @@ public class EnemyAI : MonoBehaviour
 
         _animator.SetFloat("Speed", _agent.velocity.magnitude / _agent.speed);
         UpdateLookAt();
+    }
+
+    public void HolyWaterImpact()
+    {
+        if (_enemyAudioSource != null && _hurtSound != null)
+        {
+            _enemyAudioSource.PlayOneShot(_hurtSound);
+        }
+
+        TeleportNearPlayer();
+    }
+
+    public void CrossImpact(float duration)
+    {
+        StartCoroutine(StunRoutine(duration));
+    }
+
+    private IEnumerator StunRoutine(float duration)
+    {
+        _isStunned = true;
+        _agent.isStopped = true;
+        _agent.velocity = Vector3.zero;
+
+        if (_enemyAudioSource != null && _hurtSound != null)
+        {
+            _enemyAudioSource.PlayOneShot(_hurtSound);
+        }
+
+        yield return new WaitForSeconds(duration);
+
+        _isStunned = false;
+        _agent.isStopped = false;
+
+        ChangeState(AIState.Patrol);
     }
 
     private void TeleportNearPlayer()
@@ -270,7 +316,7 @@ public class EnemyAI : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") && !_isStunned)
         {
             GameManager.Instance.GameOver();
         }

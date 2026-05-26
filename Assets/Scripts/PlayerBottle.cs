@@ -32,7 +32,7 @@ public class HolyWaterController : MonoBehaviour
     {
         if (Keyboard.current == null) return;
 
-        if (Keyboard.current.rKey.wasPressedThisFrame)
+        if (Keyboard.current.qKey.wasPressedThisFrame)
         {
             bool tieneItem = _inventory.HasItem(PlayerInventory.ItemType.Bottle);
 
@@ -69,7 +69,7 @@ public class HolyWaterController : MonoBehaviour
                 EnemyAI enemyAI = enemyObject.GetComponent<EnemyAI>();
                 if (enemyAI != null)
                 {
-                    //enemyAI.HolyWaterImpact();
+                  enemyAI.HolyWaterImpact(); //volver a poner en caso de emergencia
                 }
             }
         }
