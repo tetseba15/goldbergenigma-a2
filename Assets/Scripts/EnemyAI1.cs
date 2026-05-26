@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
-public class EnemyAI : MonoBehaviour
+public class EnemyAI1 : MonoBehaviour
 {
     [Header("Speed settings")]
     [SerializeField, Tooltip("Patrol speed")] private float _patrolSpeed = 2f;

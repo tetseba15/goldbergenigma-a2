@@ -69,7 +69,7 @@ public class HolyWaterController : MonoBehaviour
                 EnemyAI enemyAI = enemyObject.GetComponent<EnemyAI>();
                 if (enemyAI != null)
                 {
-                    enemyAI.HolyWaterImpact();
+                    //enemyAI.HolyWaterImpact();
                 }
             }
         }

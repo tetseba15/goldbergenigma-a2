@@ -70,7 +70,7 @@ public class CrossController : MonoBehaviour
                 EnemyAI enemyAI = enemyObject.GetComponent<EnemyAI>();
                 if (enemyAI != null)
                 {
-                    enemyAI.CrossImpact(_stunDuration);
+                    //enemyAI.CrossImpact(_stunDuration);
                 }
             }
         }
