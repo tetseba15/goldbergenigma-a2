@@ -17,7 +17,7 @@ MonoBehaviour:
   viewRadius: 15
   viewAngle: 90
   flashlightRepelDistance: 10
-  minTeleportDistance: 8
-  maxTeleportDistance: 15
+  minTeleportDistance: 16
+  maxTeleportDistance: 30
   minAppearDuration: 20
   maxAppearDuration: 40
