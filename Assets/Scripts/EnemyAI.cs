@@ -42,6 +42,8 @@ public class EnemyAI : MonoBehaviour
     private float _timeSinceLastSeen = 0f;
     private Vector3 _lastKnownPosition;
 
+    private bool _hasBeenBlindedByFlashlight = false;
+
     // Spawn / Teleport variables
     private int _noSpawnAreaMask;
     private SpawnZone[] _spawnZones;
@@ -67,6 +69,7 @@ public class EnemyAI : MonoBehaviour
     {
         NoiseManager.OnNoiseEmitted += HearNoise;
         _appearTimer = 0f;
+        _hasBeenBlindedByFlashlight = false; 
 
         if (_data != null)
             _currentAppearDuration = UnityEngine.Random.Range(_data.minAppearDuration, _data.maxAppearDuration);
@@ -98,6 +101,8 @@ public class EnemyAI : MonoBehaviour
             if (_currentState == AIState.Chase) ChangeState(AIState.Patrol);
             return;
         }
+
+        if (HandleSpawnTimer()) return;
 
         HandleSpawnTimer();
 
@@ -277,6 +282,14 @@ public class EnemyAI : MonoBehaviour
 
         if (angle < 30f)
         {
+            if (!_hasBeenBlindedByFlashlight)
+            {
+                _hasBeenBlindedByFlashlight = true;
+
+                StartCoroutine(EnragePlayerRoutine(4f));
+                return;
+            }
+
             Vector3 fleeDirection = (transform.position - target.position).normalized;
             Vector3 fleeTarget = transform.position + fleeDirection * _data.flashlightRepelDistance;
 
@@ -314,6 +327,23 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    private IEnumerator EnragePlayerRoutine(float duration)
+    {
+        _currentState = AIState.Spotted;
+        _agent.isStopped = true;
+        _agent.velocity = Vector3.zero;
+
+        if (_audioManager != null) _audioManager.PlayEnraged();
+
+        // Trigger the panic events on player (Camera shake, slow down, and long flicker)
+        OnEnemyRoaring?.Invoke(duration);
+
+        yield return new WaitForSeconds(duration);
+
+        _agent.isStopped = false;
+        ChangeState(AIState.Chase); 
+    }
+
     private IEnumerator SpotPlayerRoutine()
     {
         _currentState = AIState.Spotted;
@@ -337,7 +367,7 @@ public class EnemyAI : MonoBehaviour
 
     #region Spawning & Utilities
 
-    private void HandleSpawnTimer()
+    private bool HandleSpawnTimer()
     {
         if (_spawnEnabler != null)
         {
@@ -346,8 +376,10 @@ public class EnemyAI : MonoBehaviour
             {
                 _appearTimer = 0f;
                 _spawnEnabler.DespawnEnemy();
+                return true; 
             }
         }
+        return false; 
     }
 
     private void TeleportNearPlayer()
