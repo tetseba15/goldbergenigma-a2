@@ -154,7 +154,19 @@ public class EnemyAI : MonoBehaviour
         }
 
         _animator.SetFloat("Speed", _agent.velocity.magnitude / _agent.speed);
+
+        if (_agent.velocity.magnitude > 0.1f)
+        {
+            
+            _animator.speed = _agent.velocity.magnitude / _data.patrolSpeed;
+        }
+        else
+        {
+            _animator.speed = 1f;
+        }
+
         UpdateLookAt();
+    
     }
 
     

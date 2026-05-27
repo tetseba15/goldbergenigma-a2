@@ -10,7 +10,7 @@ public class EnemyAudioManager : MonoBehaviour
 
     [Header("Voice Clips")]
     [SerializeField] private AudioClip _idleBreathingLoop;
-    [SerializeField] private AudioClip _attackRoar;
+    [SerializeField] private AudioClip[] _attackRoars;
     [SerializeField] private AudioClip _hurtClip;
     [SerializeField] private AudioClip _enragedClip;
 
@@ -40,6 +40,7 @@ public class EnemyAudioManager : MonoBehaviour
     {
         if (_voiceSource.clip != _idleBreathingLoop)
         {
+            _voiceSource.pitch = 1f;
             _voiceSource.clip = _idleBreathingLoop;
             _voiceSource.loop = true;
             _voiceSource.maxDistance = _whisperMaxDistance; 
@@ -50,8 +51,11 @@ public class EnemyAudioManager : MonoBehaviour
     public void PlayAttack()
     {
         _voiceSource.loop = false;
-        _voiceSource.maxDistance = _shoutMaxDistance; 
-        _voiceSource.PlayOneShot(_attackRoar);
+        _voiceSource.maxDistance = _shoutMaxDistance;
+        _voiceSource.pitch = Random.Range(0.9f, 1.1f);
+
+        AudioClip randomRoar = _attackRoars[Random.Range(0, _attackRoars.Length)];
+        _voiceSource.PlayOneShot(randomRoar);
     }
 
     public void PlayHurt()
@@ -59,8 +63,9 @@ public class EnemyAudioManager : MonoBehaviour
         // Anti-spam protection
         if (Time.time - _lastHurtTime < _hurtCooldown) return;
 
-        _lastHurtTime = Time.time; 
+        _lastHurtTime = Time.time;
 
+        _voiceSource.pitch = 1f;
         _voiceSource.loop = false;
         _voiceSource.maxDistance = _shoutMaxDistance; 
         _voiceSource.PlayOneShot(_hurtClip);
@@ -68,6 +73,7 @@ public class EnemyAudioManager : MonoBehaviour
 
     public void PlayEnraged()
     {
+        _voiceSource.pitch = 1f;
         _voiceSource.loop = false;
         _voiceSource.maxDistance = _shoutMaxDistance;
         _voiceSource.PlayOneShot(_enragedClip);

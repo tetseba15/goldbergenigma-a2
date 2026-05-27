@@ -1122,7 +1122,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6574343732074605298
 Transform:
   m_ObjectHideFlags: 0
@@ -1236,6 +1236,10 @@ MonoBehaviour:
   _lookAtTarget: {fileID: 0}
   _audioManager: {fileID: 150932740410148411}
   _spawnEnabler: {fileID: 0}
+  _spottedRoarDuration: 2
+  _enragedRoarDuration: 3
+  _invulnerabilityDuration: 8
+  _fleeDuration: 3
   _patrolWaypoints: []
   _obstacleMask:
     serializedVersion: 2
@@ -1876,15 +1880,20 @@ MonoBehaviour:
   _voiceSource: {fileID: 4491130949441509164}
   _footstepSource: {fileID: 1907102570093764019}
   _idleBreathingLoop: {fileID: 8300000, guid: 39bfd4e9c24ab294b8ba7e488161a4a0, type: 3}
-  _attackRoar: {fileID: 8300000, guid: 17a614b882be47b45987b25bcd15c116, type: 3}
+  _attackRoars:
+  - {fileID: 8300000, guid: e3a1f6e47d656364095392d93348532e, type: 3}
+  - {fileID: 8300000, guid: bbb4a4271703f2646b6967424198999f, type: 3}
   _hurtClip: {fileID: 8300000, guid: 96764f03acda53e4c8cb84861e166042, type: 3}
-  _enragedClip: {fileID: 8300000, guid: e3a1f6e47d656364095392d93348532e, type: 3}
+  _enragedClip: {fileID: 8300000, guid: 22647f6a58df0224cacf8c3e3318a7c4, type: 3}
   _footstepClips:
   - {fileID: 8300000, guid: 7767c40be1c488042ad1b8c0cb3fa0f8, type: 3}
   - {fileID: 8300000, guid: 01e04de7b333dd54aaa736bb3d63417a, type: 3}
   - {fileID: 8300000, guid: fbf811469c6074448815d805a2ebd1b8, type: 3}
   - {fileID: 8300000, guid: c4f8c3f6a78f69842ad964fe320da402, type: 3}
   - {fileID: 8300000, guid: 930ace304accf3a47b13b6891ffadf68, type: 3}
+  _whisperMaxDistance: 18
+  _shoutMaxDistance: 35
+  _hurtCooldown: 1.5
 --- !u!1 &4249129635511087112
 GameObject:
   m_ObjectHideFlags: 0
