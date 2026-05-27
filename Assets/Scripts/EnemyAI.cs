@@ -104,7 +104,6 @@ public class EnemyAI : MonoBehaviour
 
         if (HandleSpawnTimer()) return;
 
-        HandleSpawnTimer();
 
         // Control de Tiempos
         if (_currentState == AIState.Fleeing)
@@ -400,39 +399,21 @@ public class EnemyAI : MonoBehaviour
     private void TeleportNearPlayer()
     {
         if (PlayerTarget.Instance == null) return;
+        if (SpawnManager.Instance == null) return;
 
-        Transform player = PlayerTarget.Instance.PlayerTransform;
+        SpawnZone zone = SpawnManager.Instance.GetRandomNearestZone();
+        if (zone == null) return;
 
-        for (int i = 0; i < 10; i++)
+        Vector3 candidatePos = zone.GetRandomPointInside();
+
+        if (NavMesh.SamplePosition(candidatePos, out NavMeshHit hit, 2f, _noSpawnAreaMask))
         {
-            float angle = UnityEngine.Random.Range(0f, 360f) * Mathf.Deg2Rad;
-            float distance = UnityEngine.Random.Range(_data.minTeleportDistance, _data.maxTeleportDistance);
-
-            Vector3 offset = new Vector3(Mathf.Sin(angle) * distance, 0f, Mathf.Cos(angle) * distance);
-            Vector3 candidatePos = player.position + offset;
-
-            if (NavMesh.SamplePosition(candidatePos, out NavMeshHit hit, 2f, _noSpawnAreaMask))
-            {
-                bool inSpawnZone = false;
-                foreach (var zone in _spawnZones)
-                {
-                    if (zone.Contains(hit.position))
-                    {
-                        inSpawnZone = true;
-                        break;
-                    }
-                }
-
-                if (inSpawnZone)
-                {
-                    _agent.Warp(hit.position);
-                    ChangeState(AIState.Chase);
-                    return;
-                }
-            }
+            _agent.Warp(hit.position);
+            _lastKnownPosition = PlayerTarget.Instance.PlayerTransform.position;
+            _investigateTarget = _lastKnownPosition;
+            ChangeState(AIState.Investigate);
         }
     }
-
     public void TeleportNow() => TeleportNearPlayer();
 
     public void ForcePatrol() => ChangeState(AIState.Patrol);
@@ -457,7 +438,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (other.CompareTag("Player") && !_isStunned)
         {
-            //GameManager.Instance.GameOver();
+            // GameManager.Instance.GameOver();
         }
     }
 

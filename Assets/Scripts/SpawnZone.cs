@@ -13,4 +13,14 @@ public class SpawnZone : MonoBehaviour
     {
         return _collider.bounds.Contains(point);
     }
+
+    public Vector3 GetRandomPointInside()
+    {
+        Bounds bounds = _collider.bounds;
+        return new Vector3(
+            Random.Range(bounds.min.x, bounds.max.x),
+            bounds.min.y,
+            Random.Range(bounds.min.z, bounds.max.z)
+        );
+    }
 }
