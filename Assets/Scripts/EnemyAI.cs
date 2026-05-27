@@ -371,15 +371,30 @@ public class EnemyAI : MonoBehaviour
     {
         if (_spawnEnabler != null)
         {
+            // 1. Check if the enemy is actively engaged with the player or the environment
+            bool isEngaged = _currentState == AIState.Chase ||
+                             _currentState == AIState.Investigate ||
+                             _currentState == AIState.Spotted ||
+                             _currentState == AIState.Fleeing;
+
+            // 2. If engaged, reset the timer so it doesn't vanish mid-action or immediately after losing the player
+            if (isEngaged)
+            {
+                _appearTimer = 0f;
+                return false;
+            }
+
+            // 3. Only count down if the enemy is relaxed (Patrol or Idle)
             _appearTimer += Time.deltaTime;
+
             if (_appearTimer >= _currentAppearDuration)
             {
                 _appearTimer = 0f;
                 _spawnEnabler.DespawnEnemy();
-                return true; 
+                return true; // Signal that despawn happened
             }
         }
-        return false; 
+        return false;
     }
 
     private void TeleportNearPlayer()
