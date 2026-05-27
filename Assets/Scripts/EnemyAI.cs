@@ -21,8 +21,20 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private EnemySpawnEnabler _spawnEnabler;
 
     [Header("Timers & Delays")]
-    [SerializeField] private float _roarDuration = 2f;
-    [SerializeField] private float _fleeDuration = 3f;
+    [SerializeField, Tooltip("Time standing still when spotting the player for the first time")]
+    private float _spottedRoarDuration = 2f;
+
+    [SerializeField, Tooltip("Time standing still when enraged by the flashlight")]
+    private float _enragedRoarDuration = 3f;
+
+    [SerializeField, Tooltip("How long the enemy ignores the flashlight (and flashlight flickers)")]
+    private float _invulnerabilityDuration = 8f;
+
+    [SerializeField, Tooltip("How long the enemy runs away when successfully blinded")]
+    private float _fleeDuration = 3f;
+
+    private float _invulnerabilityTimer = 0f;
+
 
     [Space(20)]
     [SerializeField] private Transform[] _patrolWaypoints;
@@ -110,6 +122,11 @@ public class EnemyAI : MonoBehaviour
         {
             _fleeTimer -= Time.deltaTime;
             if (_fleeTimer <= 0) ChangeState(AIState.Patrol);
+        }
+
+        if (_invulnerabilityTimer > 0f)
+        {
+            _invulnerabilityTimer -= Time.deltaTime;
         }
 
         if (_currentState != AIState.Spotted && _currentState != AIState.Fleeing)
@@ -226,12 +243,14 @@ public class EnemyAI : MonoBehaviour
             {
                 if (!Physics.Raycast(transform.position, directionToPlayer.normalized, distanceToPlayer, _obstacleMask))
                 {
-                    if (_currentState != AIState.Chase)
+                    // Only do the surprise roar if completely relaxed (Patrol/Idle)
+                    if (_currentState == AIState.Patrol || _currentState == AIState.Idle)
                     {
                         StartCoroutine(SpotPlayerRoutine());
                     }
-                    else
+                    else if (_currentState != AIState.Spotted && _currentState != AIState.Fleeing)
                     {
+                        ChangeState(AIState.Chase);
                         _lastKnownPosition = target.position;
                         _timeSinceLastSeen = 0f;
                     }
@@ -269,6 +288,10 @@ public class EnemyAI : MonoBehaviour
 
     private void CheckFlashlight()
     {
+        if (_invulnerabilityTimer > 0f) return;
+
+        if (PlayerTarget.Instance.Flashlight == null || !PlayerTarget.Instance.Flashlight.IsOn()) return;
+
         if (PlayerTarget.Instance.Flashlight == null || !PlayerTarget.Instance.Flashlight.IsOn()) return;
 
         Transform target = PlayerTarget.Instance.PlayerTransform;
@@ -285,7 +308,7 @@ public class EnemyAI : MonoBehaviour
             {
                 _hasBeenBlindedByFlashlight = true;
 
-                StartCoroutine(EnragePlayerRoutine(4f));
+                StartCoroutine(EnragePlayerRoutine());
                 return;
             }
 
@@ -321,26 +344,8 @@ public class EnemyAI : MonoBehaviour
                 case AIState.Investigate:
                     _audioManager.PlayIdleBreathing();
                     break;
-                    // El rugido ahora se maneja en la Corrutina SpotPlayerRoutine
             }
         }
-    }
-
-    private IEnumerator EnragePlayerRoutine(float duration)
-    {
-        _currentState = AIState.Spotted;
-        _agent.isStopped = true;
-        _agent.velocity = Vector3.zero;
-
-        if (_audioManager != null) _audioManager.PlayEnraged();
-
-        // Trigger the panic events on player (Camera shake, slow down, and long flicker)
-        OnEnemyRoaring?.Invoke(duration);
-
-        yield return new WaitForSeconds(duration);
-
-        _agent.isStopped = false;
-        ChangeState(AIState.Chase); 
     }
 
     private IEnumerator SpotPlayerRoutine()
@@ -349,14 +354,32 @@ public class EnemyAI : MonoBehaviour
         _agent.isStopped = true;
         _agent.velocity = Vector3.zero;
 
-        // animation/sfx feedback
+        _invulnerabilityTimer = _invulnerabilityDuration;
+
         if (_audioManager != null) _audioManager.PlayAttack();
 
-        // Flashlight flick
-        OnEnemyRoaring?.Invoke(_roarDuration);
+        // Inmune/flicker duration
+        OnEnemyRoaring?.Invoke(_invulnerabilityDuration);
 
-        // invulnerability
-        yield return new WaitForSeconds(_roarDuration);
+        yield return new WaitForSeconds(_spottedRoarDuration);
+
+        _agent.isStopped = false;
+        ChangeState(AIState.Chase);
+    }
+
+    private IEnumerator EnragePlayerRoutine()
+    {
+        _currentState = AIState.Spotted;
+        _agent.isStopped = true;
+        _agent.velocity = Vector3.zero;
+
+        _invulnerabilityTimer = _invulnerabilityDuration;
+
+        if (_audioManager != null) _audioManager.PlayEnraged();
+
+        OnEnemyRoaring?.Invoke(_invulnerabilityDuration);
+
+        yield return new WaitForSeconds(_enragedRoarDuration);
 
         _agent.isStopped = false;
         ChangeState(AIState.Chase);
