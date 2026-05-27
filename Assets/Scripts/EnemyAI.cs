@@ -6,15 +6,23 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class EnemyAI : MonoBehaviour
 {
+    //                       roar duration
+    public static event Action<float> OnEnemyRoaring;
+
+    public enum AIState { Patrol, Chase, Idle, Investigate, Spotted, Fleeing }
+
+
     [Header("Enemy Data")]
     [SerializeField] private EnemyData _data;
-
-    public enum AIState { Patrol, Chase, Idle, Investigate }
-
-    private Vector3 _investigateTarget;
-
+    
     [Header("References")]
     [SerializeField] private Transform _lookAtTarget;
+    [SerializeField] private EnemyAudioManager _audioManager; 
+    [SerializeField] private EnemySpawnEnabler _spawnEnabler;
+
+    [Header("Timers & Delays")]
+    [SerializeField] private float _roarDuration = 2f;
+    [SerializeField] private float _fleeDuration = 3f;
 
     [Space(20)]
     [SerializeField] private Transform[] _patrolWaypoints;
@@ -25,26 +33,43 @@ public class EnemyAI : MonoBehaviour
     private NavMeshAgent _agent;
     private Animator _animator;
     private AIState _currentState;
+    private Vector3 _investigateTarget;
     private int _currentWaypointIndex;
     private bool _playerInSafeZone = false;
     private bool _isStunned = false;
+
+    private float _fleeTimer = 0f;
+    private float _timeSinceLastSeen = 0f;
+    private Vector3 _lastKnownPosition;
+
+    // Spawn / Teleport variables
     private int _noSpawnAreaMask;
     private SpawnZone[] _spawnZones;
     private float _appearTimer = 0f;
     private float _currentAppearDuration;
 
-    [Header("Audio Settings")]
-    [SerializeField] private AudioSource _enemyAudioSource;
-    [SerializeField] private AudioClip _hurtSound;
+    private void Awake()
+    {
+        _agent = GetComponent<NavMeshAgent>();
+        _animator = GetComponentInChildren<Animator>();
 
-    [Header("Spawn Settings")]
-    [SerializeField] private EnemySpawnEnabler _spawnEnabler;
+        if (_audioManager == null)
+            Debug.LogWarning($"[EnemyAI] Missing EnemyAudioManager on {gameObject.name}");
+
+        _currentState = AIState.Patrol;
+
+        int noSpawnArea = NavMesh.GetAreaFromName("NoSpawn");
+        _noSpawnAreaMask = NavMesh.AllAreas & ~(1 << noSpawnArea);
+        _spawnZones = FindObjectsByType<SpawnZone>(FindObjectsSortMode.None);
+    }
 
     private void OnEnable()
     {
         NoiseManager.OnNoiseEmitted += HearNoise;
         _appearTimer = 0f;
-        _currentAppearDuration = UnityEngine.Random.Range(_data.minAppearDuration, _data.maxAppearDuration);
+
+        if (_data != null)
+            _currentAppearDuration = UnityEngine.Random.Range(_data.minAppearDuration, _data.maxAppearDuration);
     }
 
     private void OnDisable()
@@ -52,18 +77,7 @@ public class EnemyAI : MonoBehaviour
         NoiseManager.OnNoiseEmitted -= HearNoise;
     }
 
-    private void Awake()
-    {
-        _agent = GetComponent<NavMeshAgent>();
-        _animator = GetComponentInChildren<Animator>();
-        _currentState = AIState.Chase;
-
-        int noSpawnArea = NavMesh.GetAreaFromName("NoSpawn");
-        _noSpawnAreaMask = NavMesh.AllAreas & ~(1 << noSpawnArea);
-        _spawnZones = FindObjectsByType<SpawnZone>(FindObjectsSortMode.None);
-    }
-
-    void Start()
+    private void Start()
     {
         if (_patrolWaypoints.Length > 0)
         {
@@ -71,7 +85,7 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    void Update()
+    private void Update()
     {
         if (_isStunned)
         {
@@ -85,31 +99,36 @@ public class EnemyAI : MonoBehaviour
             return;
         }
 
-        if (_spawnEnabler != null)
+        HandleSpawnTimer();
+
+        // Control de Tiempos
+        if (_currentState == AIState.Fleeing)
         {
-            _appearTimer += Time.deltaTime;
-            if (_appearTimer >= _currentAppearDuration)
-            {
-                _appearTimer = 0f;
-                _spawnEnabler.DespawnEnemy();
-                return;
-            }
+            _fleeTimer -= Time.deltaTime;
+            if (_fleeTimer <= 0) ChangeState(AIState.Patrol);
         }
 
-        CheckSensors();
-        CheckFlashlight();
+        if (_currentState != AIState.Spotted && _currentState != AIState.Fleeing)
+        {
+            CheckSensors();
+            CheckFlashlight();
+        }
 
         switch (_currentState)
         {
             case AIState.Patrol:
                 HandlePatrol();
                 break;
-
             case AIState.Chase:
                 HandleChase();
                 break;
             case AIState.Investigate:
                 HandleInvestigate();
+                break;
+            case AIState.Fleeing:
+                // El NavMeshAgent ya tiene su destino de huida seteado en CheckFlashlight()
+                break;
+            case AIState.Spotted:
                 break;
         }
 
@@ -117,18 +136,20 @@ public class EnemyAI : MonoBehaviour
         UpdateLookAt();
     }
 
+    
+
+    #region Combat & Reactions
+
     public void HolyWaterImpact()
     {
-        if (_enemyAudioSource != null && _hurtSound != null)
-        {
-            _enemyAudioSource.PlayOneShot(_hurtSound);
-        }
-
+        if (_audioManager != null) _audioManager.PlayHurt();
         TeleportNearPlayer();
     }
 
     public void CrossImpact(float duration)
     {
+        if (_isStunned) return;
+
         StartCoroutine(StunRoutine(duration));
     }
 
@@ -138,10 +159,7 @@ public class EnemyAI : MonoBehaviour
         _agent.isStopped = true;
         _agent.velocity = Vector3.zero;
 
-        if (_enemyAudioSource != null && _hurtSound != null)
-        {
-            _enemyAudioSource.PlayOneShot(_hurtSound);
-        }
+        if (_audioManager != null) _audioManager.PlayHurt();
 
         yield return new WaitForSeconds(duration);
 
@@ -149,6 +167,187 @@ public class EnemyAI : MonoBehaviour
         _agent.isStopped = false;
 
         ChangeState(AIState.Patrol);
+    }
+
+    #endregion
+
+    #region Handlers (Patrol, Chase, Investigate)
+
+    private void HandlePatrol()
+    {
+        if (_patrolWaypoints.Length == 0) return;
+
+        _agent.speed = _data.patrolSpeed;
+
+        if (!_agent.pathPending && _agent.remainingDistance < 0.5f)
+        {
+            _currentWaypointIndex = (_currentWaypointIndex + 1) % _patrolWaypoints.Length;
+            _agent.SetDestination(_patrolWaypoints[_currentWaypointIndex].position);
+        }
+    }
+
+    private void HandleChase()
+    {
+        _agent.speed = _data.chaseSpeed;
+        _agent.SetDestination(PlayerTarget.Instance.PlayerTransform.position);
+    }
+
+    private void HandleInvestigate()
+    {
+        _agent.speed = _data.patrolSpeed;
+        _agent.SetDestination(_investigateTarget);
+
+        if (!_agent.pathPending && _agent.remainingDistance < 0.5f)
+        {
+            ChangeState(AIState.Patrol);
+        }
+    }
+
+    #endregion
+
+    #region Senses (Vision, Hearing, Flashlight)
+
+    private void CheckSensors()
+    {
+        if (_playerInSafeZone) return;
+
+        Transform target = PlayerTarget.Instance.PlayerTransform;
+        Vector3 directionToPlayer = target.position - transform.position;
+        float distanceToPlayer = directionToPlayer.magnitude;
+
+        // VISUAL DETECTION
+        if (distanceToPlayer <= _data.viewRadius)
+        {
+            if (Vector3.Angle(transform.forward, directionToPlayer) < _data.viewAngle / 2f)
+            {
+                if (!Physics.Raycast(transform.position, directionToPlayer.normalized, distanceToPlayer, _obstacleMask))
+                {
+                    if (_currentState != AIState.Chase)
+                    {
+                        StartCoroutine(SpotPlayerRoutine());
+                    }
+                    else
+                    {
+                        _lastKnownPosition = target.position;
+                        _timeSinceLastSeen = 0f;
+                    }
+                    return;
+                }
+            }
+        }
+
+        // LAST KNOWN LOCATION LOGIC
+        if (_currentState == AIState.Chase)
+        {
+            _timeSinceLastSeen += Time.deltaTime;
+
+            if (_timeSinceLastSeen > 1.5f)
+            {
+                _investigateTarget = _lastKnownPosition;
+                ChangeState(AIState.Investigate);
+            }
+        }
+    }
+
+    private void HearNoise(Vector3 noisePosition, float noiseVolume)
+    {
+        // ignore noises if state is chase,spotter,fleeing or stunned
+        if (_playerInSafeZone || _currentState == AIState.Chase || _currentState == AIState.Spotted || _currentState == AIState.Fleeing || _isStunned) return;
+
+        float sqrDistanceToNoise = (noisePosition - transform.position).sqrMagnitude;
+
+        if (sqrDistanceToNoise <= (noiseVolume * noiseVolume))
+        {
+            _investigateTarget = noisePosition;
+            ChangeState(AIState.Investigate);
+        }
+    }
+
+    private void CheckFlashlight()
+    {
+        if (PlayerTarget.Instance.Flashlight == null || !PlayerTarget.Instance.Flashlight.IsOn()) return;
+
+        Transform target = PlayerTarget.Instance.PlayerTransform;
+        float sqrDistanceToPlayer = (transform.position - target.position).sqrMagnitude;
+
+        if (sqrDistanceToPlayer > (_data.flashlightRepelDistance * _data.flashlightRepelDistance)) return;
+
+        Vector3 directionToEnemy = (transform.position - target.position).normalized;
+        float angle = Vector3.Angle(target.forward, directionToEnemy);
+
+        if (angle < 30f)
+        {
+            Vector3 fleeDirection = (transform.position - target.position).normalized;
+            Vector3 fleeTarget = transform.position + fleeDirection * _data.flashlightRepelDistance;
+
+            if (NavMesh.SamplePosition(fleeTarget, out NavMeshHit hit, _data.flashlightRepelDistance, NavMesh.AllAreas))
+            {
+                _agent.SetDestination(hit.position);
+            }
+
+            _fleeTimer = _fleeDuration;
+            ChangeState(AIState.Fleeing);
+        }
+    }
+
+    #endregion
+
+    #region State Management & Coroutines
+
+    private void ChangeState(AIState newState)
+    {
+        if (_currentState == newState) return;
+
+        _currentState = newState;
+
+        if (_audioManager != null)
+        {
+            switch (_currentState)
+            {
+                case AIState.Patrol:
+                case AIState.Idle:
+                case AIState.Investigate:
+                    _audioManager.PlayIdleBreathing();
+                    break;
+                    // El rugido ahora se maneja en la Corrutina SpotPlayerRoutine
+            }
+        }
+    }
+
+    private IEnumerator SpotPlayerRoutine()
+    {
+        _currentState = AIState.Spotted;
+        _agent.isStopped = true;
+        _agent.velocity = Vector3.zero;
+
+        // animation/sfx feedback
+        if (_audioManager != null) _audioManager.PlayAttack();
+
+        // Flashlight flick
+        OnEnemyRoaring?.Invoke(_roarDuration);
+
+        // invulnerability
+        yield return new WaitForSeconds(_roarDuration);
+
+        _agent.isStopped = false;
+        ChangeState(AIState.Chase);
+    }
+
+    #endregion
+
+    #region Spawning & Utilities
+
+    private void HandleSpawnTimer()
+    {
+        if (_spawnEnabler != null)
+        {
+            _appearTimer += Time.deltaTime;
+            if (_appearTimer >= _currentAppearDuration)
+            {
+                _appearTimer = 0f;
+                _spawnEnabler.DespawnEnemy();
+            }
+        }
     }
 
     private void TeleportNearPlayer()
@@ -187,108 +386,11 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    public void TeleportNow()
-    {
-        TeleportNearPlayer();
-    }
+    public void TeleportNow() => TeleportNearPlayer();
 
-    private void CheckSensors()
-    {
-        if (_playerInSafeZone) return;
+    public void ForcePatrol() => ChangeState(AIState.Patrol);
 
-        Transform target = PlayerTarget.Instance.PlayerTransform;
-
-        Vector3 directionToPlayer = target.position - transform.position;
-        float sqrDistanceToPlayer = directionToPlayer.sqrMagnitude;
-
-        if (sqrDistanceToPlayer <= (_data.viewRadius * _data.viewRadius))
-        {
-            if (Vector3.Angle(transform.forward, directionToPlayer) < _data.viewAngle / 2f)
-            {
-                float distanceToPlayer = Mathf.Sqrt(sqrDistanceToPlayer);
-                if (!Physics.Raycast(transform.position, directionToPlayer.normalized, distanceToPlayer, _obstacleMask))
-                {
-                    ChangeState(AIState.Chase);
-                    return;
-                }
-            }
-        }
-    }
-
-    private void HandleInvestigate()
-    {
-        _agent.speed = _data.patrolSpeed;
-        _agent.SetDestination(_investigateTarget);
-
-        if (!_agent.pathPending && _agent.remainingDistance < 0.5f)
-        {
-            ChangeState(AIState.Chase);
-        }
-    }
-
-    private void HearNoise(Vector3 noisePosition, float noiseVolume)
-    {
-        if (_playerInSafeZone || _currentState == AIState.Chase) return;
-
-        float sqrDistanceToNoise = (noisePosition - transform.position).sqrMagnitude;
-
-        if (sqrDistanceToNoise <= (noiseVolume * noiseVolume))
-        {
-            _investigateTarget = noisePosition;
-            ChangeState(AIState.Investigate);
-        }
-    }
-
-    private void CheckFlashlight()
-    {
-        if (PlayerTarget.Instance.Flashlight == null || !PlayerTarget.Instance.Flashlight.IsOn()) return;
-
-        Transform target = PlayerTarget.Instance.PlayerTransform;
-        float sqrDistanceToPlayer = (transform.position - target.position).sqrMagnitude;
-
-        if (sqrDistanceToPlayer > (_data.flashlightRepelDistance * _data.flashlightRepelDistance)) return;
-
-        Vector3 directionToEnemy = (transform.position - target.position).normalized;
-        float angle = Vector3.Angle(target.forward, directionToEnemy);
-
-        if (angle < 30f)
-        {
-            Vector3 fleeDirection = (transform.position - target.position).normalized;
-            Vector3 fleeTarget = transform.position + fleeDirection * _data.flashlightRepelDistance;
-
-            if (NavMesh.SamplePosition(fleeTarget, out NavMeshHit hit, _data.flashlightRepelDistance, NavMesh.AllAreas))
-            {
-                _agent.SetDestination(hit.position);
-            }
-
-            ChangeState(AIState.Investigate);
-        }
-    }
-
-    private void ChangeState(AIState newState)
-    {
-        if (_currentState == newState) return;
-        _currentState = newState;
-    }
-
-    private void HandleChase()
-    {
-        _agent.speed = _data.chaseSpeed;
-        _agent.SetDestination(PlayerTarget.Instance.PlayerTransform.position);
-    }
-
-    private void HandlePatrol()
-    {
-        if (_patrolWaypoints.Length == 0) return;
-
-        _agent.speed = _data.patrolSpeed;
-
-        if (!_agent.pathPending && _agent.remainingDistance < 0.5f)
-        {
-            _currentWaypointIndex = (_currentWaypointIndex + 1) % _patrolWaypoints.Length;
-            _agent.SetDestination(_patrolWaypoints[_currentWaypointIndex].position);
-        }
-    }
+    public void SetPlayerInSafeZone(bool value) => _playerInSafeZone = value;
 
     private void UpdateLookAt()
     {
@@ -304,23 +406,15 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    public void ForcePatrol()
-    {
-        ChangeState(AIState.Patrol);
-    }
-
-    public void SetPlayerInSafeZone(bool value)
-    {
-        _playerInSafeZone = value;
-    }
-
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player") && !_isStunned)
         {
-            GameManager.Instance.GameOver();
+            //GameManager.Instance.GameOver();
         }
     }
+
+    #endregion
 
     #region Debug Gizmos
     private void OnDrawGizmosSelected()
