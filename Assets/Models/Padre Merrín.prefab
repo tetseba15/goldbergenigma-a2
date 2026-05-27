@@ -64,38 +64,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: "Padre Merr\xEDn"
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 5866666021909216657, guid: 1196849de868df34d87a30109734d21f, type: 3}
+      propertyPath: m_Avatar
+      value: 
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 5866666021909216657, guid: 1196849de868df34d87a30109734d21f, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1196849de868df34d87a30109734d21f, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: -3547526530659663638}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1196849de868df34d87a30109734d21f, type: 3}
---- !u!1 &6368546394752467694 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 1196849de868df34d87a30109734d21f, type: 3}
-  m_PrefabInstance: {fileID: 6098145362606686143}
-  m_PrefabAsset: {fileID: 0}
---- !u!95 &-3547526530659663638
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6368546394752467694}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 26daa45fb7e1cd245ac7e9e4f2081eca, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
