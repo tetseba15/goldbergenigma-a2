@@ -33,14 +33,14 @@ public class PlayerPanicReaction : MonoBehaviour
         EnemyAI.OnEnemyRoaring -= TriggerPanic;
     }
 
-    private void TriggerPanic(float roarDuration)
+    private void TriggerPanic(float roarDuration, float invulnerabilityDuration)
     {
         if (_panicCoroutine != null)
         {
             StopCoroutine(_panicCoroutine);
         }
 
-        float stunDuration = roarDuration / 1.5f;
+        float stunDuration = roarDuration / 2;
         _panicCoroutine = StartCoroutine(PanicRoutine(stunDuration));
     }
 

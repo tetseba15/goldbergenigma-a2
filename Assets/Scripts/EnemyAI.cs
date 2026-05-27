@@ -6,8 +6,8 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class EnemyAI : MonoBehaviour
 {
-    //                       roar duration
-    public static event Action<float> OnEnemyRoaring;
+    //                    roar duration, invulnerability duration
+    public static event Action<float, float> OnEnemyRoaring;
 
     public enum AIState { Patrol, Chase, Idle, Investigate, Spotted, Fleeing }
 
@@ -371,7 +371,7 @@ public class EnemyAI : MonoBehaviour
         if (_audioManager != null) _audioManager.PlayAttack();
 
         // Inmune/flicker duration
-        OnEnemyRoaring?.Invoke(_invulnerabilityDuration);
+        OnEnemyRoaring?.Invoke(_spottedRoarDuration, _invulnerabilityDuration);
 
         yield return new WaitForSeconds(_spottedRoarDuration);
 
@@ -389,7 +389,7 @@ public class EnemyAI : MonoBehaviour
 
         if (_audioManager != null) _audioManager.PlayEnraged();
 
-        OnEnemyRoaring?.Invoke(_invulnerabilityDuration);
+        OnEnemyRoaring?.Invoke(_enragedRoarDuration, _invulnerabilityDuration);
 
         yield return new WaitForSeconds(_enragedRoarDuration);
 

@@ -36,7 +36,7 @@ public class FlashlightFlicker : MonoBehaviour
         EnemyAI.OnEnemyRoaring -= StartFlicker;
     }
 
-    private void StartFlicker(float duration)
+    private void StartFlicker(float roarDuration, float invulnerabilityDuration)
     {
         if (_playerFlashlight != null && !_playerFlashlight.IsOn()) return;
 
@@ -45,7 +45,7 @@ public class FlashlightFlicker : MonoBehaviour
             StopCoroutine(_flickerCoroutine);
         }
 
-        _flickerCoroutine = StartCoroutine(FlickerRoutine(duration));
+        _flickerCoroutine = StartCoroutine(FlickerRoutine(invulnerabilityDuration));
     }
 
     private IEnumerator FlickerRoutine(float duration)

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   patrolSpeed: 2
   chaseSpeed: 5.5
-  viewRadius: 15
+  viewRadius: 40
   viewAngle: 90
   flashlightRepelDistance: 10
   minTeleportDistance: 16
