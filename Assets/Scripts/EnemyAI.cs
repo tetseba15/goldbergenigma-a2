@@ -506,5 +506,9 @@ public class EnemyAI : MonoBehaviour
         angleInDegrees += eulerY;
         return new Vector3(Mathf.Sin(angleInDegrees * Mathf.Deg2Rad), 0, Mathf.Cos(angleInDegrees * Mathf.Deg2Rad));
     }
+    public static void TriggerRoar(float duration, float arg2)
+    {
+        OnEnemyRoaring?.Invoke(duration, arg2);
+    }
     #endregion
 }
