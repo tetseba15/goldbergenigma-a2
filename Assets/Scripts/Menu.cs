@@ -15,7 +15,7 @@ public class Menu : MonoBehaviour
 
     public void StarGame()
     {
-        SceneManager.LoadScene("CasaTest1");// Escena del juego cuando le damos play
+        SceneManager.LoadScene(1);
     }
     public void Exit()
     {
@@ -26,7 +26,7 @@ public class Menu : MonoBehaviour
     #endif
     }
 
-    public void BackTomenu()// option cuando el juego este en pausa
+    public void BackTomenu()
     {
         SceneManager.LoadScene("Menu");
     }
