@@ -55,6 +55,8 @@ public class EnemyAI : MonoBehaviour
     private Vector3 _lastKnownPosition;
 
     private bool _hasBeenBlindedByFlashlight = false;
+    private Vector3[] _dynamicWaypoints;
+    private int _dynamicWaypointIndex = 0;
 
     // Spawn / Teleport variables
     private int _noSpawnAreaMask;
@@ -208,14 +210,27 @@ public class EnemyAI : MonoBehaviour
 
     private void HandlePatrol()
     {
-        if (_patrolWaypoints.Length == 0) return;
-
         _agent.speed = _data.patrolSpeed;
+
+        Vector3[] waypoints = (_dynamicWaypoints != null && _dynamicWaypoints.Length > 0)
+            ? _dynamicWaypoints
+            : null;
+
+        if (waypoints == null)
+        {
+            if (_patrolWaypoints.Length == 0) return;
+            if (!_agent.pathPending && _agent.remainingDistance < 0.5f)
+            {
+                _currentWaypointIndex = (_currentWaypointIndex + 1) % _patrolWaypoints.Length;
+                _agent.SetDestination(_patrolWaypoints[_currentWaypointIndex].position);
+            }
+            return;
+        }
 
         if (!_agent.pathPending && _agent.remainingDistance < 0.5f)
         {
-            _currentWaypointIndex = (_currentWaypointIndex + 1) % _patrolWaypoints.Length;
-            _agent.SetDestination(_patrolWaypoints[_currentWaypointIndex].position);
+            _dynamicWaypointIndex = (_dynamicWaypointIndex + 1) % waypoints.Length;
+            _agent.SetDestination(waypoints[_dynamicWaypointIndex]);
         }
     }
 
@@ -444,6 +459,8 @@ public class EnemyAI : MonoBehaviour
         if (NavMesh.SamplePosition(candidatePos, out NavMeshHit hit, 2f, _noSpawnAreaMask))
         {
             _agent.Warp(hit.position);
+            _dynamicWaypoints = zone.GetPatrolWaypoints();
+            _dynamicWaypointIndex = 0;
             _lastKnownPosition = PlayerTarget.Instance.PlayerTransform.position;
             _investigateTarget = _lastKnownPosition;
             ChangeState(AIState.Investigate);
