@@ -25,6 +25,11 @@ public class GameManager : MonoBehaviour
             SceneManager.LoadScene(2);
 
         }
+        if (Keyboard.current.digit8Key.wasPressedThisFrame)
+        {
+            SceneManager.LoadScene(3);
+
+        }
     }
 
     private void OnEnable()
