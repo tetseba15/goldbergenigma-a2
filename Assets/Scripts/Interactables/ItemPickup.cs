@@ -15,7 +15,6 @@ public class ItemPickup : MonoBehaviour, IInteractable
         {
             inventory.AddItem(_itemType);
 
-            // Turn on flashlight on pickup?
             if (_itemType == PlayerInventory.ItemType.Flashlight)
             {
                 PlayerFlashlight flashlight = interactor.GetComponent<PlayerFlashlight>();

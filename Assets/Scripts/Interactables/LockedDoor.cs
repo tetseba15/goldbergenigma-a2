@@ -1,28 +1,46 @@
 using UnityEngine;
+using System.Collections;
 
 public class LockedDoor : MonoBehaviour, IInteractable
 {
-    [Header("Settings")]
+    [Header("Door State")]
+    [SerializeField, Tooltip("If false, the door opens without needing a key.")]
+    private bool _requiresKey = true;
+
+    [Header("Key Settings (Ignored if Requires Key is false)")]
     [SerializeField] private PlayerInventory.ItemType _requiredKey = PlayerInventory.ItemType.MansionKey;
     [SerializeField] private string _lockedMessage = "Está cerrada con llave.";
+
+    [Header("Interaction Prompts")]
     [SerializeField] private string _unlockedMessage = "Abrir puerta";
     [SerializeField] private string _closedMessage = "Cerrar puerta";
+
+    [Header("Animation Settings")]
+    [SerializeField, Tooltip("How long the open/close animation takes to finish")]
+    private float _animationDuration = 1.2f;
 
     private bool _isUnlocked = false;
     private bool _isOpen = false;
 
-    private Animator animator;
+    private Animator _animator;
+    private bool _isAnimating = false;
 
     private void Awake()
     {
-        animator = GetComponent<Animator>();
+        _animator = GetComponent<Animator>();
+
+        if (!_requiresKey)
+        {
+            _isUnlocked = true;
+        }
     }
 
     public string GetInteractPrompt(GameObject interactor)
     {
+        if (_isAnimating) return string.Empty;
+
         if (_isOpen && _isUnlocked) return _closedMessage;
         if (!_isOpen && _isUnlocked) return _unlockedMessage;
-
 
         PlayerInventory inventory = interactor.GetComponent<PlayerInventory>();
         if (inventory != null)
@@ -35,17 +53,11 @@ public class LockedDoor : MonoBehaviour, IInteractable
 
     public void Interact(GameObject interactor)
     {
+        if (_isAnimating) return;
+
         if (_isUnlocked)
         {
-            if (!_isOpen)
-            {
-                OpenDoor();
-            }
-            else
-            {
-                CloseDoor();
-            }
-
+            StartCoroutine(DoorAnimationRoutine());
             return;
         }
 
@@ -56,28 +68,36 @@ public class LockedDoor : MonoBehaviour, IInteractable
         }
         else
         {
+            // TODO: Play "Rattle handle" locked sound effect
             Debug.Log("La puerta no cede...");
         }
     }
-
+    
     private void UnlockDoor()
     {
         _isUnlocked = true;
-        OpenDoor();
-        Debug.Log("Puerta abierta. Bienvenido a la mansión.");
+        // TODO: Play "Unlock" sound effect
+
+        StartCoroutine(DoorAnimationRoutine());
     }
 
-    private void OpenDoor()
+    private IEnumerator DoorAnimationRoutine()
     {
-        // Animation?
-        animator.SetTrigger("Open");
-        _isOpen = true;
-        //transform.Rotate(0, -90, 0);
-    }
+        _isAnimating = true;
 
-    private void CloseDoor()
-    {
-        animator.SetTrigger("Close");
-        _isOpen = false;
+        if (!_isOpen)
+        {
+            _animator.SetTrigger("Open");
+            _isOpen = true;
+        }
+        else
+        {
+            _animator.SetTrigger("Close");
+            _isOpen = false;
+        }
+
+        yield return new WaitForSeconds(_animationDuration);
+
+        _isAnimating = false;
     }
 }
