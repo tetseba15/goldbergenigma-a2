@@ -8,9 +8,10 @@ public class PlayerLook : MonoBehaviour
     [SerializeField, Tooltip("Empty object at eyes (Not the camera itself)")]
     private Transform _cameraRoot;
 
-    [Header("Cam Config")]
-    [field: SerializeField, Range(1f, 100f  ), Tooltip("Base Sensitivity")]
-    public float LookSensitivity { get; private set; } = 15f;
+    [Header("Player Data")]
+    [SerializeField] private PlayerData _data;
+
+    public float LookSensitivity => _data.lookSensitivity;
 
     [field: SerializeField, Range(100f, 500f), Tooltip(" Gamepad Base Sensitivity")]
     public float GamepadMultiplier { get; private set; } = 300f;
