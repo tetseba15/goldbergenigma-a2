@@ -1,98 +1,48 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerFootsteps : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private AudioSource _footstepSource;
-    [SerializeField] private CharacterController _controller; 
 
-    [Header("Audio Clips")]
-    [SerializeField] private AudioClip[] _footstepClips;
+    [Header("Audio Clips by Surface")]
+    [SerializeField] private AudioClip[] _interiorClips; // Default
+    [SerializeField] private AudioClip[] _exteriorClips;
+    [SerializeField] private AudioClip[] _echoClips;
 
-    [Header("Settings")]
-    [SerializeField, Tooltip("Time between steps when walking normally")]
-    private float _baseStepInterval = 0.5f;
-    [SerializeField, Tooltip("Minimum speed required to trigger footsteps")]
-    private float _speedThreshold = 0.1f;
-    [SerializeField, Tooltip("Minimum speed required to trigger running interval")]
-    private float _runningThreshold = 3f;
+    [Header("Surface Detection")]
+    [SerializeField, Tooltip("Layer del suelo para que el Raycast no choque con el jugador")]
+    private LayerMask _groundLayer;
+    [SerializeField] private string _exteriorTag = "SurfaceExterior";
+    [SerializeField] private string _echoTag = "SurfaceEcho";
 
-    private float _stepTimer = 0f;
+    [SerializeField, Tooltip("Longitud del rayo hacia abajo")]
+    private float _raycastDistance = 1.5f;
 
-    private Vector3 _lastPosition;
-
-    private void Start()
+    public void PlayStep()
     {
-        _lastPosition = transform.position;
-    }
+        // Default clips
+        AudioClip[] selectedClips = _interiorClips;
 
-    private void Update()
-    {
-        HandleFootsteps();
-
-        Debug.Log(_controller.velocity.magnitude);
-    }
-
-    private void HandleFootsteps()
-    {
-
-        ////if (_controller.isGrounded && _controller.velocity.magnitude > _speedThreshold)
-        //if (_controller.velocity.magnitude > _speedThreshold)
-        ////if (Keyboard.current.lKey.wasPressedThisFrame)
-        //{
-        //    _stepTimer += Time.deltaTime;
-
-        //    //float currentInterval = isRunning ? _baseStepInterval * 0.7f : _baseStepInterval;
-
-        //    if (_stepTimer >= _baseStepInterval)
-        //    {
-        //        PlayFootstep();
-        //        _stepTimer = 0f;
-        //    }
-        //}
-        //else
-        //{
-        //    _stepTimer = 0f;
-        //}
-
-        Vector3 currentPosition = transform.position;
-        Vector3 movement = currentPosition - _lastPosition;
-
-        movement.y = 0f;
-
-        float flatSpeed = movement.magnitude / Time.deltaTime;
-
-        _lastPosition = currentPosition;
-
-        
-        if (flatSpeed > _speedThreshold)
+        // Type of floor logic
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, _raycastDistance, _groundLayer))
         {
-            _stepTimer += Time.deltaTime;
-
-            float currentInterval = (flatSpeed > _runningThreshold) ? _baseStepInterval * 0.7f : _baseStepInterval;
-
-            if (_stepTimer >= _baseStepInterval)
+            if (hit.collider.CompareTag(_exteriorTag))
             {
-                PlayFootstep();
-                _stepTimer = 0f;
+                selectedClips = _exteriorClips;
+            }
+            else if (hit.collider.CompareTag(_echoTag))
+            {
+                selectedClips = _echoClips;
             }
         }
-        else
-        {
-            _stepTimer = 0f;
-        }
-    }
 
-    private void PlayFootstep()
-    {
-        if (_footstepClips == null || _footstepClips.Length == 0) return;
+        if (selectedClips == null || selectedClips.Length == 0) return;
 
         _footstepSource.pitch = Random.Range(0.9f, 1.1f);
+        _footstepSource.volume = Random.Range(0.15f, 0.25f);
 
-        _footstepSource.volume = Random.Range(0.1f, 0.2f);
-
-        AudioClip randomStep = _footstepClips[Random.Range(0, _footstepClips.Length)];
+        AudioClip randomStep = selectedClips[Random.Range(0, selectedClips.Length)];
         _footstepSource.PlayOneShot(randomStep);
     }
 }
