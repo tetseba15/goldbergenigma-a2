@@ -27,6 +27,15 @@ public class PlayerPanicReaction : MonoBehaviour
     [SerializeField, Tooltip("Source exclusively for the heartbeat")]
     private AudioSource _heartbeatSource;
 
+    [Header("Audio: Sequence Timings")]
+    [SerializeField, Tooltip("Extra time panting continues after losing the enemy")]
+    private float _cooldownPantingTime = 3f;
+    [SerializeField, Tooltip("How long the audio takes to fade out smoothly")]
+    private float _audioFadeDuration = 1.5f;
+
+    private Coroutine _chaseCooldownCoroutine;
+    private Coroutine _fadeVoiceCoroutine;
+
     [Space(5)]
     [SerializeField, Tooltip("Gasp for jumpscares/spotting")]
     private AudioClip _initialGaspClip;
@@ -80,18 +89,33 @@ public class PlayerPanicReaction : MonoBehaviour
             if (!_heartbeatSource.isPlaying) _heartbeatSource.Play();
         }
 
+        float gaspDuration = 0f;
         if (_voiceSource && _initialGaspClip)
         {
+            if (_fadeVoiceCoroutine != null) StopCoroutine(_fadeVoiceCoroutine);
+            _voiceSource.volume = 1f;
+
             _voiceSource.pitch = Random.Range(0.95f, 1.05f);
-            _voiceSource.PlayOneShot(_initialGaspClip); 
+            _voiceSource.PlayOneShot(_initialGaspClip);
+            gaspDuration = _initialGaspClip.length;
         }
 
-        yield return new WaitForSeconds(stunDuration);
+        yield return new WaitForSeconds(gaspDuration * 0.6f);
 
-        
+        if (_voiceSource && _chasePantingLoop && !_voiceSource.isPlaying)
+        {
+            _voiceSource.clip = _chasePantingLoop;
+            _voiceSource.loop = true;
+            _voiceSource.Play();
+        }
+
+        float remainingStun = Mathf.Max(0, stunDuration - (gaspDuration * 0.6f));
+        yield return new WaitForSeconds(remainingStun);
+
         if (!_isChasing)
         {
-            _fadeHeartbeatCoroutine = StartCoroutine(FadeOutHeartbeat());
+            _fadeVoiceCoroutine = StartCoroutine(FadeOutAudio(_voiceSource, _audioFadeDuration));
+            _fadeHeartbeatCoroutine = StartCoroutine(FadeOutAudio(_heartbeatSource, _audioFadeDuration));
         }
     }
 
@@ -101,49 +125,86 @@ public class PlayerPanicReaction : MonoBehaviour
 
         if (isChasing)
         {
-            
+            // Cancel fade out
+            if (_chaseCooldownCoroutine != null) StopCoroutine(_chaseCooldownCoroutine);
+            if (_fadeVoiceCoroutine != null) StopCoroutine(_fadeVoiceCoroutine);
+            if (_fadeHeartbeatCoroutine != null) StopCoroutine(_fadeHeartbeatCoroutine);
+
             if (_voiceSource && _chasePantingLoop)
             {
                 _voiceSource.clip = _chasePantingLoop;
                 _voiceSource.loop = true;
-                _voiceSource.pitch = Random.Range(0.95f, 1.05f);
+                _voiceSource.volume = 1f;
                 if (!_voiceSource.isPlaying) _voiceSource.Play();
             }
         }
         else
         {
-            if (_voiceSource)
+            // Cooldown
+            if (gameObject.activeInHierarchy)
             {
-                _voiceSource.loop = false;
-                _voiceSource.Stop();
+                _chaseCooldownCoroutine = StartCoroutine(ChaseCooldownSequence());
             }
-
-            if (_voiceSource && _reliefSighClip)
-            {
-                _voiceSource.pitch = Random.Range(0.95f, 1.05f);
-                _voiceSource.PlayOneShot(_reliefSighClip);
-            }
-
-            _fadeHeartbeatCoroutine = StartCoroutine(FadeOutHeartbeat());
         }
     }
 
-    private IEnumerator FadeOutHeartbeat()
+    private IEnumerator ChaseCooldownSequence()
     {
-        if (_heartbeatSource == null || !_heartbeatSource.isPlaying) yield break;
+        // Mantain panting
+        yield return new WaitForSeconds(_cooldownPantingTime);
 
-        float fadeDuration = 1.5f;
-        float startVolume = _heartbeatSource.volume;
-
-        while (_heartbeatSource.volume > 0)
+        // Cut panting
+        if (_voiceSource)
         {
-            _heartbeatSource.volume -= startVolume * Time.deltaTime / fadeDuration;
+            _voiceSource.loop = false;
+            _voiceSource.Stop();
+        }
+
+        if (_voiceSource && _reliefSighClip)
+        {
+            _voiceSource.pitch = Random.Range(0.95f, 1.05f);
+            _voiceSource.volume = 1f; 
+            _voiceSource.PlayOneShot(_reliefSighClip);
+        }
+
+        if (_fadeHeartbeatCoroutine != null) StopCoroutine(_fadeHeartbeatCoroutine);
+        _fadeHeartbeatCoroutine = StartCoroutine(FadeOutAudio(_heartbeatSource, _audioFadeDuration));
+    }
+
+    
+
+    private IEnumerator FadeOutAudio(AudioSource source, float fadeDuration)
+    {
+        if (source == null || !source.isPlaying) yield break;
+
+        float startVolume = source.volume;
+
+        while (source.volume > 0)
+        {
+            source.volume -= startVolume * Time.deltaTime / fadeDuration;
             yield return null;
         }
 
-        _heartbeatSource.Stop();
-        _heartbeatSource.volume = 1f; 
+        source.Stop();
+        source.volume = startVolume; 
     }
+
+    //private IEnumerator FadeOutHeartbeat()
+    //{
+    //    if (_heartbeatSource == null || !_heartbeatSource.isPlaying) yield break;
+
+    //    float fadeDuration = 1.5f;
+    //    float startVolume = _heartbeatSource.volume;
+
+    //    while (_heartbeatSource.volume > 0)
+    //    {
+    //        _heartbeatSource.volume -= startVolume * Time.deltaTime / fadeDuration;
+    //        yield return null;
+    //    }
+
+    //    _heartbeatSource.Stop();
+    //    _heartbeatSource.volume = 1f; 
+    //}
 
     
 
