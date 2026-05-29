@@ -126,7 +126,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1238eabffad3326409597928637ea6f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemPickup
-  _itemType: 2
+  _itemType: 4
   _promptText: '[E] Recoger llave'
 --- !u!54 &3894128821290832429
 Rigidbody:
