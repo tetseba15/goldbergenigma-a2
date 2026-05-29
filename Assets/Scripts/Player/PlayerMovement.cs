@@ -7,12 +7,13 @@ public class PlayerMovement : MonoBehaviour
     private CharacterController _controller;
     private PlayerInputHandler _inputHandler;
 
-    [Header("Movement Config")]
-    [field: SerializeField, Tooltip("Base Speed")]
-    public float WalkSpeed { get; private set; } = 3f;
+    [Header("Player Data")]
+    [SerializeField] private PlayerData _data;
 
-    [field: SerializeField, Tooltip("Sprint speed")]
-    public float SprintSpeed { get; private set; } = 6f;
+    public float WalkSpeed => _data.walkSpeed;
+    public float SprintSpeed => _data.sprintSpeed;
+
+    public float SpeedMultiplier { get; set; } = 1.0f;
 
     [Header("Noise Settings")]
     [SerializeField] private float _walkNoiseVolume = 5f;
@@ -68,7 +69,7 @@ public class PlayerMovement : MonoBehaviour
         if (input.magnitude > 0.1f)
         {
             targetSpeed = _inputHandler.IsSprinting ? SprintSpeed : WalkSpeed;
-            _controller.Move(moveDirection * targetSpeed * Time.deltaTime);
+            _controller.Move(moveDirection * targetSpeed * SpeedMultiplier * Time.deltaTime);
 
             HandleFootstepNoise();
 

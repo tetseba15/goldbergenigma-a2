@@ -8,6 +8,8 @@ public class PlayerFlashlight : MonoBehaviour
     //                0.0 a 1.0
     public event Action<float> OnBatteryChanged;
 
+    public bool IsIntensityHijacked { get; set; } = false;
+
     [Header("Events / Tutorials")]
     [SerializeField] private FlashlightTutorial _tutorialSystem;
 
@@ -123,7 +125,6 @@ public class PlayerFlashlight : MonoBehaviour
         _currentBattery -= _drainRate * Time.deltaTime;
         _currentBattery = Mathf.Clamp(_currentBattery, 0f, _maxBattery);
 
-
         OnBatteryChanged?.Invoke(_currentBattery / _maxBattery);
 
         if (_currentBattery <= 0f)
@@ -133,15 +134,17 @@ public class PlayerFlashlight : MonoBehaviour
             return;
         }
 
-        if (_currentBattery <= _flickerThreshold)
+        if (!IsIntensityHijacked)
         {
-            // Mathf.PerlinNoise generates a soft curve, good for broken lights
-            float noise = Mathf.PerlinNoise(Time.time * 10f, 0f);
-            _lightComponent.intensity = Mathf.Lerp(0f, _baseIntensity, noise);
-        }
-        else
-        {
-            _lightComponent.intensity = _baseIntensity;
+            if (_currentBattery <= _flickerThreshold)
+            {
+                float noise = Mathf.PerlinNoise(Time.time * 10f, 0f);
+                _lightComponent.intensity = Mathf.Lerp(0f, _baseIntensity, noise);
+            }
+            else
+            {
+                _lightComponent.intensity = _baseIntensity;
+            }
         }
     }
 

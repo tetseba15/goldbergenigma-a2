@@ -152,9 +152,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67b1913c965ca3548bda226e5b247600, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LockedDoor
-  _requiredKey: 0
+  _requiredKey: 2
   _lockedMessage: "Est\xE1 cerrada con llave."
-  _unlockedMessage: Abrir puerta
+  _unlockedMessage: '[E] Abrir puerta'
   _closedMessage: Cerrar puerta
 --- !u!65 &5202119278018389074
 BoxCollider:
