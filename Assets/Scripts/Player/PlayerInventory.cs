@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerInventory : MonoBehaviour
 {
-    public enum ItemType { Flashlight, Crucifix, MansionKey, Note, Bottle, Cross, Shovel }
+    public enum ItemType { Flashlight, Crucifix, MansionKey, Note, Bottle, Cross, Shovel, ChimneyKey, GraveKey }
 
     private HashSet<ItemType> _items = new HashSet<ItemType>();
 

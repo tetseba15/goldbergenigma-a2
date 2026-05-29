@@ -8,16 +8,27 @@ public class ShovelController : MonoBehaviour
     [SerializeField] private PlayerInventory _inventory;
     [SerializeField] private GameObject _shovelVisual;
     [SerializeField] private Animator _shovelAnimator;
-    [SerializeField] private Camera _mainCamera; 
+    [SerializeField] private Camera _mainCamera;
 
-    [Header("Audio")]
+    [Header("Audio de la Pala")]
     [SerializeField] private AudioSource _audioSource;
     [SerializeField] private AudioClip _shovelSound;
 
+    
+    [Header("Llaves")]
+    [SerializeField, Tooltip("Llave chimenea")]
+    private GameObject _chimneyKeyPrefab;
+
+    [SerializeField, Tooltip("Llave tumba")]
+    private GameObject _graveKeyPrefab;
+
+    [SerializeField, Tooltip("Sonido de llave")]
+    private AudioClip _keySpawnSound;
+
     [Header("Configuración")]
     [SerializeField] private float _animationDuration;
-    [SerializeField] private float _interactionDistance; 
-    [SerializeField] private LayerMask _interactableMask; 
+    [SerializeField] private float _interactionDistance;
+    [SerializeField] private LayerMask _interactableMask;
 
     private bool _isUsing = false;
 
@@ -28,7 +39,6 @@ public class ShovelController : MonoBehaviour
             _shovelVisual.SetActive(false);
         }
 
-        
         if (_mainCamera == null)
         {
             _mainCamera = Camera.main;
@@ -39,10 +49,8 @@ public class ShovelController : MonoBehaviour
     {
         if (Keyboard.current == null) return;
 
-        
         if (Keyboard.current.gKey.wasPressedThisFrame)
         {
-            
             bool tienePala = _inventory.HasItem(PlayerInventory.ItemType.Shovel);
 
             if (tienePala && !_isUsing)
@@ -81,7 +89,38 @@ public class ShovelController : MonoBehaviour
             _shovelAnimator.SetTrigger("Dig");
         }
 
-        yield return new WaitForSeconds(_animationDuration);
+        yield return new WaitForSeconds(_animationDuration * 0.5f);
+
+        
+        GameObject llave = null;
+
+        
+        if (targetObject.CompareTag("Chimney"))
+        {
+            llave = _chimneyKeyPrefab;
+        }
+        else if (targetObject.CompareTag("Grave"))
+        {
+            llave = _graveKeyPrefab;
+        }
+
+        
+        if (llave != null)
+        {
+            Vector3 spawnPosition = targetObject.transform.position + new Vector3(0f, 0.1f, 0f);
+
+            
+            GameObject nuevaLlave = Instantiate(llave, spawnPosition, Quaternion.identity);
+
+            if (_audioSource != null && _keySpawnSound != null)
+            {
+                _audioSource.PlayOneShot(_keySpawnSound);
+            }
+        }
+
+        targetObject.tag = "Untagged";
+
+        yield return new WaitForSeconds(_animationDuration * 0.5f);
 
         _shovelVisual.SetActive(false);
         _isUsing = false;

@@ -1,0 +1,172 @@
+# Blender MTL File: 'Cemetery.blend'
+# Material Count: 13
+
+newmtl Black_Marble
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump -bm 1.500000 A:\\Blender\\Кладбище\\Текстуры\\Black Marble_Normal.jpg
+map_Kd A:\\Blender\\Кладбище\\Текстуры\\Black Marble_Color.jpg
+map_Ns A:\\Blender\\Кладбище\\Текстуры\\Black Marble_Roughness.jpg
+
+newmtl Concrete
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump -bm 1.500000 A:\\Blender\\Кладбище\\Текстуры\\Concrete_Normal.jpg
+map_Kd A:\\Blender\\Кладбище\\Текстуры\\Concrete_Color.jpg
+map_Ns A:\\Blender\\Кладбище\\Текстуры\\Concrete_Roughness.jpg
+
+newmtl Destroyed_Concrete
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump -bm 1.500000 A:\\Blender\\Кладбище\\Текстуры\\Destroyed Concrete_Normal.jpg
+map_Kd A:\\Blender\\Кладбище\\Текстуры\\Destroyed Concrete_Color.jpg
+map_Ns A:\\Blender\\Кладбище\\Текстуры\\Destroyed Concrete_Roughness.jpg
+
+newmtl Golden_Cross
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump -bm 0.100000 A:\\Blender\\Кладбище\\Текстуры\\Golden Cross_Normal.jpg
+map_Kd A:\\Blender\\Кладбище\\Текстуры\\Golden Cross_Color.jpg
+map_Ns A:\\Blender\\Кладбище\\Текстуры\\Golden Cross_Roughness.jpg
+refl A:\\Blender\\Кладбище\\Текстуры\\Golden Cross_Metalness.jpg
+
+newmtl Ground
+Ns 35.999996
+Ka 1.000000 1.000000 1.000000
+Kd 0.063719 0.024644 0.012007
+Ks 0.300000 0.300000 0.300000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump -bm 3.000000 A:\\Blender\\Кладбище\\Текстуры\\Grave Ground_Normal.jpg
+
+newmtl New_Brick
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump A:\\Blender\\Кладбище\\Текстуры\\New Cemetery Gate_Normal.jpg
+map_Kd A:\\Blender\\Кладбище\\Текстуры\\New Cemetery Gate_Color.jpg
+map_Ns A:\\Blender\\Кладбище\\Текстуры\\New Cemetery Gate_Roughness.jpg
+
+newmtl New_Fence_Metal
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump -bm 2.000000 A:\\Blender\\Кладбище\\Текстуры\\New Fence Metal_Normal.jpg
+map_Kd A:\\Blender\\Кладбище\\Текстуры\\New Fence Metal_Color.jpg
+map_Ns A:\\Blender\\Кладбище\\Текстуры\\New Fence Metal_Roughness.jpg
+refl A:\\Blender\\Кладбище\\Текстуры\\New Fence Metal_Metalness.jpg
+
+newmtl Old_Brick
+Ns 35.999996
+Ka 1.000000 1.000000 1.000000
+Kd 0.207913 0.207913 0.207913
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump -bm 1.500000 A:\\Blender\\Кладбище\\Текстуры\\Old Cemetery Gate_Normal.jpg
+map_Kd A:\\Blender\\Кладбище\\Текстуры\\Old Cemetery Gate_Color.jpg
+map_Ns A:\\Blender\\Кладбище\\Текстуры\\Old Cemetery Gate_Roughness.jpg
+
+newmtl Rust
+Ns 81.000006
+Ka 1.000000 1.000000 1.000000
+Kd 0.246192 0.009442 0.009442
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump -bm 5.000000 A:\\Blender\\Кладбище\\Текстуры\\Rust_Normal.jpg
+map_Kd A:\\Blender\\Кладбище\\Текстуры\\Rust_Color.jpg
+map_Ns A:\\Blender\\Кладбище\\Текстуры\\Rust_Roughness.jpg
+refl A:\\Blender\\Кладбище\\Текстуры\\Rust_Metalness.jpg
+
+newmtl Rusty_Metal_Old_Fence
+Ns 323.999994
+Ka 1.000000 1.000000 1.000000
+Kd 0.003762 0.004354 0.004895
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump -bm 2.500000 A:\\Blender\\Кладбище\\Текстуры\\Old Fence_Normal.jpg
+map_Kd A:\\Blender\\Кладбище\\Текстуры\\Old Fence_Color.jpg
+map_Ns A:\\Blender\\Кладбище\\Текстуры\\Old Fence_Roughness.jpg
+refl A:\\Blender\\Кладбище\\Текстуры\\Old Fence_Metalness.jpg
+
+newmtl White_Marble
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump -bm 1.500000 A:\\Blender\\Кладбище\\Текстуры\\White Marble_Normal.jpg
+map_Kd A:\\Blender\\Кладбище\\Текстуры\\White Marble_Color.jpg
+map_Ns A:\\Blender\\Кладбище\\Текстуры\\White Marble_Roughness.jpg
+
+newmtl Wood
+Ns 143.999983
+Ka 1.000000 1.000000 1.000000
+Kd 0.150299 0.064271 0.016958
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump -bm 2.500000 A:\\Blender\\Кладбище\\Текстуры\\Wooden Coffin_Normal.jpg
+map_Kd A:\\Blender\\Кладбище\\Текстуры\\Wooden Coffin_Color.jpg
+
+newmtl Wood_Cross_
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump -bm 2.000000 A:\\Blender\\Кладбище\\Текстуры\\Wood Cross_Normal.jpg
+map_Kd A:\\Blender\\Кладбище\\Текстуры\\Wood Cross_Color.jpg
+map_Ns A:\\Blender\\Кладбище\\Текстуры\\Wood Cross_Roughness.jpg
