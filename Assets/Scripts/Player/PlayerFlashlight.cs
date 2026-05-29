@@ -10,6 +10,10 @@ public class PlayerFlashlight : MonoBehaviour
 
     public bool IsIntensityHijacked { get; set; } = false;
 
+    public float BaseIntensity { get; private set; }
+    private float _basePointIntensity;
+
+
     [Header("Events / Tutorials")]
     [SerializeField] private FlashlightTutorial _tutorialSystem;
 
@@ -18,10 +22,10 @@ public class PlayerFlashlight : MonoBehaviour
     private Light _lightComponent;
     [SerializeField, Tooltip("The pointlight of the player")]
     private Light _pointLightComponent;
-    //[SerializeField, Tooltip("Flashlight Mesh renderer")]
-    //private MeshRenderer _flashlightMeshRenderer;
-    //[SerializeField, Tooltip("Flashlight Canvas")]
-    //private Canvas _canvasIndicator;
+    [SerializeField, Tooltip("Flashlight Mesh renderer")]
+    private MeshRenderer _flashlightMeshRenderer;
+    [SerializeField, Tooltip("Flashlight Canvas")]
+    private Canvas _canvasIndicator;
 
     [SerializeField] private GameObject _flashlight;
 
@@ -32,6 +36,15 @@ public class PlayerFlashlight : MonoBehaviour
     private float _drainRate = 1f;
     [SerializeField, Tooltip("% when the flashlights begins to malfunction")]
     private float _flickerThreshold = 20f;
+
+
+    [Header("Audio")]
+    [SerializeField, Tooltip("AudioSource for flashlight clicks")]
+    private AudioSource _audioSource;
+    [SerializeField, Tooltip("Sound when turning on")]
+    private AudioClip _turnOnSound;
+    [SerializeField, Tooltip("Sound when turning off")]
+    private AudioClip _turnOffSound;
 
 
     [Header("Inspection Animation")]
@@ -57,7 +70,6 @@ public class PlayerFlashlight : MonoBehaviour
     public bool IsOn() => _isOn;
 
     private float _currentBattery;
-    private float _baseIntensity;
 
     private PlayerInputHandler _inputHandler;
     private PlayerInventory _inventory;
@@ -69,13 +81,19 @@ public class PlayerFlashlight : MonoBehaviour
 
         if (_lightComponent != null)
         {
-            _baseIntensity = _lightComponent.intensity;
-            _lightComponent.enabled = false;
-            _pointLightComponent.enabled = false;
+            BaseIntensity = _lightComponent.intensity;
+            _basePointIntensity = _pointLightComponent.intensity;
+
+            _lightComponent.intensity = 0f;
+            _pointLightComponent.intensity = 0f;
+
+            _lightComponent.enabled = true;
+            _pointLightComponent.enabled = true;
         }
 
-        if (_flashlight != null)
-            _flashlight.SetActive(false);
+        // Optimization      
+        if (_flashlightMeshRenderer != null) _flashlightMeshRenderer.enabled = false;
+        if (_canvasIndicator != null) _canvasIndicator.enabled = false;
 
         _currentBattery = _maxBattery;
     }
@@ -84,6 +102,9 @@ public class PlayerFlashlight : MonoBehaviour
     {
         _normalLocalRotation = Quaternion.Euler(_normalLocalRotationEuler);
         _inspectLocalRotation = Quaternion.Euler(_inspectLocalRotationEuler);
+
+        //_lightComponent.intensity = 0f;
+        //_pointLightComponent.intensity = 0f;
 
         if (_flashlightModel != null)
         {
@@ -139,11 +160,11 @@ public class PlayerFlashlight : MonoBehaviour
             if (_currentBattery <= _flickerThreshold)
             {
                 float noise = Mathf.PerlinNoise(Time.time * 10f, 0f);
-                _lightComponent.intensity = Mathf.Lerp(0f, _baseIntensity, noise);
+                _lightComponent.intensity = Mathf.Lerp(0f, BaseIntensity, noise);
             }
             else
             {
-                _lightComponent.intensity = _baseIntensity;
+                _lightComponent.intensity = BaseIntensity;
             }
         }
     }
@@ -151,23 +172,34 @@ public class PlayerFlashlight : MonoBehaviour
     private void TurnOn()
     {
         _isOn = true;
-        _lightComponent.enabled = true;
-        _pointLightComponent.enabled = true;
 
-        //if (_flashlightMeshRenderer != null)
-        //    _flashlightMeshRenderer.enabled = true;
-        // On SFX
+        if (!IsIntensityHijacked)
+        {
+            _lightComponent.intensity = BaseIntensity;
+            _pointLightComponent.intensity = _basePointIntensity;
+        }
+
+        if (_audioSource != null && _turnOnSound != null)
+        {
+            _audioSource.pitch = UnityEngine.Random.Range(0.95f, 1.05f);
+            _audioSource.PlayOneShot(_turnOnSound);
+        }
     }
 
     private void TurnOff()
     {
         _isOn = false;
-        _lightComponent.enabled = false;
-        _pointLightComponent.enabled = false;
 
-        //if (_flashlightMeshRenderer != null)
-        //    _flashlightMeshRenderer.enabled = false;
-        // Off SFX
+
+
+        _lightComponent.intensity = 0f;
+        _pointLightComponent.intensity = 0f;
+
+        if (_audioSource != null && _turnOffSound != null)
+        {
+            _audioSource.pitch = UnityEngine.Random.Range(0.95f, 1.05f);
+            _audioSource.PlayOneShot(_turnOffSound);
+        }
     }
 
     public void RechargeBattery(float amount)
@@ -177,7 +209,8 @@ public class PlayerFlashlight : MonoBehaviour
 
     public void PickupFlashlight()
     {
-        _flashlight.SetActive(true);
+        if (_flashlightMeshRenderer != null) _flashlightMeshRenderer.enabled = true;
+        if (_canvasIndicator != null) _canvasIndicator.enabled = true;
 
         if (_tutorialSystem != null)
             _tutorialSystem.TriggerTutorial();
