@@ -100,16 +100,20 @@ public class PlayerPanicReaction : MonoBehaviour
             gaspDuration = _initialGaspClip.length;
         }
 
-        yield return new WaitForSeconds(gaspDuration * 0.6f);
+        yield return new WaitForSeconds(gaspDuration * 0.8f);
 
-        if (_voiceSource && _chasePantingLoop && !_voiceSource.isPlaying)
+        if (_voiceSource && _chasePantingLoop)
         {
-            _voiceSource.clip = _chasePantingLoop;
-            _voiceSource.loop = true;
-            _voiceSource.Play();
+            if (_voiceSource.clip != _chasePantingLoop || !_voiceSource.isPlaying)
+            {
+                _voiceSource.clip = _chasePantingLoop;
+                _voiceSource.loop = true;
+                _voiceSource.Play();
+                
+            }
         }
 
-        float remainingStun = Mathf.Max(0, stunDuration - (gaspDuration * 0.6f));
+        float remainingStun = Mathf.Max(0, stunDuration - (gaspDuration * 0.4f));
         yield return new WaitForSeconds(remainingStun);
 
         if (!_isChasing)
