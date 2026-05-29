@@ -15,6 +15,8 @@ public class PlayerFootsteps : MonoBehaviour
     private float _baseStepInterval = 0.5f;
     [SerializeField, Tooltip("Minimum speed required to trigger footsteps")]
     private float _speedThreshold = 0.1f;
+    [SerializeField, Tooltip("Minimum speed required to trigger running interval")]
+    private float _runningThreshold = 3f;
 
     private float _stepTimer = 0f;
 
@@ -68,7 +70,7 @@ public class PlayerFootsteps : MonoBehaviour
         {
             _stepTimer += Time.deltaTime;
 
-            float currentInterval = (flatSpeed > 5f) ? _baseStepInterval * 0.7f : _baseStepInterval;
+            float currentInterval = (flatSpeed > _runningThreshold) ? _baseStepInterval * 0.7f : _baseStepInterval;
 
             if (_stepTimer >= _baseStepInterval)
             {
@@ -88,7 +90,7 @@ public class PlayerFootsteps : MonoBehaviour
 
         _footstepSource.pitch = Random.Range(0.9f, 1.1f);
 
-        _footstepSource.volume = Random.Range(0.4f, 0.6f);
+        _footstepSource.volume = Random.Range(0.1f, 0.2f);
 
         AudioClip randomStep = _footstepClips[Random.Range(0, _footstepClips.Length)];
         _footstepSource.PlayOneShot(randomStep);
