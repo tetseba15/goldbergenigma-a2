@@ -6,6 +6,8 @@ public class PlayerMovement : MonoBehaviour
 {
     private CharacterController _controller;
     private PlayerInputHandler _inputHandler;
+    private PlayerFootsteps _footstepsAudio;
+
 
     [Header("Player Data")]
     [SerializeField] private PlayerData _data;
@@ -40,7 +42,7 @@ public class PlayerMovement : MonoBehaviour
     {
         _controller = GetComponent<CharacterController>();
         _inputHandler = GetComponent<PlayerInputHandler>();
-
+        _footstepsAudio = GetComponent<PlayerFootsteps>();
     }
 
 
@@ -93,6 +95,11 @@ public class PlayerMovement : MonoBehaviour
             float currentVolume = _inputHandler.IsSprinting ? _sprintNoiseVolume : _walkNoiseVolume;
 
             NoiseManager.EmitNoise(transform.position, currentVolume);
+
+            if (_footstepsAudio != null)
+            {
+                _footstepsAudio.PlayStep();
+            }
 
             // adjust interval if running 
             _stepTimer = _inputHandler.IsSprinting ? _stepInterval * 0.6f : _stepInterval;
