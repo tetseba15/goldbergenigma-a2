@@ -38,6 +38,15 @@ public class PlayerFlashlight : MonoBehaviour
     private float _flickerThreshold = 20f;
 
 
+    [Header("Audio")]
+    [SerializeField, Tooltip("AudioSource for flashlight clicks")]
+    private AudioSource _audioSource;
+    [SerializeField, Tooltip("Sound when turning on")]
+    private AudioClip _turnOnSound;
+    [SerializeField, Tooltip("Sound when turning off")]
+    private AudioClip _turnOffSound;
+
+
     [Header("Inspection Animation")]
     [SerializeField, Tooltip("Flashlight Model (child of camera)")]
     private Transform _flashlightModel;
@@ -169,14 +178,28 @@ public class PlayerFlashlight : MonoBehaviour
             _lightComponent.intensity = BaseIntensity;
             _pointLightComponent.intensity = _basePointIntensity;
         }
+
+        if (_audioSource != null && _turnOnSound != null)
+        {
+            _audioSource.pitch = UnityEngine.Random.Range(0.95f, 1.05f);
+            _audioSource.PlayOneShot(_turnOnSound);
+        }
     }
 
     private void TurnOff()
     {
         _isOn = false;
 
+
+
         _lightComponent.intensity = 0f;
         _pointLightComponent.intensity = 0f;
+
+        if (_audioSource != null && _turnOffSound != null)
+        {
+            _audioSource.pitch = UnityEngine.Random.Range(0.95f, 1.05f);
+            _audioSource.PlayOneShot(_turnOffSound);
+        }
     }
 
     public void RechargeBattery(float amount)
