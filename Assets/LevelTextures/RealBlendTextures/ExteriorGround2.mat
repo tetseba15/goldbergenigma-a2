@@ -123,18 +123,18 @@ Material:
     - _AlphaToMask: 0
     - _Base_AO_Power: 1
     - _Base_Brightness: 1
-    - _Base_Brightness_B: 1
+    - _Base_Brightness_B: 0.81
     - _Base_HeightOffset_B: 0
     - _Base_HeightStr_B: 1
     - _Base_Metalic_Scale: 1
-    - _Base_MetallicScale_B: 1
-    - _Base_NormalScale_B: 1
+    - _Base_MetallicScale_B: 1.09
+    - _Base_NormalScale_B: 1.88
     - _Base_Normal_Scale: 1
     - _Base_Overlay_Offset: 0
     - _Base_Overlay_Strength: 1
     - _Base_Saturation: 1
-    - _Base_Saturation_B: 1
-    - _Base_SmoothnessScale_B: 1
+    - _Base_Saturation_B: 1.91
+    - _Base_SmoothnessScale_B: 0.3
     - _Base_Smoothness_Scale: 0.3
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
@@ -155,35 +155,35 @@ Material:
     - _HeightSteps: 10
     - _L1_AO_Power: 1
     - _L1_Brightness: 1
-    - _L1_Brightness_B: 1
+    - _L1_Brightness_B: 0.48
     - _L1_HeightAmplitude: 0
     - _L1_HeightOffset_B: 0
     - _L1_HeightSteps: 0
     - _L1_HeightStr_B: 1
     - _L1_Metalic_Scale: 0
-    - _L1_MetallicScale_B: 1
-    - _L1_NormalScale_B: 1
+    - _L1_MetallicScale_B: 2.14
+    - _L1_NormalScale_B: 3.11
     - _L1_Normal_Scale: 1
     - _L1_Overlay_Offset: 0
     - _L1_Overlay_Strength: 1
-    - _L1_Saturation_B: 1
-    - _L1_SmoothnessScale_B: 1
+    - _L1_Saturation_B: 1.48
+    - _L1_SmoothnessScale_B: 0.57
     - _L1_Smoothness_Scale: 1
     - _L2_AO_Power: 1
     - _L2_Brightness: 1
-    - _L2_Brightness_B: 1
+    - _L2_Brightness_B: 0.6
     - _L2_HeightAmplitude: 0
     - _L2_HeightOffset_B: 0
     - _L2_HeightSteps: 0
     - _L2_HeightStr_B: 1
     - _L2_Metalic_Scale: 1
-    - _L2_MetallicScale_B: 1
-    - _L2_NormalScale_B: 1
+    - _L2_MetallicScale_B: 1.72
+    - _L2_NormalScale_B: 4.52
     - _L2_Normal_Scale: 1
     - _L2_Overlay_Offset: 0
     - _L2_Overlay_Strength: 1
-    - _L2_Saturation_B: 1
-    - _L2_SmoothnessScale_B: 1
+    - _L2_Saturation_B: 1.2
+    - _L2_SmoothnessScale_B: 2.36
     - _L2_Smoothness_Scale: 1
     - _Layer1_Contrast: 2
     - _Layer1_Opacity: 1
