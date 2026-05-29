@@ -9,6 +9,8 @@ public class EnemyAI : MonoBehaviour
     //                    roar duration, invulnerability duration
     public static event Action<float, float> OnEnemyRoaring;
 
+    public static event Action<bool> OnChaseStateChanged;
+
     public enum AIState { Patrol, Chase, Idle, Investigate, Spotted, Fleeing }
 
 
@@ -360,7 +362,17 @@ public class EnemyAI : MonoBehaviour
     {
         if (_currentState == newState) return;
 
+        if (_currentState == AIState.Chase)
+        {
+            OnChaseStateChanged?.Invoke(false);
+        }
+
         _currentState = newState;
+
+        if (_currentState == AIState.Chase)
+        {
+            OnChaseStateChanged?.Invoke(true);
+        }
 
         if (_audioManager != null)
         {
