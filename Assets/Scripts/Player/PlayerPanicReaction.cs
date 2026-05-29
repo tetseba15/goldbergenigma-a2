@@ -21,6 +21,19 @@ public class PlayerPanicReaction : MonoBehaviour
     [SerializeField, Tooltip("How fast the blur fades in and out")]
     private float _visualFadeSpeed = 5f;
 
+    [Header("Audio: Panic Sequence")]
+    [SerializeField, Tooltip("Source exclusively for voice (gasps/panting)")]
+    private AudioSource _voiceSource;
+    [SerializeField, Tooltip("Source exclusively for the heartbeat")]
+    private AudioSource _heartbeatSource;
+
+    [Space(5)]
+    [SerializeField] private AudioClip _initialGaspClip;
+    [SerializeField] private AudioClip _pantingClip;
+    [SerializeField] private AudioClip _heartbeatClip;
+
+    private Coroutine _audioSequenceCoroutine;
+
     private Coroutine _panicCoroutine;
 
     private void OnEnable()
@@ -35,13 +48,69 @@ public class PlayerPanicReaction : MonoBehaviour
 
     private void TriggerPanic(float roarDuration, float invulnerabilityDuration)
     {
-        if (_panicCoroutine != null)
+        if (_panicCoroutine != null) StopCoroutine(_panicCoroutine);
+        if (_audioSequenceCoroutine != null) StopCoroutine(_audioSequenceCoroutine);
+
+        float stunDuration = roarDuration / 2f;
+
+        _panicCoroutine = StartCoroutine(PanicRoutine(stunDuration));
+
+        _audioSequenceCoroutine = StartCoroutine(PanicAudioSequence(stunDuration));
+    }
+
+    private IEnumerator PanicAudioSequence(float stunDuration)
+    {
+        // Hearth beating starts
+        if (_heartbeatSource != null && _heartbeatClip != null)
         {
-            StopCoroutine(_panicCoroutine);
+            _heartbeatSource.clip = _heartbeatClip;
+            _heartbeatSource.loop = true; 
+            _heartbeatSource.volume = 1f;
+            _heartbeatSource.Play();
         }
 
-        float stunDuration = roarDuration / 2;
-        _panicCoroutine = StartCoroutine(PanicRoutine(stunDuration));
+        // Then the player breaths in
+        float gaspDuration = 0f;
+        if (_voiceSource != null && _initialGaspClip != null)
+        {
+            _voiceSource.pitch = Random.Range(0.95f, 1.05f);
+            _voiceSource.PlayOneShot(_initialGaspClip);
+            gaspDuration = _initialGaspClip.length;
+        }
+
+        
+        // *0.8 to overlap vfx
+        yield return new WaitForSeconds(gaspDuration * 0.8f);
+
+        // next  ispanting
+        if (_voiceSource != null && _pantingClip != null)
+        {
+            _voiceSource.pitch = Random.Range(0.95f, 1.05f);
+            _voiceSource.PlayOneShot(_pantingClip);
+        }
+
+        
+        float remainingTime = stunDuration - (gaspDuration * 0.8f);
+        if (remainingTime > 0)
+        {
+            yield return new WaitForSeconds(remainingTime);
+        }
+
+        // Small Fade-out
+        if (_heartbeatSource != null)
+        {
+            float fadeDuration = 1f;
+            float startVolume = _heartbeatSource.volume;
+
+            while (_heartbeatSource.volume > 0)
+            {
+                _heartbeatSource.volume -= startVolume * Time.deltaTime / fadeDuration;
+                yield return null;
+            }
+
+            _heartbeatSource.Stop();
+            _heartbeatSource.volume = startVolume; 
+        }
     }
 
     private IEnumerator PanicRoutine(float stunDuration)
@@ -54,7 +123,7 @@ public class PlayerPanicReaction : MonoBehaviour
             _impulseSource.GenerateImpulse();
         }
 
-        // 2. FADE IN VISUAL DISTORTION (URP Volume)
+        // FADE IN VISUAL DISTORTION (URP Volume)
         if (_panicVolume != null)
         {
             while (_panicVolume.weight < 1f)

@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class DangerClose : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+   
     public Transform jugador;
     public Transform enemigo;
-    public float distanciaUmbral = 5f; // A qué distancia empieza a latir
+    public float distanciaUmbral = 5f; 
     private Animator animator;
     void Start()
     {
@@ -17,7 +17,7 @@ public class DangerClose : MonoBehaviour
     void Update()
     {
 
-        // Calculamos la distancia entre el jugador y el enemigo
+        
         float distancia = Vector3.Distance(jugador.position, enemigo.position);
 
         if (distancia < distanciaUmbral)
