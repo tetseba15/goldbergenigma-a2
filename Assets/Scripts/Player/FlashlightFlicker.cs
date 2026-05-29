@@ -54,16 +54,20 @@ public class FlashlightFlicker : MonoBehaviour
 
         float elapsedTimer = 0f;
 
+        float realIntensity = _playerFlashlight.BaseIntensity;
+
         while (elapsedTimer < duration)
         {
-            _lightComponent.intensity = Random.value > 0.5f ? _originalIntensity : 0f;
+            _lightComponent.intensity = Random.value > 0.5f ? realIntensity : 0f;
 
             float randomDelay = Random.Range(_minDelay, _maxDelay);
             yield return new WaitForSeconds(randomDelay);
             elapsedTimer += randomDelay;
         }
 
-        _lightComponent.intensity = _originalIntensity;
+        // Check if player turned off flashlight during event
+        _lightComponent.intensity = _playerFlashlight.IsOn() ? realIntensity : 0f;
+
         _playerFlashlight.IsIntensityHijacked = false;
     }
 }
