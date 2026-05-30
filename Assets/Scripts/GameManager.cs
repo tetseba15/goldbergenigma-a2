@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-
+    private bool isPaused = false;
     private void Awake()
     {
         if (Instance == null)
@@ -30,6 +30,28 @@ public class GameManager : MonoBehaviour
             SceneManager.LoadScene(3);
 
         }
+
+        if (Keyboard.current.pKey.wasPressedThisFrame)
+        {
+            if (isPaused)
+            {
+                Unpause();
+            }
+            else
+            {
+                Pause();
+            }
+        }
+    }
+    public void Pause()
+    {
+        Time.timeScale = 0f;
+        isPaused = true;
+    }
+    public void Unpause()
+    {
+        Time.timeScale = 1f;
+        isPaused = false;
     }
 
     private void OnEnable()
