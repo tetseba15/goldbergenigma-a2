@@ -5,14 +5,14 @@ using UnityEngine.SceneManagement;
 public class Menu : MonoBehaviour
 {
     [SerializeField] private GameObject exitButton;
-
+    private bool isPaused = false;
     private void Start()
     {
     #if UNITY_WEBGL
         exitButton.SetActive(false);
     #endif
     }
-
+   
     public void StarGame()
     {
         SceneManager.LoadScene(1);
@@ -31,14 +31,7 @@ public class Menu : MonoBehaviour
         SceneManager.LoadScene("Menu");
     }
 
-    public void Pause()
-    {
-        Time.timeScale = 0f;
-    }
-    public void Unpause()
-    {
-        Time.timeScale = 1f;
-    }
+   
     public void GameOver()
     {
         SceneManager.LoadScene("Game Over");
