@@ -9,7 +9,7 @@ public class SliderBottleHoly : MonoBehaviour
         GameEvent.OnHolyWater += UpdateHolyWater;
 
     }
-    private void OnDestroy()
+    private void OnDisable()
     {
         GameEvent.OnHolyWater -= UpdateHolyWater;
     }
