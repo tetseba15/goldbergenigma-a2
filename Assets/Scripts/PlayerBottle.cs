@@ -18,6 +18,10 @@ public class HolyWaterController : MonoBehaviour
     [SerializeField] private float _animationDuration;
     [SerializeField] private float _effectDistance;
 
+    //para el UI
+    [Header("Ajustes de Agua Bendita")]
+    [SerializeField] private float _maxWater = 3f;
+    private float _currentWater = 0f;
     private bool _isUsing = false;
 
     void Start()
@@ -26,6 +30,7 @@ public class HolyWaterController : MonoBehaviour
         {
             _bottleVisual.SetActive(false);
         }
+        GameEvent.holyWater(_currentWater, _maxWater);//para llamar el event
     }
 
     void Update()
@@ -36,11 +41,16 @@ public class HolyWaterController : MonoBehaviour
         {
             bool tieneItem = _inventory.HasItem(PlayerInventory.ItemType.Bottle);
 
-            if (tieneItem && !_isUsing)
+            if (tieneItem && !_isUsing && _currentWater > 0)//para verificar que quede agua
             {
                 StartCoroutine(UseHolyWaterRoutine());
             }
         }
+    }
+    public void RefillBottle()
+    {
+        _currentWater = _maxWater; // Se llena al máximo (3)
+        GameEvent.holyWater(_currentWater, _maxWater); // Actualiza la UI instantáneamente
     }
 
     private IEnumerator UseHolyWaterRoutine()
@@ -49,6 +59,12 @@ public class HolyWaterController : MonoBehaviour
         _bottleVisual.SetActive(true);
 
         
+        _currentWater--;//UI descuenta un uso
+        GameEvent.holyWater(_currentWater, _maxWater);//para el event UI
+        // Descuenta un uso y dispara el evento
+        if (_currentWater <= 0) yield break;//Para eliminar el sonido si esta vacia
+
+
         if (_audioSource != null && _throwSound != null)
         {
             _audioSource.PlayOneShot(_throwSound);

@@ -22,6 +22,18 @@ public class ItemPickup : MonoBehaviour, IInteractable
                 if (flashlight != null)
                     flashlight.PickupFlashlight();
             }
+            // Agrego para la recarga de la botella en la UI
+            if (_itemType == PlayerInventory.ItemType.Bottle)
+            {
+                
+                HolyWaterController waterController = interactor.GetComponent<HolyWaterController>();
+
+                // Si la tiene, Llena la botella y la UI 
+                if (waterController != null)
+                {
+                    waterController.RefillBottle();
+                }
+            }
 
             Destroy(gameObject);
         }
