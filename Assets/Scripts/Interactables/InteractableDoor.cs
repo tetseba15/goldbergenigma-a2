@@ -49,7 +49,7 @@ public class InteractableDoor : MonoBehaviour
         HandleAudioAndNoise();
     }
 
-    
+
     public void Interact(GameObject interactor)
     {
         if (_isLocked)
@@ -66,7 +66,16 @@ public class InteractableDoor : MonoBehaviour
         }
         else
         {
-            _doorRigidbody.AddRelativeTorque(Vector3.up * _gentlePushForce, ForceMode.Impulse);
+            float currentAngle = Mathf.Abs(_hingeJoint.angle);
+
+            if (currentAngle > 5f)
+            {
+                _doorRigidbody.AddRelativeTorque(Vector3.up * -_gentlePushForce * 1.5f, ForceMode.Impulse);
+            }
+            else
+            {
+                _doorRigidbody.AddRelativeTorque(Vector3.up * _gentlePushForce, ForceMode.Impulse);
+            }
         }
     }
 
