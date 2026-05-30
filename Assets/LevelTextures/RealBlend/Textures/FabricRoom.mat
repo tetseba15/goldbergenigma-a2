@@ -123,21 +123,23 @@ Material:
     - _AlphaToMask: 0
     - _Base_AO_Power: 1
     - _Base_Brightness: 1
-    - _Base_Brightness_B: 1
+    - _Base_Brightness_B: 0.57
+    - _Base_HeightBlend: 1
     - _Base_HeightOffset_B: 0
     - _Base_HeightStr_B: 1
     - _Base_Metalic_Scale: 1
-    - _Base_MetallicScale_B: 1
-    - _Base_NormalScale_B: 1
+    - _Base_MetallicScale_B: 0.88
+    - _Base_NormalScale_B: 2.2
     - _Base_Normal_Scale: 1
     - _Base_Overlay_Offset: 0
     - _Base_Overlay_Strength: 1
     - _Base_Saturation: 1
-    - _Base_Saturation_B: 1
-    - _Base_SmoothnessScale_B: 1
+    - _Base_Saturation_B: 0.7
+    - _Base_SmoothnessScale_B: 0.72
     - _Base_Smoothness_Scale: 1
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
+    - _BlendNoise: 0
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
@@ -153,41 +155,45 @@ Material:
     - _GlossyReflections: 0
     - _HeightAmplitude: 1
     - _HeightSteps: 10
+    - _L12_BlendBridge: 0.35
+    - _L12_BlendContrast: 0.7
     - _L1_AO_Power: 1
-    - _L1_Brightness: 1
-    - _L1_Brightness_B: 1
+    - _L1_Brightness: 0.94
+    - _L1_Brightness_B: 0.11
     - _L1_HeightAmplitude: 0
+    - _L1_HeightBlend: 1
     - _L1_HeightOffset_B: 0
     - _L1_HeightSteps: 0
     - _L1_HeightStr_B: 1
     - _L1_Metalic_Scale: 0
-    - _L1_MetallicScale_B: 1
-    - _L1_NormalScale_B: 1
-    - _L1_Normal_Scale: 1
+    - _L1_MetallicScale_B: 0.2
+    - _L1_NormalScale_B: 1.93
+    - _L1_Normal_Scale: 1.33
     - _L1_Overlay_Offset: 0
     - _L1_Overlay_Strength: 1
-    - _L1_Saturation_B: 1
-    - _L1_SmoothnessScale_B: 1
-    - _L1_Smoothness_Scale: 1
+    - _L1_Saturation_B: 0.12
+    - _L1_SmoothnessScale_B: 0.46
+    - _L1_Smoothness_Scale: 0.52
     - _L2_AO_Power: 1
     - _L2_Brightness: 1
-    - _L2_Brightness_B: 1
+    - _L2_Brightness_B: 0.14
     - _L2_HeightAmplitude: 0
+    - _L2_HeightBlend: 1
     - _L2_HeightOffset_B: 0
     - _L2_HeightSteps: 0
     - _L2_HeightStr_B: 1
     - _L2_Metalic_Scale: 1
-    - _L2_MetallicScale_B: 1
-    - _L2_NormalScale_B: 1
+    - _L2_MetallicScale_B: 0.21
+    - _L2_NormalScale_B: 2.52
     - _L2_Normal_Scale: 1
     - _L2_Overlay_Offset: 0
     - _L2_Overlay_Strength: 1
-    - _L2_Saturation_B: 1
-    - _L2_SmoothnessScale_B: 1
+    - _L2_Saturation_B: 0.58
+    - _L2_SmoothnessScale_B: 0.04
     - _L2_Smoothness_Scale: 1
     - _Layer1_Contrast: 2
     - _Layer1_Opacity: 1
-    - _Layer1_Saturation: 1
+    - _Layer1_Saturation: 0.7
     - _Layer2_Contrast: 2
     - _Layer2_Opacity: 1
     - _Layer2_Saturation: 1
@@ -199,6 +205,10 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _SPOM_Self_Occlusion_Steps: 8
+    - _SPOM_Self_Occlusion_Strength: 0.35
+    - _SPOM_Silhouette_Clip: 0
+    - _SPOM_Step_View_Independence: 0.65
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -222,12 +232,12 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _L1_Offset: {r: 0, g: 0, b: 0, a: 0}
     - _L1_Tint_B: {r: 1, g: 1, b: 1, a: 1}
-    - _L2_Tint_B: {r: 1, g: 1, b: 1, a: 1}
+    - _L2_Tint_B: {r: 0.6117647, g: 0.3019608, b: 0.3019608, a: 1}
     - _Layer1_Tiling: {r: 1, g: 1, b: 0, a: 0}
     - _Layer1_Tint: {r: 1, g: 1, b: 1, a: 1}
     - _Layer2_Offset: {r: 0, g: 0, b: 0, a: 0}
     - _Layer2_Tiling: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer2_Tint: {r: 1, g: 1, b: 1, a: 1}
+    - _Layer2_Tint: {r: 0.6132076, g: 0.3037113, b: 0.3037113, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _Wet_Color: {r: 0.29245278, g: 0.29245278, b: 0.29245278, a: 1}
   m_BuildTextureStacks: []
