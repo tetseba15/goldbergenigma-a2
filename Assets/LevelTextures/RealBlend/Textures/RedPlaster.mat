@@ -29,15 +29,15 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Base_Albedo:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 9da20438d74bbc74abb21ef3d5bc2761, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Base_MaskMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: e234e688bbe6df944aef0b53e9ddc299, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Base_Normal:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 22e2c2e6612351642aec9b2da73afc73, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -61,15 +61,15 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer1_Albedo:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 77cda050867c791499b1b2e6ec1eeef5, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer1_MaskMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 73aea7a2f222cdc498d44d565080d072, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer1_Normal:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 2ddeb2e347689da42b41f9e801165a79, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer2_Albedo:
@@ -127,15 +127,15 @@ Material:
     - _Base_HeightOffset_B: 0
     - _Base_HeightStr_B: 1
     - _Base_Metalic_Scale: 1
-    - _Base_MetallicScale_B: 1
-    - _Base_NormalScale_B: 1
-    - _Base_Normal_Scale: 1
+    - _Base_MetallicScale_B: 0.7
+    - _Base_NormalScale_B: 2
+    - _Base_Normal_Scale: 3
     - _Base_Overlay_Offset: 0
     - _Base_Overlay_Strength: 1
     - _Base_Saturation: 1
     - _Base_Saturation_B: 1
-    - _Base_SmoothnessScale_B: 1
-    - _Base_Smoothness_Scale: 1
+    - _Base_SmoothnessScale_B: 1.21
+    - _Base_Smoothness_Scale: 0.06
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
@@ -151,8 +151,8 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _HeightAmplitude: 1
-    - _HeightSteps: 10
+    - _HeightAmplitude: 0
+    - _HeightSteps: 0
     - _L1_AO_Power: 1
     - _L1_Brightness: 1
     - _L1_Brightness_B: 1
@@ -161,13 +161,13 @@ Material:
     - _L1_HeightSteps: 0
     - _L1_HeightStr_B: 1
     - _L1_Metalic_Scale: 0
-    - _L1_MetallicScale_B: 1
-    - _L1_NormalScale_B: 1
+    - _L1_MetallicScale_B: 0.72
+    - _L1_NormalScale_B: 2.09
     - _L1_Normal_Scale: 1
     - _L1_Overlay_Offset: 0
     - _L1_Overlay_Strength: 1
     - _L1_Saturation_B: 1
-    - _L1_SmoothnessScale_B: 1
+    - _L1_SmoothnessScale_B: 1.33
     - _L1_Smoothness_Scale: 1
     - _L2_AO_Power: 1
     - _L2_Brightness: 1
@@ -216,15 +216,15 @@ Material:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Base_Offset: {r: 0, g: 0, b: 0, a: 0}
     - _Base_Tiling: {r: 1, g: 1, b: 0, a: 0}
-    - _Base_Tint: {r: 1, g: 1, b: 1, a: 1}
-    - _Base_Tint_B: {r: 1, g: 1, b: 1, a: 1}
+    - _Base_Tint: {r: 0.42352942, g: 0.23529412, b: 0.23529412, a: 1}
+    - _Base_Tint_B: {r: 0.42352942, g: 0.23529412, b: 0.23529412, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _L1_Offset: {r: 0, g: 0, b: 0, a: 0}
-    - _L1_Tint_B: {r: 1, g: 1, b: 1, a: 1}
+    - _L1_Tint_B: {r: 0.42352942, g: 0.23529412, b: 0.23529412, a: 1}
     - _L2_Tint_B: {r: 1, g: 1, b: 1, a: 1}
     - _Layer1_Tiling: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer1_Tint: {r: 1, g: 1, b: 1, a: 1}
+    - _Layer1_Tint: {r: 0.42352942, g: 0.23529412, b: 0.23529412, a: 1}
     - _Layer2_Offset: {r: 0, g: 0, b: 0, a: 0}
     - _Layer2_Tiling: {r: 1, g: 1, b: 0, a: 0}
     - _Layer2_Tint: {r: 1, g: 1, b: 1, a: 1}
