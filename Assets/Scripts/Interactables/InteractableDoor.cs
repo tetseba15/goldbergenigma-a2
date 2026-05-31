@@ -26,6 +26,7 @@ public class InteractableDoor : MonoBehaviour, IInteractable
 
     [Header("Interaction Prompts")]
     [SerializeField] private string _lockedMessage = "Está cerrada con llave.";
+    [SerializeField] private string _unlockPromptMessage = "Desbloquear puerta";
     [SerializeField] private string _unlockedMessage = "Abrir puerta";
     [SerializeField] private string _closedMessage = "Cerrar puerta";
 
@@ -39,11 +40,13 @@ public class InteractableDoor : MonoBehaviour, IInteractable
     [Header("Noise & Stealth")]
     [SerializeField] private float _loudNoiseRadius = 15f;
     [SerializeField] private float _creakNoiseRadius = 2f;
-
-   
+       
 
     private bool _isOpen = false;
     private float _currentTargetAngle;
+
+    private float _lastRattleTime = 0f;
+    private float _rattleCooldown = 1f;
 
     private void Awake()
     {
@@ -59,7 +62,7 @@ public class InteractableDoor : MonoBehaviour, IInteractable
         if (_isLocked)
         {
             PlayerInventory inventory = interactor.GetComponent<PlayerInventory>();
-            return (inventory != null && inventory.HasItem(_requiredKey)) ? _unlockedMessage : _lockedMessage;
+            return (inventory != null && inventory.HasItem(_requiredKey)) ? _unlockPromptMessage : _lockedMessage;
         }
 
         return _isOpen ? _closedMessage : _unlockedMessage;
@@ -79,7 +82,11 @@ public class InteractableDoor : MonoBehaviour, IInteractable
 
     public void PhysicalPush(Vector3 interactorPosition, bool isSprinting)
     {
-        if (_isLocked) return;
+        if (_isLocked)
+        {
+            RattleLockedDoor();
+            return;
+        }
 
         if (_isOpen)
         {
@@ -159,6 +166,21 @@ public class InteractableDoor : MonoBehaviour, IInteractable
             if (_doorAudioSource) _doorAudioSource.PlayOneShot(_lockedRattleSound);
             
             _doorRigidbody.AddRelativeTorque(Vector3.up * 5f, ForceMode.Impulse);
+        }
+    }
+
+    private void RattleLockedDoor()
+    {
+        if (Time.time >= _lastRattleTime + _rattleCooldown)
+        {
+            if (_doorAudioSource && _lockedRattleSound)
+            {
+                _doorAudioSource.PlayOneShot(_lockedRattleSound);
+            }
+
+            _doorRigidbody.AddRelativeTorque(Vector3.up * 5f, ForceMode.Impulse);
+
+            _lastRattleTime = Time.time;
         }
     }
 

@@ -29,7 +29,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 597.9, y: 0.002, z: -138.23}
-  m_LocalScale: {x: 1.8701087, y: 1.344714, z: 2.3665123}
+  m_LocalScale: {x: 1.909253, y: 1.323443, z: 2.3665123}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7776064286697676375}
@@ -55,13 +55,14 @@ MonoBehaviour:
   _doorRigidbody: {fileID: 4340427227818484935}
   _hingeJoint: {fileID: 9044829744879552528}
   _doorCollider: {fileID: 5842549699608516510}
-  _isLocked: 0
-  _requiredKey: 0
+  _isLocked: 1
+  _requiredKey: 1
   _openAngle: 120
   _walkSpringForce: 30
   _sprintSpringForce: 150
   _reverseOpenDirection: 1
   _lockedMessage: "Est\xE1 cerrada con llave."
+  _unlockPromptMessage: '[E] Desbloquear puerta'
   _unlockedMessage: '[E] Abrir puerta'
   _closedMessage: '[E] Cerrar puerta'
   _doorAudioSource: {fileID: 1275714318458932173}
@@ -708,7 +709,7 @@ Transform:
   m_Children:
   - {fileID: 696567092554411544}
   m_Father: {fileID: 3416580276558632948}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
+  m_LocalEulerAnglesHint: {x: 0.000008537736, y: 126.05073, z: 90}
 --- !u!33 &9207602784035318090
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -868,8 +869,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.9922467, y: 1.864395, z: 0.10720106}
-  m_Center: {x: 0.5038767, y: 0.96780246, z: 0.022683347}
+  m_Size: {x: 0.9691508, y: 1.7526519, z: 0.07106501}
+  m_Center: {x: 0.5156274, y: 1.0236764, z: 0.015497953}
 --- !u!59 &9044829744879552528
 HingeJoint:
   m_ObjectHideFlags: 0

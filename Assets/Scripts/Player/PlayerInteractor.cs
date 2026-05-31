@@ -17,6 +17,8 @@ public class PlayerInteractor : MonoBehaviour
     private PlayerInputHandler _inputHandler;
     private IInteractable _currentInteractable;
 
+    private string _lastPromptMessage = string.Empty;
+
     private void Awake()
     {
         _inputHandler = GetComponent<PlayerInputHandler>();
@@ -27,49 +29,49 @@ public class PlayerInteractor : MonoBehaviour
         HandleRaycast();
         HandleInteraction();
     }
+
     private void HandleRaycast()
     {
-        //Emit a raycast from the center of the camera
         Ray ray = new Ray(_mainCamera.transform.position, _mainCamera.transform.forward);
 
-        RaycastHit hitInfo;
-
-
-        if (Physics.Raycast(ray, out hitInfo, InteractionDistance, _interactableMask))
+        if (Physics.Raycast(ray, out RaycastHit hitInfo, InteractionDistance, _interactableMask))
         {
-            IInteractable interactable = hitInfo.collider.GetComponent<IInteractable>();
+            IInteractable interactable = hitInfo.collider.GetComponentInParent<IInteractable>();
 
             if (interactable != null)
             {
-                if(_currentInteractable != interactable)
+                if (_currentInteractable != interactable)
                 {
                     _currentInteractable = interactable;
+                }
 
-                    //CALL UIMANAGER TO SHOW THE TEXT
-                    UIManager.Instance.ShowInteractPrompt(_currentInteractable.GetInteractPrompt(gameObject));
+                string currentPrompt = _currentInteractable.GetInteractPrompt(gameObject);
+
+                if (_lastPromptMessage != currentPrompt)
+                {
+                    UIManager.Instance.ShowInteractPrompt(currentPrompt);
+                    _lastPromptMessage = currentPrompt;
                 }
 
                 return;
-
             }
         }
 
-        if(_currentInteractable != null)
+        if (_currentInteractable != null)
         {
             _currentInteractable = null;
-            //HIDE TEXT
+            _lastPromptMessage = string.Empty; 
             UIManager.Instance.HideInteractPrompt();
         }
     }
 
     private void HandleInteraction()
     {
-        if(_inputHandler.IsInteracting && _currentInteractable != null)
+        if (_inputHandler.IsInteracting && _currentInteractable != null)
         {
             _currentInteractable.Interact(this.gameObject);
 
-
-            //Avoid multiple interactions while pressing the button 
+            // Avoid multiple interactions while pressing the button 
             _inputHandler.ConsumeInteractInput();
         }
     }
