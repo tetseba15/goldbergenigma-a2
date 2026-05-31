@@ -6,6 +6,9 @@ public class InteractableDoor : MonoBehaviour, IInteractable
     [Header("References")]
     [SerializeField] private Rigidbody _doorRigidbody;
     [SerializeField] private HingeJoint _hingeJoint;
+    [SerializeField] private Collider _doorCollider;
+
+    private JointLimits _originalLimits;
 
     [Header("Door Settings")]
     [SerializeField] private bool _isLocked = false;
@@ -18,6 +21,8 @@ public class InteractableDoor : MonoBehaviour, IInteractable
     private float _walkSpringForce = 15f;
     [SerializeField, Tooltip("Fuerza del resorte al abrir corriendo")]
     private float _sprintSpringForce = 50f;
+    [SerializeField, Tooltip("Marca esto si la puerta abre hacia ti en lugar de alejarse")]
+    private bool _reverseOpenDirection = false;
 
     [Header("Interaction Prompts")]
     [SerializeField] private string _lockedMessage = "Está cerrada con llave.";
@@ -35,13 +40,13 @@ public class InteractableDoor : MonoBehaviour, IInteractable
     [SerializeField] private float _loudNoiseRadius = 15f;
     [SerializeField] private float _creakNoiseRadius = 2f;
 
-    private JointLimits _originalLimits;
+   
 
     private bool _isOpen = false;
+    private float _currentTargetAngle;
 
     private void Awake()
     {
-        
         _originalLimits = _hingeJoint.limits;
 
         _hingeJoint.useSpring = true;
@@ -74,7 +79,16 @@ public class InteractableDoor : MonoBehaviour, IInteractable
 
     public void PhysicalPush(Vector3 interactorPosition, bool isSprinting)
     {
-        if (_isLocked || _isOpen) return; 
+        if (_isLocked) return;
+
+        if (_isOpen)
+        {
+            if (isSprinting && _hingeJoint.spring.spring < _sprintSpringForce)
+            {
+                UpgradeToSlam();
+            }
+            return;
+        }
 
         OpenDoor(interactorPosition, isSprinting);
     }
@@ -83,18 +97,20 @@ public class InteractableDoor : MonoBehaviour, IInteractable
     {
         _isOpen = true;
 
-        // Push based on player's position
-        Vector3 dirToPlayer = (interactorPosition - transform.position).normalized;
+        Vector3 referencePoint = _doorCollider != null ? _doorCollider.bounds.center : transform.position;
+
+        Vector3 dirToPlayer = (interactorPosition - referencePoint).normalized;
         float dot = Vector3.Dot(transform.forward, dirToPlayer);
-        float targetAngle = dot > 0 ? -_openAngle : _openAngle;
+
+        float angleMultiplier = _reverseOpenDirection ? -1f : 1f;
+        _currentTargetAngle = (dot > 0 ? -_openAngle : _openAngle) * angleMultiplier;
 
         JointSpring spring = _hingeJoint.spring;
-        spring.targetPosition = targetAngle;
+        spring.targetPosition = _currentTargetAngle;
         spring.spring = isSprinting ? _sprintSpringForce : _walkSpringForce;
-        spring.damper = 3f; 
+        spring.damper = 3f;
         _hingeJoint.spring = spring;
 
-        // SFX
         if (isSprinting)
         {
             if (_doorAudioSource) _doorAudioSource.PlayOneShot(_slamSound);
@@ -105,6 +121,16 @@ public class InteractableDoor : MonoBehaviour, IInteractable
             if (_doorAudioSource) _doorAudioSource.PlayOneShot(_creakSound);
             NoiseManager.EmitNoise(transform.position, _creakNoiseRadius);
         }
+    }
+
+    private void UpgradeToSlam()
+    {
+        JointSpring spring = _hingeJoint.spring;
+        spring.spring = _sprintSpringForce;
+        _hingeJoint.spring = spring;
+
+        if (_doorAudioSource && _slamSound) _doorAudioSource.PlayOneShot(_slamSound);
+        NoiseManager.EmitNoise(transform.position, _loudNoiseRadius);
     }
 
     private void CloseDoor()
