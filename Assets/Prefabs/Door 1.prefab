@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 282136259547882931}
-  - component: {fileID: 1804366253719674412}
   - component: {fileID: 7807502184124778395}
   - component: {fileID: 1275714318458932173}
+  - component: {fileID: 6535009196424233796}
   m_Layer: 6
   m_Name: Door 1
   m_TagString: Untagged
@@ -40,24 +40,6 @@ Transform:
   - {fileID: 4460003594324313135}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1804366253719674412
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 202228577863389118}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67b1913c965ca3548bda226e5b247600, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LockedDoor
-  _requiresKey: 0
-  _requiredKey: 2
-  _lockedMessage: "Est\xE1 cerrada con llave."
-  _unlockedMessage: '[E] Abrir puerta'
-  _closedMessage: Cerrar puerta
-  _animationDuration: 1.2
 --- !u!114 &7807502184124778395
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -70,19 +52,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c09f4cb2b70da6e4b914b1cde8a12d28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  _doorRigidbody: {fileID: 4340427227818484935}
+  _hingeJoint: {fileID: 9044829744879552528}
+  _doorCollider: {fileID: 5842549699608516510}
   _isLocked: 0
   _requiredKey: 0
-  _gentlePushForce: 2
+  _openAngle: 120
+  _walkSpringForce: 30
+  _sprintSpringForce: 150
+  _reverseOpenDirection: 1
+  _lockedMessage: "Est\xE1 cerrada con llave."
+  _unlockedMessage: '[E] Abrir puerta'
+  _closedMessage: '[E] Cerrar puerta'
   _doorAudioSource: {fileID: 1275714318458932173}
   _lockedRattleSound: {fileID: 8300000, guid: 30fbc9efbe0b22a4aaeb3c347eddfe0d, type: 3}
   _unlockSound: {fileID: 8300000, guid: 2607bcee862062345873b7acb1142855, type: 3}
   _slamSound: {fileID: 8300000, guid: e191009f98fbd564ca2d49f3b5b1ba2a, type: 3}
   _creakSound: {fileID: 8300000, guid: c61b240bd5eee2c4d871c603b4fe3e32, type: 3}
-  _slamThreshold: 2.5
   _loudNoiseRadius: 15
   _creakNoiseRadius: 2
-  _doorRigidbody: {fileID: 4340427227818484935}
-  _hingeJoint: {fileID: 9044829744879552528}
 --- !u!82 &1275714318458932173
 AudioSource:
   m_ObjectHideFlags: 0
@@ -180,6 +168,27 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!65 &6535009196424233796
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202228577863389118}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1.8460275, z: 0.16017784}
+  m_Center: {x: 0.51, y: 0.9320036, z: 0.03266538}
 --- !u!1 &676947764016444825
 GameObject:
   m_ObjectHideFlags: 0
@@ -191,7 +200,7 @@ GameObject:
   - component: {fileID: 4460003594324313135}
   - component: {fileID: 3561723217030868716}
   - component: {fileID: 3963140349428270634}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Hinge_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -281,7 +290,7 @@ GameObject:
   - component: {fileID: 696567092554411544}
   - component: {fileID: 6580361392318200769}
   - component: {fileID: 3315823171888664109}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Mortise_Plate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -375,7 +384,7 @@ GameObject:
   - component: {fileID: 8957856361100805351}
   - component: {fileID: 111047207477169120}
   - component: {fileID: 3731117785230338424}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Handles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -465,7 +474,7 @@ GameObject:
   - component: {fileID: 4488778930495080484}
   - component: {fileID: 5079194116733619107}
   - component: {fileID: 1532256595384564261}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Frame
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -555,7 +564,7 @@ GameObject:
   - component: {fileID: 2730964464240359515}
   - component: {fileID: 4592079561821260393}
   - component: {fileID: 138669221478008490}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Key_Hole_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -643,7 +652,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7776064286697676375}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Animator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -677,7 +686,7 @@ GameObject:
   - component: {fileID: 9207602784035318090}
   - component: {fileID: 3220751053528317791}
   - component: {fileID: 1715102026279925630}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Door
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -790,7 +799,7 @@ GameObject:
   - component: {fileID: 4340427227818484935}
   - component: {fileID: 5842549699608516510}
   - component: {fileID: 9044829744879552528}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: DoorContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -821,7 +830,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7405897978129465931}
   serializedVersion: 5
-  m_Mass: 20
+  m_Mass: 15
   m_LinearDamping: 1
   m_AngularDamping: 10
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -911,7 +920,7 @@ GameObject:
   - component: {fileID: 2075597821852234324}
   - component: {fileID: 1685033400247227638}
   - component: {fileID: 4957503329187138780}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Hinge_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1001,7 +1010,7 @@ GameObject:
   - component: {fileID: 5388278353474104754}
   - component: {fileID: 876896551401357948}
   - component: {fileID: 696426723079562576}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Hinge_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1091,7 +1100,7 @@ GameObject:
   - component: {fileID: 623687638493151346}
   - component: {fileID: 6800813722816371363}
   - component: {fileID: 4775979048547044297}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Key_Hole_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
