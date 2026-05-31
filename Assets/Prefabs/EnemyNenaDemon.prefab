@@ -583,7 +583,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 15
+  MaxDistance: 25
   Pan2D: 0
   rolloffMode: 2
   BypassEffects: 0
@@ -1116,6 +1116,7 @@ GameObject:
   - component: {fileID: 3369233304121124893}
   - component: {fileID: 1771943915009002318}
   - component: {fileID: 5255008789846975068}
+  - component: {fileID: 7832814497226436466}
   m_Layer: 0
   m_Name: EnemyNenaDemon
   m_TagString: Untagged
@@ -1236,8 +1237,8 @@ MonoBehaviour:
   _lookAtTarget: {fileID: 0}
   _audioManager: {fileID: 150932740410148411}
   _spawnEnabler: {fileID: 0}
-  _spottedRoarDuration: 2
-  _enragedRoarDuration: 3
+  _spottedRoarDuration: 1.8
+  _enragedRoarDuration: 2.5
   _invulnerabilityDuration: 8
   _fleeDuration: 3
   _patrolWaypoints: []
@@ -1266,6 +1267,19 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &7832814497226436466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2063678101971841983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2236154187ded0146801613b1b6ee020, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  _enemyPushForce: 15
 --- !u!1 &2086676430715689996
 GameObject:
   m_ObjectHideFlags: 0
@@ -1891,7 +1905,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: fbf811469c6074448815d805a2ebd1b8, type: 3}
   - {fileID: 8300000, guid: c4f8c3f6a78f69842ad964fe320da402, type: 3}
   - {fileID: 8300000, guid: 930ace304accf3a47b13b6891ffadf68, type: 3}
-  _whisperMaxDistance: 18
+  _whisperMaxDistance: 25
   _shoutMaxDistance: 35
   _hurtCooldown: 1.5
 --- !u!1 &4249129635511087112
@@ -3287,7 +3301,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 0.1
   MinDistance: 0
-  MaxDistance: 20
+  MaxDistance: 35
   Pan2D: 0
   rolloffMode: 1
   BypassEffects: 0
