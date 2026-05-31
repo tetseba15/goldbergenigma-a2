@@ -3,30 +3,38 @@ using UnityEngine;
 public class SoundsCar : MonoBehaviour
 {
     [Header("Fuentes de Audio")]
-    [SerializeField] private AudioSource miReproductorCentral;
+    [SerializeField] private AudioSource audioSourceRadio;
 
-    [Header ("Fuentes de audio")]
-    [SerializeField] private AudioSource openDoorSource;
-    [SerializeField] private AudioSource closeDoorSource;
-    [SerializeField] private AudioSource radioSource;
-    [SerializeField] private AudioSource valizasSource;
+    [Header("Fuentes de audio")]
 
-    private bool openDoor = false;
-    private bool onRadio= false;
+    [SerializeField] private AudioClip radioClip;
+    [SerializeField] private AudioClip valizasSource;
+
+
+    private bool onRadio = false;
     private bool onValizas = false;
-
-    public void OpenDoorCar()
+    void Start()
     {
-        if (!openDoor)
+        // Configuración inicial del archivo de audio
+        if (audioSourceRadio != null && radioClip != null)
         {
-            if (openDoorSource != null) openDoorSource.Play();
-            openDoor = true;
-        }
-        else
-        {
-            if (closeDoorSource != null) closeDoorSource.Play();
-            openDoor = false;
-            
+            audioSourceRadio.clip = radioClip;
+
         }
     }
+    private void OnTriggerEnter(Collider other)
+    {
+       
+        if (other.CompareTag("Player") && !onRadio)
+        {
+            EncenderRadioAutomatica();
+        }
+    }
+
+    private void EncenderRadioAutomatica()
+    {
+        onRadio = true;
+        audioSourceRadio.Play();
+    }
 }
+
