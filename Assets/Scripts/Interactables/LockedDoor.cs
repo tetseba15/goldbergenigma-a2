@@ -19,6 +19,11 @@ public class LockedDoor : MonoBehaviour, IInteractable
     [SerializeField, Tooltip("How long the open/close animation takes to finish")]
     private float _animationDuration = 1.2f;
 
+    [Header("Audio of the Door")]
+    [SerializeField] private AudioSource _miAudioSource; // El parlante
+    [SerializeField] private AudioClip _openDoorSound;  // Sonido de abrir (.mp3 / .wav)
+    [SerializeField] private AudioClip _closeDoorSound;
+
     private bool _isUnlocked = false;
     private bool _isOpen = false;
 
@@ -89,11 +94,23 @@ public class LockedDoor : MonoBehaviour, IInteractable
         {
             _animator.SetTrigger("Open");
             _isOpen = true;
+            // REPRODUCIR SONIDO AL ABRIR
+            if (_miAudioSource != null && _openDoorSound != null)
+            {
+                _miAudioSource.PlayOneShot(_openDoorSound);
+            }
+
         }
         else
         {
             _animator.SetTrigger("Close");
             _isOpen = false;
+            // REPRODUCIR SONIDO AL CERRAR
+            if (_miAudioSource != null && _closeDoorSound != null)
+            {
+                _miAudioSource.PlayOneShot(_closeDoorSound);
+            }
+
         }
 
         yield return new WaitForSeconds(_animationDuration);
