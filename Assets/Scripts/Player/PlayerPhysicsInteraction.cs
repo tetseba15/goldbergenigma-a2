@@ -1,26 +1,26 @@
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(PlayerInputHandler))]
 public class PlayerPhysicsInteraction : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] private PlayerInputHandler _playerInput;
+    private PlayerInputHandler _playerInput;
 
-
-    [Header("Push Settings")]
-    [SerializeField] private float _pushForce = 2f;
-    [SerializeField] private float _sprintPushForce = 8f;
-
+    private void Awake()
+    {
+        _playerInput = GetComponent<PlayerInputHandler>();
+    }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        Rigidbody body = hit.collider.attachedRigidbody;
-        if (body == null || body.isKinematic || hit.moveDirection.y < -0.3f) return;
+        InteractableDoor door = hit.collider.GetComponentInParent<InteractableDoor>();
 
-        Vector3 pushDirection = new Vector3(hit.moveDirection.x, 0, hit.moveDirection.z).normalized;
-
-        float currentForce = _playerInput.IsSprinting ? _sprintPushForce : _pushForce;
-
-        body.AddForceAtPosition(pushDirection * currentForce, hit.point, ForceMode.Impulse);
+        if (door != null)
+        {
+            if (_playerInput.MoveInput.magnitude > 0.1f)
+            {
+                door.PhysicalPush(transform.position, _playerInput.IsSprinting);
+            }
+        }
     }
 }
