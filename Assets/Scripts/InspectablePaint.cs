@@ -10,13 +10,16 @@ public class InspectableObject : MonoBehaviour, IInteractable
     [SerializeField] private Transform _cameraTargetPoint;
     [SerializeField] private float _transitionDuration = 1.0f;
 
-    
     [Header("Descipción texto")]
     [SerializeField, Tooltip("Text canvas")]
     private TextMeshProUGUI _uiTextComponent;
 
     [SerializeField, TextArea(3, 10), Tooltip("Texto")]
     private string _inspectionText;
+
+    [Header("Dialogue")]
+    [SerializeField, TextArea(3, 10), Tooltip("Dialogo del player al inspeccionar")]
+    private string _playerDialogue;
 
     private Camera _mainCamera;
     private Vector3 _originalCamPosition;
@@ -34,7 +37,6 @@ public class InspectableObject : MonoBehaviour, IInteractable
     {
         _mainCamera = Camera.main;
 
-        
         if (_uiTextComponent != null)
         {
             _uiTextComponent.gameObject.SetActive(false);
@@ -112,11 +114,15 @@ public class InspectableObject : MonoBehaviour, IInteractable
         _mainCamera.transform.position = _cameraTargetPoint.position;
         _mainCamera.transform.rotation = _cameraTargetPoint.rotation;
 
-        
         if (_uiTextComponent != null && !string.IsNullOrEmpty(_inspectionText))
         {
             _uiTextComponent.text = _inspectionText;
             _uiTextComponent.gameObject.SetActive(true);
+        }
+
+        if (DialogueManager.Instance != null && !string.IsNullOrEmpty(_playerDialogue))
+        {
+            DialogueManager.Instance.ShowDialogue(_playerDialogue);
         }
 
         _isTransitioning = false;
@@ -126,7 +132,6 @@ public class InspectableObject : MonoBehaviour, IInteractable
     {
         _isTransitioning = true;
 
-        
         if (_uiTextComponent != null)
         {
             _uiTextComponent.gameObject.SetActive(false);

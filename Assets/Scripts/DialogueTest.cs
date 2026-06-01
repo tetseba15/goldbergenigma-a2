@@ -7,7 +7,7 @@ public class DialogueTest : MonoBehaviour
     {
         if (Keyboard.current.tKey.wasPressedThisFrame)
         {
-            DialogueManager.Instance.ShowDialogue("Prueba de subtítulo");
+            DialogueManager.Instance.ShowDialogue("Prueba de subtítulo asdasdasdasdadsasdasdadasdsad asdsad saads sadasasd sad");
         }
     }
 }
