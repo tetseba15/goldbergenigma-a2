@@ -19,7 +19,7 @@ public class ItemPickup : MonoBehaviour, IInteractable
 
             if (_pickUpClip != null)
             {
-                AudioManager.Instance.PlaySFX(_pickUpClip, .5f);
+                AudioManager.Instance.PlaySFX(_pickUpClip, .35f);
             }
 
             if (_itemType == PlayerInventory.ItemType.Flashlight)

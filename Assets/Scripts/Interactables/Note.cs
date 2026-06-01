@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -20,6 +21,9 @@ public class Note : MonoBehaviour, IInteractable
     [SerializeField] private GameObject _finalNote;
     [SerializeField] private bool _isKitchenNote = false;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip _readNoteClip;
+
     public string GetInteractPrompt(GameObject interactor)
     {
         return _promptText;
@@ -29,6 +33,8 @@ public class Note : MonoBehaviour, IInteractable
     {
         if (!UIManager.Instance.IsReadingNote)
         {
+            AudioManager.Instance.PlaySFX(_readNoteClip, 0.35f);
+
             UIManager.Instance.ShowNote(_noteContent);
             UIManager.Instance.HideInteractPrompt();
 

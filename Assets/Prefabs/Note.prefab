@@ -131,3 +131,6 @@ MonoBehaviour:
     esto solo, tendr\xE9 que llamar al Padre Dami\xE1n para que me d\xE9 una mano."
   _mannequin: {fileID: 0}
   _isEndNote: 0
+  _finalNote: {fileID: 0}
+  _isKitchenNote: 0
+  _readNoteClip: {fileID: 8300000, guid: 43255a8b3f5e8fb4b9af3da425a24cf0, type: 3}
