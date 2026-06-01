@@ -2,17 +2,19 @@ using UnityEngine;
 
 public class SoundsCar : MonoBehaviour
 {
+   
+
     [Header("Fuentes de Audio")]
     [SerializeField] private AudioSource audioSourceRadio;
 
     [Header("Fuentes de audio")]
 
     [SerializeField] private AudioClip radioClip;
-    [SerializeField] private AudioClip valizasSource;
+    
 
 
     private bool onRadio = false;
-    private bool onValizas = false;
+    
     void Start()
     {
         // Configuración inicial del archivo de audio
@@ -35,6 +37,10 @@ public class SoundsCar : MonoBehaviour
     {
         onRadio = true;
         audioSourceRadio.Play();
+        
+
+        
     }
+   
 }
 
