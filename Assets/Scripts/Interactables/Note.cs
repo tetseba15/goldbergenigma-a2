@@ -52,7 +52,7 @@ public class Note : MonoBehaviour, IInteractable
             {
                 _hasObjectiveUpdated = true;
 
-                ObjectiveManager.Instance.UpdateObjective("Investigar la mansión\n\n Debo saber que sucedió con el padre Merrin");
+                ObjectiveManager.Instance.UpdateObjective("Investigar la mansión\n\n\n\n Debo saber que sucedió con el padre Merrin");
 
                 //if (!_hasSeenDiaryTutorial)
                 //{

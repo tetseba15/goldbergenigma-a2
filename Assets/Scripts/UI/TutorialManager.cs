@@ -60,21 +60,24 @@ public class TutorialManager : MonoBehaviour
         }
 
         // Fade
+        bool isReading = UIManager.Instance != null && UIManager.Instance.IsReadingNote;
+
         if (!_isFadingOut)
         {
-            Fade(1f); 
+            Fade(isReading ? 0f : 1f);
 
-            if (_currentStep.CompletionCondition != null && _currentStep.CompletionCondition.Invoke())
+            //Avoid accidentally completing the tutorial if reading a note
+            if (!isReading && _currentStep.CompletionCondition != null && _currentStep.CompletionCondition.Invoke())
             {
                 _isFadingOut = true;
             }
         }
-        else
+        else 
         {
             Fade(0f);
             if (_canvasGroup.alpha <= 0.01f)
             {
-                _currentStep = null; 
+                _currentStep = null;
             }
         }
     }
