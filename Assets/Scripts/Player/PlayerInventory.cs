@@ -10,6 +10,7 @@ public class PlayerInventory : MonoBehaviour
         OfficeKey = 2,
         QuinchoKey = 3,
         PatioKey = 4,
+        BathroomKey = 5,
 
         // ITEMS AND TOOLS
         Flashlight = 100,

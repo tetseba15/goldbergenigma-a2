@@ -25,6 +25,9 @@ public class ObjectiveManager : MonoBehaviour
 
     public void UpdateObjective(string newObjective)
     {
+
+        newObjective = newObjective.Replace("\\n", "\n");
+
         if (_currentObjective == newObjective) return;
 
         _currentObjective = newObjective;
