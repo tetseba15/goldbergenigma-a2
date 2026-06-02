@@ -4,6 +4,8 @@ using UnityEngine.InputSystem;
 
 public class DiaryManager : MonoBehaviour
 {
+    public static DiaryManager Instance;
+
     [Header("UI Elements")]
     [SerializeField] private GameObject _diaryPanel;
     [SerializeField] private TextMeshProUGUI _objectiveText;
@@ -16,9 +18,13 @@ public class DiaryManager : MonoBehaviour
 
     private PlayerInputActions _inputActions;
     private bool _isOpen = false;
+    public bool IsOpen() => _isOpen;
 
     private void Awake()
     {
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+
         _inputActions = new PlayerInputActions();
 
         _inputActions.Gameplay.OpenDiary.performed += ctx => ToggleDiary();
@@ -63,12 +69,12 @@ public class DiaryManager : MonoBehaviour
     {
         if (ObjectiveManager.Instance != null)
         {
-            _objectiveText.text = "Objetivo Actual:\n" + ObjectiveManager.Instance.GetCurrentObjective();
+            _objectiveText.text = ObjectiveManager.Instance.GetCurrentObjective();
         }
 
         if (_playerInventory != null)
         {
-            string inventoryString = "Inventario:\n\n";
+            string inventoryString = "Llaves:\n\n";
             string batteryInventoryString = "Baterías: \n\n";
 
             
@@ -91,9 +97,9 @@ public class DiaryManager : MonoBehaviour
                 inventoryString += "- Llave de la oficina\n";
             }
 
-            batteryInventoryString += $"\nBaterías de Linterna: {_playerInventory.BatteryCount}\n";
+            batteryInventoryString += $"\n {_playerInventory.BatteryCount}\n";
 
-            if (inventoryString == "Inventario:\n\n")
+            if (inventoryString == "Llaves:\n\n")
             {
                 inventoryString += "(Vacío)";
             }

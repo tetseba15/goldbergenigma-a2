@@ -5,13 +5,21 @@ using UnityEngine.SceneManagement;
 
 public class Note : MonoBehaviour, IInteractable
 {
+    [Header("Car Note")]
+    [SerializeField] private bool _isCarNote;
+    private bool _hasObjectiveUpdated = false;
+    //private bool _hasSeenDiaryTutorial = false;
+
     [Header("Interact prompt")]
     [SerializeField] private string _promptText = "[E] Recoger objeto";
+
     [Header("Note Content")]
     [SerializeField, TextArea(3, 10)]
     private string _noteContent;
+
     [Header("Mannequin")]
     [SerializeField] private GameObject _mannequin;
+
     [Header("End Demo")]
     [SerializeField] private bool _isEndNote = false;
     private bool _mannequinSpawned = false;
@@ -23,6 +31,8 @@ public class Note : MonoBehaviour, IInteractable
 
     [Header("Audio")]
     [SerializeField] private AudioClip _readNoteClip;
+
+
 
     public string GetInteractPrompt(GameObject interactor)
     {
@@ -37,6 +47,21 @@ public class Note : MonoBehaviour, IInteractable
 
             UIManager.Instance.ShowNote(_noteContent);
             UIManager.Instance.HideInteractPrompt();
+
+            if (_isCarNote && !_hasObjectiveUpdated)
+            {
+                _hasObjectiveUpdated = true;
+
+                ObjectiveManager.Instance.UpdateObjective("Investigar la mansión\n\n Debo saber que sucedió con el padre Merrin");
+
+                //if (!_hasSeenDiaryTutorial)
+                //{
+                //    _hasSeenDiaryTutorial = true;
+                //    TutorialManager.Instance.ShowTutorial("Presiona [TAB] para revisar el diario",
+                //        () => DiaryManager.Instance.IsOpen());
+
+                //}
+            }
 
             if (_mannequin != null && !_mannequinSpawned)
             {

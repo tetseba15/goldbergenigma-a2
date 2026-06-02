@@ -24,7 +24,7 @@ public class PlayerInventory : MonoBehaviour
 
     private HashSet<ItemType> _items = new HashSet<ItemType>();
 
-
+    private bool _hasSeenBatteryTutorial = false;
 
     public int BatteryCount { get; private set; } = 0;
 
@@ -46,6 +46,14 @@ public class PlayerInventory : MonoBehaviour
     {
         BatteryCount += amount;
         Debug.Log($"Baterías recogidas. Total: {BatteryCount}");
+
+        if (!_hasSeenBatteryTutorial)
+        {
+            TutorialManager.Instance.ShowTutorial("Presiona [R] para recargar la linterna",
+                () => GetComponent<PlayerFlashlight>().IsReloading());
+
+            _hasSeenBatteryTutorial = true;
+        }
     }
 
     public void ConsumeBattery()

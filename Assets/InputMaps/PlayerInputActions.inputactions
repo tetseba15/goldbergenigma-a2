@@ -61,7 +61,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Flashlight",
+                    "name": "FlashlightToggle",
                     "type": "Button",
                     "id": "8de6e0bb-9199-4460-b032-3eb186fc973b",
                     "expectedControlType": "",
@@ -82,6 +82,15 @@
                     "name": "OpenDiary",
                     "type": "Button",
                     "id": "7fb538a2-0468-4e5e-a1e5-1a0dd59eda6b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Reload",
+                    "type": "Button",
+                    "id": "383a7f6e-5a47-4c1c-b736-d708afe1f104",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -280,10 +289,10 @@
                     "name": "",
                     "id": "4f0c8c35-31ed-4bcd-a146-18a7386ee1c0",
                     "path": "<Keyboard>/f",
-                    "interactions": "",
+                    "interactions": "Tap",
                     "processors": "",
                     "groups": "",
-                    "action": "Flashlight",
+                    "action": "FlashlightToggle",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -294,17 +303,28 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Flashlight",
+                    "action": "FlashlightToggle",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
                     "id": "58d265ee-83b4-493a-986d-210ee8859f2b",
-                    "path": "<Keyboard>/r",
-                    "interactions": "",
+                    "path": "<Keyboard>/f",
+                    "interactions": "Hold(duration=0.3)",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
+                    "action": "InspectFlashlight",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d615a7bc-9c01-46fa-a339-ef2938a8713b",
+                    "path": "<Gamepad>/dpad/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
                     "action": "InspectFlashlight",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -317,6 +337,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "OpenDiary",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ba8d7f56-68e9-4910-951a-47dcec910d5a",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Reload",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

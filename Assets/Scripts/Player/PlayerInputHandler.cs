@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 public class PlayerInputHandler : MonoBehaviour
 {
     private PlayerInputActions _inputActions;
+    private PlayerFlashlight _playerFlashlight;
 
     public Vector2 MoveInput { get; private set; }
     public Vector2 LookInput { get; private set; }
@@ -20,6 +21,36 @@ public class PlayerInputHandler : MonoBehaviour
     private void Awake()
     {
         _inputActions = new PlayerInputActions();
+        _playerFlashlight = GetComponent<PlayerFlashlight>();
+
+        _inputActions.Gameplay.FlashlightToggle.performed += ctx =>
+        {
+            if (_playerFlashlight != null)
+            {
+                _playerFlashlight.ToggleFlashlight();
+            }
+        };
+
+
+        _inputActions.Gameplay.InspectFlashlight.performed += ctx =>
+        {
+            IsInspectingFlashlight = true;
+            if (_playerFlashlight != null) _playerFlashlight.SetInspectState(true); // <-- AVISAMOS A LA LINTERNA
+        };
+
+        _inputActions.Gameplay.InspectFlashlight.canceled += ctx =>
+        {
+            IsInspectingFlashlight = false;
+            if (_playerFlashlight != null) _playerFlashlight.SetInspectState(false); // <-- AVISAMOS A LA LINTERNA
+        };
+
+        _inputActions.Gameplay.Reload.performed += ctx =>
+        {
+            if (_playerFlashlight != null)
+            {
+                _playerFlashlight.TryReload();
+            }
+        };
 
         //Suscribe events for one or mantain pressed buttons
 
@@ -60,7 +91,7 @@ public class PlayerInputHandler : MonoBehaviour
 
         CancelInput = _inputActions.Gameplay.Cancel.WasPressedThisFrame();
 
-        FlashlightInput = _inputActions.Gameplay.Flashlight.WasPressedThisFrame();
+        FlashlightInput = _inputActions.Gameplay.FlashlightToggle.WasPressedThisFrame();
     }
 
     public void ConsumeInteractInput()
