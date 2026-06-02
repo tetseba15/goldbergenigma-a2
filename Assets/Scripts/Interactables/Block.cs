@@ -2,7 +2,15 @@ using UnityEngine;
 
 public class Block : MonoBehaviour
 {
+    private AudioSource _audioSource;
+    [SerializeField] private AudioClip _fallClip;
+
     private bool positionChanged = false;
+
+    private void Awake()
+    {
+        _audioSource = GetComponent<AudioSource>();
+    }
 
     private void OnEnable()
     {
@@ -18,6 +26,10 @@ public class Block : MonoBehaviour
     {
         if (item.Equals(PlayerInventory.ItemType.Bottle) && !positionChanged)
         {
+            if (_fallClip != null)
+            {
+                _audioSource.PlayOneShot(_fallClip);
+            }
             positionChanged = true;
             GetComponent<BoxCollider>().enabled = false;
 
