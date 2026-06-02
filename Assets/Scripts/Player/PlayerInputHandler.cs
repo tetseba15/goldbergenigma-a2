@@ -6,6 +6,8 @@ public class PlayerInputHandler : MonoBehaviour
     private PlayerInputActions _inputActions;
     private PlayerFlashlight _playerFlashlight;
 
+    public event System.Action OnCancelTriggered;
+
     public Vector2 MoveInput { get; private set; }
     public Vector2 LookInput { get; private set; }
 
@@ -51,6 +53,8 @@ public class PlayerInputHandler : MonoBehaviour
                 _playerFlashlight.TryReload();
             }
         };
+
+        _inputActions.UI.Cancel.performed += ctx => OnCancelTriggered?.Invoke();
 
         //Suscribe events for one or mantain pressed buttons
 

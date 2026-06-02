@@ -34,14 +34,34 @@ public class UIManager : MonoBehaviour
         if (player != null)
         {
             _inputHandler = player.GetComponent<PlayerInputHandler>();
+
+            // PATRÓN OBSERVER: Nos suscribimos al evento
+            _inputHandler.OnCancelTriggered += HandleCancelAction;
         }
 
         HideInteractPrompt();
     }
 
+    private void OnDestroy()
+    {
+        
+        if (_inputHandler != null)
+        {
+            _inputHandler.OnCancelTriggered -= HandleCancelAction;
+        }
+    }
+
     private void Update()
     {
         if (IsReadingNote && _inputHandler != null && _inputHandler.CancelInput)
+        {
+            HideNote();
+        }
+    }
+
+    private void HandleCancelAction()
+    {
+        if (IsReadingNote)
         {
             HideNote();
         }
