@@ -1,6 +1,5 @@
 using UnityEngine;
 
-
 public class InteractableDoor : MonoBehaviour, IInteractable
 {
     [Header("References")]
@@ -31,7 +30,6 @@ public class InteractableDoor : MonoBehaviour, IInteractable
     [SerializeField] private string _closedMessage = "Cerrar puerta";
 
     [Header("Audio")]
-    [SerializeField] private AudioSource _doorAudioSource;
     [SerializeField] private AudioClip _lockedRattleSound;
     [SerializeField] private AudioClip _unlockSound;
     [SerializeField] private AudioClip _slamSound;
@@ -40,7 +38,7 @@ public class InteractableDoor : MonoBehaviour, IInteractable
     [Header("Noise & Stealth")]
     [SerializeField] private float _loudNoiseRadius = 15f;
     [SerializeField] private float _creakNoiseRadius = 2f;
-       
+
 
     private bool _isOpen = false;
     private float _currentTargetAngle;
@@ -77,7 +75,7 @@ public class InteractableDoor : MonoBehaviour, IInteractable
         }
 
         if (_isOpen) CloseDoor();
-        else OpenDoor(interactor.transform.position, false); 
+        else OpenDoor(interactor.transform.position, false);
     }
 
     public void PhysicalPush(Vector3 interactorPosition, bool isSprinting)
@@ -120,12 +118,12 @@ public class InteractableDoor : MonoBehaviour, IInteractable
 
         if (isSprinting)
         {
-            if (_doorAudioSource) _doorAudioSource.PlayOneShot(_slamSound);
+            AudioManager.Instance.PlaySFXAtPosition(_slamSound, transform.position, 1f, Random.Range(0.9f, 1.1f));
             NoiseManager.EmitNoise(transform.position, _loudNoiseRadius);
         }
         else
         {
-            if (_doorAudioSource) _doorAudioSource.PlayOneShot(_creakSound);
+            AudioManager.Instance.PlaySFXAtPosition(_creakSound, transform.position, 1f, Random.Range(0.95f, 1.05f));
             NoiseManager.EmitNoise(transform.position, _creakNoiseRadius);
         }
     }
@@ -136,7 +134,7 @@ public class InteractableDoor : MonoBehaviour, IInteractable
         spring.spring = _sprintSpringForce;
         _hingeJoint.spring = spring;
 
-        if (_doorAudioSource && _slamSound) _doorAudioSource.PlayOneShot(_slamSound);
+        AudioManager.Instance.PlaySFXAtPosition(_slamSound, transform.position, 1f, Random.Range(0.9f, 1.1f));
         NoiseManager.EmitNoise(transform.position, _loudNoiseRadius);
     }
 
@@ -146,10 +144,10 @@ public class InteractableDoor : MonoBehaviour, IInteractable
 
         JointSpring spring = _hingeJoint.spring;
         spring.targetPosition = 0f;
-        spring.spring = _walkSpringForce; 
+        spring.spring = _walkSpringForce;
         _hingeJoint.spring = spring;
 
-        if (_doorAudioSource) _doorAudioSource.PlayOneShot(_creakSound);
+        AudioManager.Instance.PlaySFXAtPosition(_creakSound, transform.position, 1f, Random.Range(0.95f, 1.05f));
     }
 
     private void HandleLockedInteraction(GameObject interactor)
@@ -159,12 +157,12 @@ public class InteractableDoor : MonoBehaviour, IInteractable
         {
             _isLocked = false;
             _hingeJoint.limits = _originalLimits;
-            if (_doorAudioSource) _doorAudioSource.PlayOneShot(_unlockSound);
+
+            AudioManager.Instance.PlaySFXAtPosition(_unlockSound, transform.position, 1f, 1f);
         }
         else
         {
-            if (_doorAudioSource) _doorAudioSource.PlayOneShot(_lockedRattleSound);
-            
+            AudioManager.Instance.PlaySFXAtPosition(_lockedRattleSound, transform.position, 1f, Random.Range(0.95f, 1.05f));
             _doorRigidbody.AddRelativeTorque(Vector3.up * 5f, ForceMode.Impulse);
         }
     }
@@ -173,11 +171,7 @@ public class InteractableDoor : MonoBehaviour, IInteractable
     {
         if (Time.time >= _lastRattleTime + _rattleCooldown)
         {
-            if (_doorAudioSource && _lockedRattleSound)
-            {
-                _doorAudioSource.PlayOneShot(_lockedRattleSound);
-            }
-
+            AudioManager.Instance.PlaySFXAtPosition(_lockedRattleSound, transform.position, 1f, Random.Range(0.95f, 1.05f));
             _doorRigidbody.AddRelativeTorque(Vector3.up * 5f, ForceMode.Impulse);
 
             _lastRattleTime = Time.time;
