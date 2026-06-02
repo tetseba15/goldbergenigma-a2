@@ -7,7 +7,8 @@ public class DiaryManager : MonoBehaviour
     [Header("UI Elements")]
     [SerializeField] private GameObject _diaryPanel;
     [SerializeField] private TextMeshProUGUI _objectiveText;
-    [SerializeField] private TextMeshProUGUI _inventoryText;
+    [SerializeField] private TextMeshProUGUI _keysText;
+    [SerializeField] private TextMeshProUGUI _batteryText;
 
     [Header("Dependencies")]
     [SerializeField, Tooltip("Arrastra al jugador aquí para leer su inventario")]
@@ -68,9 +69,9 @@ public class DiaryManager : MonoBehaviour
         if (_playerInventory != null)
         {
             string inventoryString = "Inventario:\n\n";
+            string batteryInventoryString = "Baterías: \n\n";
 
-            // Aquí le preguntas a tu script PlayerInventory qué llaves tiene. 
-            // Suponiendo que tienes un método o revisas los booleanos/lista:
+            
             if (_playerInventory.HasItem(PlayerInventory.ItemType.MansionKey))
             {
                 inventoryString += "- Llave de la Mansión\n";
@@ -80,15 +81,25 @@ public class DiaryManager : MonoBehaviour
                 inventoryString += "- Llave del Patio\n";
             }
 
-            // Agregamos consumibles como baterías
-            // inventoryString += $"\nBaterías de Linterna: {_playerInventory.GetBatteryCount()}\n";
+            if (_playerInventory.HasItem(PlayerInventory.ItemType.QuinchoKey))
+            {
+                inventoryString += "- Llave del Quincho\n";
+            }
+
+            if (_playerInventory.HasItem(PlayerInventory.ItemType.OfficeKey))
+            {
+                inventoryString += "- Llave de la oficina\n";
+            }
+
+            batteryInventoryString += $"\nBaterías de Linterna: {_playerInventory.BatteryCount}\n";
 
             if (inventoryString == "Inventario:\n\n")
             {
                 inventoryString += "(Vacío)";
             }
 
-            _inventoryText.text = inventoryString;
+            _keysText.text = inventoryString;
+            _batteryText.text = batteryInventoryString;
         }
     }
 }

@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class BatteryPickup : MonoBehaviour, IInteractable
 {
-    [Header("Configuración")]
-    [SerializeField] private float _rechargeAmount = 25f;
+    [Header("Settings")]
+    [SerializeField] private int _batteriesToGive = 1;
     [SerializeField] private string _promptText = "[E] Tomar pilas";
 
     public string GetInteractPrompt(GameObject interactor) => _promptText;
@@ -11,15 +11,13 @@ public class BatteryPickup : MonoBehaviour, IInteractable
     public void Interact(GameObject interactor)
     {
 
-        PlayerFlashlight flashlight = interactor.GetComponent<PlayerFlashlight>();
+        PlayerInventory inventory = interactor.GetComponent<PlayerInventory>();
 
-        if (flashlight != null)
+        if (inventory != null)
         {
-            flashlight.RechargeBattery(_rechargeAmount);
+            inventory.AddBatteries(_batteriesToGive);
 
-            // FX HERE
-
-            Debug.Log($"Linterna recargada con {_rechargeAmount}%");
+            // TODO: FX de recoger ítem (sonido de guardar en el bolsillo)
 
             Destroy(gameObject);
         }

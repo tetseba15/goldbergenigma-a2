@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections;
 
 [RequireComponent(typeof(PlayerInputHandler))]
 [RequireComponent(typeof(PlayerInventory))]
@@ -26,6 +27,7 @@ public class PlayerFlashlight : MonoBehaviour
     private MeshRenderer _flashlightMeshRenderer;
     [SerializeField, Tooltip("Flashlight Canvas")]
     private Canvas _canvasIndicator;
+
 
     [SerializeField] private GameObject _flashlight;
 
@@ -73,6 +75,9 @@ public class PlayerFlashlight : MonoBehaviour
 
     private PlayerInputHandler _inputHandler;
     private PlayerInventory _inventory;
+
+    private bool _isReloading = false;
+
 
     private void Awake()
     {
@@ -126,8 +131,18 @@ public class PlayerFlashlight : MonoBehaviour
         HandleInspection();
     }
 
+    public void TryReload()
+    {
+        if (_isReloading || _inventory.BatteryCount <= 0 || _currentBattery >= _maxBattery)
+            return;
+
+        StartCoroutine(ReloadRoutine());
+    }
+
     private void HandleToggle()
     {
+        if (_isReloading) return;
+
         if (_inputHandler.FlashlightInput && _inventory.HasItem(PlayerInventory.ItemType.Flashlight))
         {
             if (!_isOn && _currentBattery > 0f)
@@ -171,6 +186,8 @@ public class PlayerFlashlight : MonoBehaviour
 
     private void TurnOn()
     {
+        if (_isReloading) return;
+
         _isOn = true;
 
         if (!IsIntensityHijacked)
@@ -232,4 +249,29 @@ public class PlayerFlashlight : MonoBehaviour
         _flashlightModel.localRotation = Quaternion.Lerp(_flashlightModel.localRotation, targetRotation, Time.deltaTime * _inspectSpeed);
     }
 
+    private IEnumerator ReloadRoutine()
+    {
+        _isReloading = true;
+        _inventory.ConsumeBattery();
+
+        bool wasOn = IsOn();
+
+        TurnOff();
+
+        // TODO: Reproducir sonido de "abrir tapa de linterna y sacar pila"
+
+        yield return new WaitForSeconds(3f);
+
+        // TODO: Reproducir sonido de "poner pila nueva y cerrar tapa"
+
+        _currentBattery = _maxBattery;
+        OnBatteryChanged?.Invoke(_currentBattery / _maxBattery); 
+
+        if (wasOn)
+        {
+            TurnOn();
+        }
+
+        _isReloading = false; 
+    }
 }
