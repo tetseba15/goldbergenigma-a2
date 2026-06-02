@@ -8,7 +8,6 @@ public class Note : MonoBehaviour, IInteractable
     [Header("Car Note")]
     [SerializeField] private bool _isCarNote;
     private bool _hasObjectiveUpdated = false;
-    //private bool _hasSeenDiaryTutorial = false;
 
     [Header("Interact prompt")]
     [SerializeField] private string _promptText = "[E] Recoger objeto";
@@ -29,10 +28,11 @@ public class Note : MonoBehaviour, IInteractable
     [SerializeField] private GameObject _finalNote;
     [SerializeField] private bool _isKitchenNote = false;
 
+    [Header("Ouija")]
+    [SerializeField] private bool _advancesOuija = false;
+
     [Header("Audio")]
     [SerializeField] private AudioClip _readNoteClip;
-
-
 
     public string GetInteractPrompt(GameObject interactor)
     {
@@ -44,23 +44,19 @@ public class Note : MonoBehaviour, IInteractable
         if (!UIManager.Instance.IsReadingNote)
         {
             AudioManager.Instance.PlaySFX(_readNoteClip, 0.35f);
-
             UIManager.Instance.ShowNote(_noteContent);
             UIManager.Instance.HideInteractPrompt();
 
             if (_isCarNote && !_hasObjectiveUpdated)
             {
                 _hasObjectiveUpdated = true;
-
                 ObjectiveManager.Instance.UpdateObjective("Investigar la mansión\n\n\n\n Debo saber que sucedió con el padre Merrin");
+            }
 
-                //if (!_hasSeenDiaryTutorial)
-                //{
-                //    _hasSeenDiaryTutorial = true;
-                //    TutorialManager.Instance.ShowTutorial("Presiona [TAB] para revisar el diario",
-                //        () => DiaryManager.Instance.IsOpen());
-
-                //}
+            if (_advancesOuija)
+            {
+                OuijaBoard ouija = FindObjectOfType<OuijaBoard>();
+                if (ouija != null) ouija.AdvanceToNextAct();
             }
 
             if (_mannequin != null && !_mannequinSpawned)
@@ -68,6 +64,7 @@ public class Note : MonoBehaviour, IInteractable
                 _mannequin.SetActive(true);
                 _mannequinSpawned = true;
             }
+
             if (_isEndNote)
             {
                 _waitingToRestart = true;

@@ -14,11 +14,17 @@ public class GhostAppearance : MonoBehaviour
 
     public void Appear()
     {
+        Appear(_ghostModel.transform.position);
+    }
+
+    public void Appear(Vector3 position)
+    {
         if (_ghostModel == null) return;
 
         if (_disappearCoroutine != null)
             StopCoroutine(_disappearCoroutine);
 
+        _ghostModel.transform.position = position;
         _ghostModel.SetActive(true);
         EnemyAI.TriggerRoar(_roarDuration, _roarDuration);
         _disappearCoroutine = StartCoroutine(DisappearAfterDelay());
