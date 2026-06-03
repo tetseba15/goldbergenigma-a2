@@ -1,3 +1,4 @@
+using System;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -6,6 +7,8 @@ public class ItemPickup : MonoBehaviour, IInteractable
     [SerializeField] private PlayerInventory.ItemType _itemType;
     [SerializeField] private string _promptText = "Recoger objeto";
     [SerializeField] private AudioClip _pickUpClip;
+
+    public static event Action<PlayerInventory> OnInteract;
 
     public string GetInteractPrompt(GameObject interactor) => _promptText;
 
@@ -39,6 +42,8 @@ public class ItemPickup : MonoBehaviour, IInteractable
                     waterController.RefillBottle();
                 }
             }
+
+            OnInteract?.Invoke(interactor.GetComponent<PlayerInventory>());
 
             Destroy(gameObject);
         }

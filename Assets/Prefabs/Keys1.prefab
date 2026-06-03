@@ -69,6 +69,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemPickup
   _itemType: 0
   _promptText: '[E] Recoger llave'
+  _pickUpClip: {fileID: 8300000, guid: 8046fa1158f95814482f0b5af7b27716, type: 3}
 --- !u!1001 &7635722497910251484
 PrefabInstance:
   m_ObjectHideFlags: 0
