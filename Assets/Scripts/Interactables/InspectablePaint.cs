@@ -33,6 +33,9 @@ public class InspectableObject : MonoBehaviour, IInteractable
     private PlayerLook _playerLook;
     private List<MonoBehaviour> _disabledCameraScripts = new List<MonoBehaviour>();
 
+    
+    private List<EnemyAI> _frozenEnemies = new List<EnemyAI>();
+
     void Start()
     {
         _mainCamera = Camera.main;
@@ -77,12 +80,14 @@ public class InspectableObject : MonoBehaviour, IInteractable
         _originalCamRotation = _mainCamera.transform.localRotation;
         _originalCamParent = _mainCamera.transform.parent;
 
+        
         _playerMovement = player.GetComponent<PlayerMovement>();
         if (_playerMovement != null) _playerMovement.enabled = false;
 
         _playerLook = player.GetComponent<PlayerLook>();
         if (_playerLook != null) _playerLook.enabled = false;
 
+        
         _disabledCameraScripts.Clear();
         MonoBehaviour[] allCamScripts = _mainCamera.GetComponents<MonoBehaviour>();
         foreach (MonoBehaviour script in allCamScripts)
@@ -91,6 +96,18 @@ public class InspectableObject : MonoBehaviour, IInteractable
             {
                 script.enabled = false;
                 _disabledCameraScripts.Add(script);
+            }
+        }
+
+        
+        _frozenEnemies.Clear();
+        EnemyAI[] enemiesInScene = FindObjectsByType<EnemyAI>(FindObjectsSortMode.None);
+        foreach (EnemyAI enemy in enemiesInScene)
+        {
+            if (enemy != null && enemy.enabled)
+            {
+                enemy.enabled = false;
+                _frozenEnemies.Add(enemy);
             }
         }
 
@@ -158,6 +175,13 @@ public class InspectableObject : MonoBehaviour, IInteractable
         _mainCamera.transform.SetParent(_originalCamParent);
         _mainCamera.transform.localPosition = _originalCamPosition;
         _mainCamera.transform.localRotation = _originalCamRotation;
+
+        
+        foreach (EnemyAI enemy in _frozenEnemies)
+        {
+            if (enemy != null) enemy.enabled = true;
+        }
+        _frozenEnemies.Clear();
 
         if (_playerMovement != null) _playerMovement.enabled = true;
         if (_playerLook != null) _playerLook.enabled = true;
