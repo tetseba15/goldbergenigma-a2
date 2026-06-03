@@ -25,6 +25,10 @@ public class ShovelController : MonoBehaviour
     [SerializeField, Tooltip("Sonido de llave")]
     private AudioClip _keySpawnSound;
 
+    [Header("NotaMadre chimenea")]
+    [SerializeField, Tooltip("Nota madre chimenea")]
+    private GameObject _notaMadrePrefab;
+
     [Header("Configuración")]
     [SerializeField] private float _animationDuration;
     [SerializeField] private float _interactionDistance;
@@ -93,18 +97,27 @@ public class ShovelController : MonoBehaviour
 
         
         GameObject llave = null;
+        GameObject nota = null;
 
         
         if (targetObject.CompareTag("Chimney"))
         {
             llave = _chimneyKeyPrefab;
+
+            nota = _notaMadrePrefab;
         }
         else if (targetObject.CompareTag("Grave"))
         {
             llave = _graveKeyPrefab;
         }
 
-        
+        if (nota != null)
+        {
+            Vector3 spawnPosition = targetObject.transform.position + new Vector3(0f, 0.1f, 0f);
+
+
+            GameObject nuevaNota = Instantiate(nota, spawnPosition, Quaternion.identity);
+        }
         if (llave != null)
         {
             Vector3 spawnPosition = targetObject.transform.position + new Vector3(0f, 0.1f, 0f);
