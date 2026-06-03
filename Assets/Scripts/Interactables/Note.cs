@@ -1,88 +1,37 @@
-using System;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.Events; 
 
 public class Note : MonoBehaviour, IInteractable
 {
-    [Header("Car Note")]
-    [SerializeField] private bool _isCarNote;
-    private bool _hasObjectiveUpdated = false;
-
-    [Header("Interact prompt")]
-    [SerializeField] private string _promptText = "[E] Recoger objeto";
-
-    [Header("Note Content")]
-    [SerializeField, TextArea(3, 10)]
-    private string _noteContent;
-
-    [Header("Mannequin")]
-    [SerializeField] private GameObject _mannequin;
-
-    [Header("End Demo")]
-    [SerializeField] private bool _isEndNote = false;
-    private bool _mannequinSpawned = false;
-    private bool _waitingToRestart = false;
-
-    [Header("Final Note Activator")]
-    [SerializeField] private GameObject _finalNote;
-    [SerializeField] private bool _isKitchenNote = false;
-
-    [Header("Ouija")]
-    [SerializeField] private bool _advancesOuija = false;
-
-    [Header("Audio")]
+    [Header("Note Settings")]
+    [SerializeField] private string _promptText = "[E] Leer nota";
+    [SerializeField, TextArea(3, 10)] private string _noteContent;
     [SerializeField] private AudioClip _readNoteClip;
 
-    public string GetInteractPrompt(GameObject interactor)
-    {
-        return _promptText;
-    }
+    [Header("Eventos Especiales")]
+    [Tooltip("¿El evento debe ocurrir solo la primera vez que se lee la nota?")]
+    [SerializeField] private bool _triggerEventOnlyOnce = true;
+
+    [Tooltip("Arrastra aquí lo que quieres que pase al leer la nota.")]
+    public UnityEvent OnNoteRead;
+
+    private bool _hasBeenRead = false;
+
+    public string GetInteractPrompt(GameObject interactor) => _promptText;
 
     public void Interact(GameObject interactor)
     {
         if (!UIManager.Instance.IsReadingNote)
         {
-            AudioManager.Instance.PlaySFX(_readNoteClip, 0.35f);
+            AudioManager.Instance.PlaySFX(_readNoteClip, 0.5f); 
             UIManager.Instance.ShowNote(_noteContent);
             UIManager.Instance.HideInteractPrompt();
 
-            if (_isCarNote && !_hasObjectiveUpdated)
+            if (!_hasBeenRead || !_triggerEventOnlyOnce)
             {
-                _hasObjectiveUpdated = true;
-                ObjectiveManager.Instance.UpdateObjective("Investigar la mansión\n\n\n\n Debo saber que sucedió con el padre Merrin");
+                OnNoteRead?.Invoke(); 
+                _hasBeenRead = true;
             }
-
-            if (_advancesOuija)
-            {
-                OuijaBoard ouija = FindObjectOfType<OuijaBoard>();
-                if (ouija != null) ouija.AdvanceToNextAct();
-            }
-
-            if (_mannequin != null && !_mannequinSpawned)
-            {
-                _mannequin.SetActive(true);
-                _mannequinSpawned = true;
-            }
-
-            if (_isEndNote)
-            {
-                _waitingToRestart = true;
-            }
-
-            if (_isKitchenNote && _finalNote != null)
-            {
-                _finalNote.SetActive(true);
-            }
-        }
-    }
-
-    private void Update()
-    {
-        if (_waitingToRestart && !UIManager.Instance.IsReadingNote)
-        {
-            _waitingToRestart = false;
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
     }
 }

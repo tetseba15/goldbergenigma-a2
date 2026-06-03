@@ -18,12 +18,14 @@ public class TutorialManager : MonoBehaviour
     {
         public string Text;
         public Func<bool> CompletionCondition;
+        public float Timer;
     }
 
     // If multiple tutorials triggers, add them to the Queue
     private Queue<TutorialStep> _tutorialQueue = new Queue<TutorialStep>();
     private TutorialStep _currentStep;
     private bool _isFadingOut = false;
+    private float _currentTimer;
 
     private void Awake()
     {
@@ -42,6 +44,11 @@ public class TutorialManager : MonoBehaviour
         _tutorialQueue.Enqueue(new TutorialStep { Text = message, CompletionCondition = conditionToComplete });
     }
 
+    public void ShowTutorial(string message, float durationInSeconds)
+    {
+        _tutorialQueue.Enqueue(new TutorialStep { Text = message, CompletionCondition = null, Timer = durationInSeconds });
+    }
+
     private void Update()
     {
         if (_currentStep == null)
@@ -50,11 +57,12 @@ public class TutorialManager : MonoBehaviour
             {
                 _currentStep = _tutorialQueue.Dequeue();
                 _tutorialText.text = _currentStep.Text;
+                _currentTimer = _currentStep.Timer; 
                 _isFadingOut = false;
             }
             else
             {
-                Fade(0f); 
+                Fade(0f);
                 return;
             }
         }
@@ -66,10 +74,23 @@ public class TutorialManager : MonoBehaviour
         {
             Fade(isReading ? 0f : 1f);
 
-            //Avoid accidentally completing the tutorial if reading a note
-            if (!isReading && _currentStep.CompletionCondition != null && _currentStep.CompletionCondition.Invoke())
+            if (!isReading)
             {
-                _isFadingOut = true;
+                if (_currentStep.CompletionCondition != null)
+                {
+                    if (_currentStep.CompletionCondition.Invoke())
+                    {
+                        _isFadingOut = true;
+                    }
+                }
+                else
+                {
+                    _currentTimer -= Time.deltaTime;
+                    if (_currentTimer <= 0f)
+                    {
+                        _isFadingOut = true;
+                    }
+                }
             }
         }
         else 
