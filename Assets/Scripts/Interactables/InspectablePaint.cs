@@ -6,19 +6,22 @@ using TMPro;
 
 public class InspectableObject : MonoBehaviour, IInteractable
 {
+    [Header("UI de Interacción (NUEVO)")]
+    private string _interactPromptText = "[E] Inspeccionar";
+
     [Header("Configuración de Cámara")]
     [SerializeField] private Transform _cameraTargetPoint;
     [SerializeField] private float _transitionDuration = 1.0f;
 
-    [Header("Descipción texto")]
-    [SerializeField, Tooltip("Text canvas")]
+    [Header("Descripción en Pantalla")]
+    [SerializeField, Tooltip("Componente de texto del HUD Canvas (TextMeshPro)")]
     private TextMeshProUGUI _uiTextComponent;
 
-    [SerializeField, TextArea(3, 10), Tooltip("Texto")]
+    [SerializeField, TextArea(3, 10), Tooltip("Texto descriptivo que aparecerá al llegar la cámara")]
     private string _inspectionText;
 
-    [Header("Dialogue")]
-    [SerializeField, TextArea(3, 10), Tooltip("Dialogo del player al inspeccionar")]
+    [Header("Diálogo del Personaje")]
+    [SerializeField, TextArea(3, 10), Tooltip("Diálogo que dirá el jugador a través del DialogueManager")]
     private string _playerDialogue;
 
     private Camera _mainCamera;
@@ -32,8 +35,6 @@ public class InspectableObject : MonoBehaviour, IInteractable
     private PlayerMovement _playerMovement;
     private PlayerLook _playerLook;
     private List<MonoBehaviour> _disabledCameraScripts = new List<MonoBehaviour>();
-
-    
     private List<EnemyAI> _frozenEnemies = new List<EnemyAI>();
 
     void Start()
@@ -48,6 +49,7 @@ public class InspectableObject : MonoBehaviour, IInteractable
 
     void Update()
     {
+        
         if (_isInspecting && !_isTransitioning && Keyboard.current.eKey.wasPressedThisFrame)
         {
             StopAllCoroutines();
@@ -55,9 +57,10 @@ public class InspectableObject : MonoBehaviour, IInteractable
         }
     }
 
+    
     public string GetInteractPrompt(GameObject player)
     {
-        return _isInspecting ? string.Empty : "Presiona E para examinar el cuadro";
+        return _isInspecting ? string.Empty : _interactPromptText;
     }
 
     public void Interact(GameObject player)
@@ -117,6 +120,7 @@ public class InspectableObject : MonoBehaviour, IInteractable
         Vector3 startingPos = _mainCamera.transform.position;
         Quaternion startingRot = _mainCamera.transform.rotation;
 
+        
         while (elapsedTime < _transitionDuration)
         {
             elapsedTime += Time.deltaTime;
@@ -131,12 +135,14 @@ public class InspectableObject : MonoBehaviour, IInteractable
         _mainCamera.transform.position = _cameraTargetPoint.position;
         _mainCamera.transform.rotation = _cameraTargetPoint.rotation;
 
+        
         if (_uiTextComponent != null && !string.IsNullOrEmpty(_inspectionText))
         {
             _uiTextComponent.text = _inspectionText;
             _uiTextComponent.gameObject.SetActive(true);
         }
 
+        
         if (DialogueManager.Instance != null && !string.IsNullOrEmpty(_playerDialogue))
         {
             DialogueManager.Instance.ShowDialogue(_playerDialogue);
@@ -161,6 +167,7 @@ public class InspectableObject : MonoBehaviour, IInteractable
         Vector3 targetGlobalPos = _originalCamParent.TransformPoint(_originalCamPosition);
         Quaternion targetGlobalRot = _originalCamParent.rotation * _originalCamRotation;
 
+        
         while (elapsedTime < _transitionDuration)
         {
             elapsedTime += Time.deltaTime;
@@ -183,6 +190,7 @@ public class InspectableObject : MonoBehaviour, IInteractable
         }
         _frozenEnemies.Clear();
 
+        
         if (_playerMovement != null) _playerMovement.enabled = true;
         if (_playerLook != null) _playerLook.enabled = true;
 
