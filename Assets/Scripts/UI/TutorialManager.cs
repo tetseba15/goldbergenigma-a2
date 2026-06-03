@@ -107,4 +107,17 @@ public class TutorialManager : MonoBehaviour
     {
         _canvasGroup.alpha = Mathf.MoveTowards(_canvasGroup.alpha, targetAlpha, Time.deltaTime * _fadeSpeed);
     }
+
+    public void ClearAllTutorials()
+    {
+        _tutorialQueue.Clear();
+
+        if (_currentStep != null && !_isFadingOut)
+        {
+            _isFadingOut = true;
+
+            _currentStep.Timer = 0f;
+            _currentStep.CompletionCondition = () => true;
+        }
+    }
 }
