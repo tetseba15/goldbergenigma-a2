@@ -27,10 +27,14 @@ public class DialogueManager : MonoBehaviour
 
     private IEnumerator PlayDialogue(string text)
     {
+        if (AudioManager.Instance != null) AudioManager.Instance.SetDialogueState(true);
+
         _textReveal.TextMesh.text = text;
         _textReveal.SetAllCharactersAlpha(0);
         yield return StartCoroutine(_textReveal.FadeText(true));
         yield return new WaitForSeconds(_displayDuration);
         yield return StartCoroutine(_textReveal.FadeText(false));
+
+        if (AudioManager.Instance != null) AudioManager.Instance.SetDialogueState(false);
     }
 }
