@@ -1279,7 +1279,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2236154187ded0146801613b1b6ee020, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  _enemyPushForce: 15
+  _enemyPushForce: 120
 --- !u!1 &2086676430715689996
 GameObject:
   m_ObjectHideFlags: 0
