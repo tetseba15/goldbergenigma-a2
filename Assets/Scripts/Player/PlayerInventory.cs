@@ -18,6 +18,7 @@ public class PlayerInventory : MonoBehaviour
         Bottle = 102,
         Cross = 103,
         Shovel = 104,
+        OuijaBoard = 105,
 
         // NOTES
         Note = 200

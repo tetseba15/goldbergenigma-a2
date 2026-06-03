@@ -1,8 +1,12 @@
+using System;
 using UnityEngine;
 
 public class OuijaBoard : MonoBehaviour, IInteractable
 {
     [SerializeField] private GhostAppearance _ghostAppearance;
+
+    [Header("Item Type")]
+    [SerializeField] private PlayerInventory.ItemType _itemType;
 
     [Header("Mensajes")]
     [SerializeField] private string _act1Message = "Habitación. Arriba.";
@@ -10,6 +14,8 @@ public class OuijaBoard : MonoBehaviour, IInteractable
     [SerializeField] private string _act3Message = "Fogón. Fuego. Enfrentamiento.";
 
     private int _currentAct = 1;
+
+    public static event Action<PlayerInventory.ItemType> OnInteract;
 
     public string GetInteractPrompt(GameObject interactor)
     {
@@ -27,6 +33,8 @@ public class OuijaBoard : MonoBehaviour, IInteractable
 
         if (DialogueManager.Instance != null)
             DialogueManager.Instance.ShowDialogue(GetCurrentMessage());
+
+        OnInteract?.Invoke(_itemType);
     }
 
     public void AdvanceToNextAct()

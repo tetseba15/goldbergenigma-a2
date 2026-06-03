@@ -14,17 +14,17 @@ public class Block : MonoBehaviour
 
     private void OnEnable()
     {
-        ItemPickup.OnInteract += ChangePosition;
+        OuijaBoard.OnInteract += ChangePosition;
     }
 
     private void OnDisable()
     {
-        ItemPickup.OnInteract -= ChangePosition;
+        OuijaBoard.OnInteract -= ChangePosition;
     }
 
     private void ChangePosition(PlayerInventory.ItemType item)
     {
-        if (item.Equals(PlayerInventory.ItemType.Bottle) && !positionChanged)
+        if (item.Equals(PlayerInventory.ItemType.OuijaBoard) && !positionChanged)
         {
             if (_fallClip != null)
             {
