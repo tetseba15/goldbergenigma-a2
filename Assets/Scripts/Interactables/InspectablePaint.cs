@@ -8,15 +8,15 @@ using TMPro;
 public class InspectableObject : MonoBehaviour, IInteractable
 {
     [Header("1. TEXTO DEL CARTELITO (HUD)")]
-    [SerializeField, Tooltip("Lo que dice la pantalla al mirar el objeto (Ej: Presiona E para mirar el oso)")]
+    [SerializeField, Tooltip("Lo que dice la pantalla al mirar el objeto")]
     private string _interactPromptText = "Presiona E para examinar";
 
     [Header("2. TEXTO DE DESCRIPCIÓN")]
-    [SerializeField, TextArea(3, 10), Tooltip("La historia o descripción del objeto que aparece al hacer zoom")]
+    [SerializeField, TextArea(3, 10), Tooltip("Descripción del objeto")]
     private string _inspectionText;
 
     [Header("3. DIÁLOGO DEL JUGADOR")]
-    [SerializeField, TextArea(3, 10), Tooltip("Lo que dice el protagonista en voz alta usando el DialogueManager")]
+    [SerializeField, TextArea(3, 10), Tooltip("Lo que dice el protagonista")]
     private string _playerDialogue;
 
     [Header("Configuración del Canvas de UI")]
@@ -40,7 +40,7 @@ public class InspectableObject : MonoBehaviour, IInteractable
     private PlayerLook _playerLook;
     private List<MonoBehaviour> _disabledCameraScripts = new List<MonoBehaviour>();
 
-    // 🟢 NUEVO: Listas para recordar exactamente qué componentes apagamos y poder encenderlos al salir
+    
     private List<EnemyAI> _frozenAIs = new List<EnemyAI>();
     private List<NavMeshAgent> _frozenAgents = new List<NavMeshAgent>();
     private List<Animator> _frozenAnimators = new List<Animator>();
@@ -89,14 +89,14 @@ public class InspectableObject : MonoBehaviour, IInteractable
         _originalCamRotation = _mainCamera.transform.localRotation;
         _originalCamParent = _mainCamera.transform.parent;
 
-        // 1. Apagamos controles del jugador
+        
         _playerMovement = player.GetComponent<PlayerMovement>();
         if (_playerMovement != null) _playerMovement.enabled = false;
 
         _playerLook = player.GetComponent<PlayerLook>();
         if (_playerLook != null) _playerLook.enabled = false;
 
-        // 2. Apagamos scripts internos de la cámara
+        
         _disabledCameraScripts.Clear();
         MonoBehaviour[] allCamScripts = _mainCamera.GetComponents<MonoBehaviour>();
         foreach (MonoBehaviour script in allCamScripts)
@@ -108,7 +108,7 @@ public class InspectableObject : MonoBehaviour, IInteractable
             }
         }
 
-        // 🟢 3. CONGELAMIENTO SEGURO DEL ENEMIGO (IA + Físicas + Animación)
+        
         _frozenAIs.Clear();
         _frozenAgents.Clear();
         _frozenAnimators.Clear();
@@ -118,27 +118,27 @@ public class InspectableObject : MonoBehaviour, IInteractable
         {
             if (enemy != null)
             {
-                // A) Apagar el cerebro (Script de IA)
+                
                 if (enemy.enabled)
                 {
                     enemy.enabled = false;
                     _frozenAIs.Add(enemy);
                 }
 
-                // B) Apagar las piernas físicas (NavMeshAgent) para que deje de deslizarse por el suelo
+                
                 if (enemy.TryGetComponent(out NavMeshAgent agent))
                 {
                     if (agent.enabled)
                     {
-                        agent.enabled = false; // Al desactivarlo, se frena en el acto
+                        agent.enabled = false; 
                         _frozenAgents.Add(agent);
                     }
                 }
 
-                // C) Congelar los movimientos visuales (Animator) para que no siga haciendo la mímica de caminar
+                
                 if (enemy.TryGetComponent(out Animator anim))
                 {
-                    anim.speed = 0f; // Ponemos la velocidad de su animación en cero (pausa visual)
+                    anim.speed = 0f; 
                     _frozenAnimators.Add(anim);
                 }
             }
@@ -209,22 +209,21 @@ public class InspectableObject : MonoBehaviour, IInteractable
         _mainCamera.transform.localPosition = _originalCamPosition;
         _mainCamera.transform.localRotation = _originalCamRotation;
 
-        // 🟢 4. DESCONGELAMIENTO TOTAL AL SALIR
-        // Devolvemos el movimiento físico
+        
         foreach (NavMeshAgent agent in _frozenAgents)
         {
             if (agent != null) agent.enabled = true;
         }
         _frozenAgents.Clear();
 
-        // Devolvemos la animación a velocidad normal
+        
         foreach (Animator anim in _frozenAnimators)
         {
             if (anim != null) anim.speed = 1f;
         }
         _frozenAnimators.Clear();
 
-        // Devolvemos el cerebro de IA
+        
         foreach (EnemyAI enemy in _frozenAIs)
         {
             if (enemy != null) enemy.enabled = true;
