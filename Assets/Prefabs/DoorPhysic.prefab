@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8683271177054541520}
   - component: {fileID: 1028140615491955958}
   - component: {fileID: 1638255204078944633}
-  m_Layer: 7
+  m_Layer: 12
   m_Name: Mortise_Plate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -105,7 +105,7 @@ GameObject:
   - component: {fileID: 1132970080195958859}
   - component: {fileID: 6393310980023282510}
   - component: {fileID: 7728544899488625349}
-  m_Layer: 7
+  m_Layer: 12
   m_Name: Handles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -195,7 +195,7 @@ GameObject:
   - component: {fileID: 2124853759332653147}
   - component: {fileID: 4325336064616660945}
   - component: {fileID: 3026369376666677896}
-  m_Layer: 7
+  m_Layer: 12
   m_Name: Key_Hole_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -285,7 +285,7 @@ GameObject:
   - component: {fileID: 9101702900604967491}
   - component: {fileID: 241421127258572773}
   - component: {fileID: 5914392985679873619}
-  m_Layer: 7
+  m_Layer: 12
   m_Name: Key_Hole_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -376,7 +376,7 @@ GameObject:
   - component: {fileID: 4822517967764176615}
   - component: {fileID: 6388042502331729081}
   - component: {fileID: 706557688984423908}
-  m_Layer: 7
+  m_Layer: 12
   m_Name: DoorContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -587,7 +587,7 @@ GameObject:
   - component: {fileID: 7028071507899580721}
   - component: {fileID: 7848106421755226308}
   - component: {fileID: 2478398691526111819}
-  m_Layer: 7
+  m_Layer: 12
   m_Name: Door
   m_TagString: Untagged
   m_Icon: {fileID: 0}
