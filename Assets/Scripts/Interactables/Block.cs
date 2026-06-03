@@ -1,15 +1,17 @@
+using System.Collections;
 using UnityEngine;
 
 public class Block : MonoBehaviour
 {
-    private AudioSource _audioSource;
     [SerializeField] private AudioClip _fallClip;
+    [SerializeField] private float _clipDelay = 2f;
 
+    private AudioSource audioSource;
     private bool positionChanged = false;
 
     private void Awake()
     {
-        _audioSource = GetComponent<AudioSource>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     private void OnEnable()
@@ -28,7 +30,7 @@ public class Block : MonoBehaviour
         {
             if (_fallClip != null)
             {
-                _audioSource.PlayOneShot(_fallClip);
+                StartCoroutine(PlayClip());
             }
             positionChanged = true;
             GetComponent<BoxCollider>().enabled = false;
@@ -36,5 +38,11 @@ public class Block : MonoBehaviour
             transform.GetChild(0).gameObject.SetActive(false);
             transform.GetChild(transform.childCount - 1).gameObject.SetActive(true);
         }
+    }
+
+    private IEnumerator PlayClip()
+    {
+        yield return new WaitForSeconds(_clipDelay);
+        audioSource.PlayOneShot(_fallClip);
     }
 }
