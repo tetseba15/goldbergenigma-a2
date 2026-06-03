@@ -2,27 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.AI; // 🟢 NUEVO: Necesario para poder controlar el NavMeshAgent del enemigo
 using TMPro;
 
 public class InspectableObject : MonoBehaviour, IInteractable
 {
-    [Header("UI de Interacción (NUEVO)")]
-    private string _interactPromptText = "[E] Inspeccionar";
+    [Header("1. TEXTO DEL CARTELITO (HUD)")]
+    [SerializeField, Tooltip("Lo que dice la pantalla al mirar el objeto (Ej: Presiona E para mirar el oso)")]
+    private string _interactPromptText = "Presiona E para examinar";
 
-    [Header("Configuración de Cámara")]
-    [SerializeField] private Transform _cameraTargetPoint;
-    [SerializeField] private float _transitionDuration = 1.0f;
-
-    [Header("Descripción en Pantalla")]
-    [SerializeField, Tooltip("Componente de texto del HUD Canvas (TextMeshPro)")]
-    private TextMeshProUGUI _uiTextComponent;
-
-    [SerializeField, TextArea(3, 10), Tooltip("Texto descriptivo que aparecerá al llegar la cámara")]
+    [Header("2. TEXTO DE DESCRIPCIÓN")]
+    [SerializeField, TextArea(3, 10), Tooltip("La historia o descripción del objeto que aparece al hacer zoom")]
     private string _inspectionText;
 
-    [Header("Diálogo del Personaje")]
-    [SerializeField, TextArea(3, 10), Tooltip("Diálogo que dirá el jugador a través del DialogueManager")]
+    [Header("3. DIÁLOGO DEL JUGADOR")]
+    [SerializeField, TextArea(3, 10), Tooltip("Lo que dice el protagonista en voz alta usando el DialogueManager")]
     private string _playerDialogue;
+
+    [Header("Configuración del Canvas de UI")]
+    [SerializeField, Tooltip("Arrastra aquí el componente de texto de tu HUD Canvas (TextMeshPro)")]
+    private TextMeshProUGUI _uiTextComponent;
+
+    [Header("Configuración de Cámara")]
+    [SerializeField, Tooltip("El objeto vacío que marca hacia dónde viaja la cámara")]
+    private Transform _cameraTargetPoint;
+    [SerializeField] private float _transitionDuration = 1.0f;
 
     private Camera _mainCamera;
     private Vector3 _originalCamPosition;
@@ -35,7 +39,11 @@ public class InspectableObject : MonoBehaviour, IInteractable
     private PlayerMovement _playerMovement;
     private PlayerLook _playerLook;
     private List<MonoBehaviour> _disabledCameraScripts = new List<MonoBehaviour>();
-    private List<EnemyAI> _frozenEnemies = new List<EnemyAI>();
+
+    // 🟢 NUEVO: Listas para recordar exactamente qué componentes apagamos y poder encenderlos al salir
+    private List<EnemyAI> _frozenAIs = new List<EnemyAI>();
+    private List<NavMeshAgent> _frozenAgents = new List<NavMeshAgent>();
+    private List<Animator> _frozenAnimators = new List<Animator>();
 
     void Start()
     {
@@ -49,7 +57,6 @@ public class InspectableObject : MonoBehaviour, IInteractable
 
     void Update()
     {
-        
         if (_isInspecting && !_isTransitioning && Keyboard.current.eKey.wasPressedThisFrame)
         {
             StopAllCoroutines();
@@ -57,7 +64,6 @@ public class InspectableObject : MonoBehaviour, IInteractable
         }
     }
 
-    
     public string GetInteractPrompt(GameObject player)
     {
         return _isInspecting ? string.Empty : _interactPromptText;
@@ -83,14 +89,14 @@ public class InspectableObject : MonoBehaviour, IInteractable
         _originalCamRotation = _mainCamera.transform.localRotation;
         _originalCamParent = _mainCamera.transform.parent;
 
-        
+        // 1. Apagamos controles del jugador
         _playerMovement = player.GetComponent<PlayerMovement>();
         if (_playerMovement != null) _playerMovement.enabled = false;
 
         _playerLook = player.GetComponent<PlayerLook>();
         if (_playerLook != null) _playerLook.enabled = false;
 
-        
+        // 2. Apagamos scripts internos de la cámara
         _disabledCameraScripts.Clear();
         MonoBehaviour[] allCamScripts = _mainCamera.GetComponents<MonoBehaviour>();
         foreach (MonoBehaviour script in allCamScripts)
@@ -102,15 +108,39 @@ public class InspectableObject : MonoBehaviour, IInteractable
             }
         }
 
-        
-        _frozenEnemies.Clear();
+        // 🟢 3. CONGELAMIENTO SEGURO DEL ENEMIGO (IA + Físicas + Animación)
+        _frozenAIs.Clear();
+        _frozenAgents.Clear();
+        _frozenAnimators.Clear();
+
         EnemyAI[] enemiesInScene = FindObjectsByType<EnemyAI>(FindObjectsSortMode.None);
         foreach (EnemyAI enemy in enemiesInScene)
         {
-            if (enemy != null && enemy.enabled)
+            if (enemy != null)
             {
-                enemy.enabled = false;
-                _frozenEnemies.Add(enemy);
+                // A) Apagar el cerebro (Script de IA)
+                if (enemy.enabled)
+                {
+                    enemy.enabled = false;
+                    _frozenAIs.Add(enemy);
+                }
+
+                // B) Apagar las piernas físicas (NavMeshAgent) para que deje de deslizarse por el suelo
+                if (enemy.TryGetComponent(out NavMeshAgent agent))
+                {
+                    if (agent.enabled)
+                    {
+                        agent.enabled = false; // Al desactivarlo, se frena en el acto
+                        _frozenAgents.Add(agent);
+                    }
+                }
+
+                // C) Congelar los movimientos visuales (Animator) para que no siga haciendo la mímica de caminar
+                if (enemy.TryGetComponent(out Animator anim))
+                {
+                    anim.speed = 0f; // Ponemos la velocidad de su animación en cero (pausa visual)
+                    _frozenAnimators.Add(anim);
+                }
             }
         }
 
@@ -120,7 +150,6 @@ public class InspectableObject : MonoBehaviour, IInteractable
         Vector3 startingPos = _mainCamera.transform.position;
         Quaternion startingRot = _mainCamera.transform.rotation;
 
-        
         while (elapsedTime < _transitionDuration)
         {
             elapsedTime += Time.deltaTime;
@@ -135,14 +164,12 @@ public class InspectableObject : MonoBehaviour, IInteractable
         _mainCamera.transform.position = _cameraTargetPoint.position;
         _mainCamera.transform.rotation = _cameraTargetPoint.rotation;
 
-        
         if (_uiTextComponent != null && !string.IsNullOrEmpty(_inspectionText))
         {
             _uiTextComponent.text = _inspectionText;
             _uiTextComponent.gameObject.SetActive(true);
         }
 
-        
         if (DialogueManager.Instance != null && !string.IsNullOrEmpty(_playerDialogue))
         {
             DialogueManager.Instance.ShowDialogue(_playerDialogue);
@@ -167,7 +194,6 @@ public class InspectableObject : MonoBehaviour, IInteractable
         Vector3 targetGlobalPos = _originalCamParent.TransformPoint(_originalCamPosition);
         Quaternion targetGlobalRot = _originalCamParent.rotation * _originalCamRotation;
 
-        
         while (elapsedTime < _transitionDuration)
         {
             elapsedTime += Time.deltaTime;
@@ -183,14 +209,28 @@ public class InspectableObject : MonoBehaviour, IInteractable
         _mainCamera.transform.localPosition = _originalCamPosition;
         _mainCamera.transform.localRotation = _originalCamRotation;
 
-        
-        foreach (EnemyAI enemy in _frozenEnemies)
+        // 🟢 4. DESCONGELAMIENTO TOTAL AL SALIR
+        // Devolvemos el movimiento físico
+        foreach (NavMeshAgent agent in _frozenAgents)
+        {
+            if (agent != null) agent.enabled = true;
+        }
+        _frozenAgents.Clear();
+
+        // Devolvemos la animación a velocidad normal
+        foreach (Animator anim in _frozenAnimators)
+        {
+            if (anim != null) anim.speed = 1f;
+        }
+        _frozenAnimators.Clear();
+
+        // Devolvemos el cerebro de IA
+        foreach (EnemyAI enemy in _frozenAIs)
         {
             if (enemy != null) enemy.enabled = true;
         }
-        _frozenEnemies.Clear();
+        _frozenAIs.Clear();
 
-        
         if (_playerMovement != null) _playerMovement.enabled = true;
         if (_playerLook != null) _playerLook.enabled = true;
 
