@@ -11,7 +11,7 @@ public class PlayerInventory : MonoBehaviour
         QuinchoKey = 3,
         PatioKey = 4,
         BathroomKey = 5,
-
+        WorkshopKey = 6,
         // ITEMS AND TOOLS
         Flashlight = 100,
         Crucifix = 101,
@@ -19,15 +19,12 @@ public class PlayerInventory : MonoBehaviour
         Cross = 103,
         Shovel = 104,
         OuijaBoard = 105,
-
         // NOTES
         Note = 200
     }
 
     private HashSet<ItemType> _items = new HashSet<ItemType>();
-
     private bool _hasSeenBatteryTutorial = false;
-
     public int BatteryCount { get; private set; } = 0;
 
     public void AddItem(ItemType type)
@@ -48,12 +45,10 @@ public class PlayerInventory : MonoBehaviour
     {
         BatteryCount += amount;
         Debug.Log($"Baterías recogidas. Total: {BatteryCount}");
-
         if (!_hasSeenBatteryTutorial)
         {
             TutorialManager.Instance.ShowTutorial("Presiona [R] para recargar la linterna",
                 () => GetComponent<PlayerFlashlight>().IsReloading());
-
             _hasSeenBatteryTutorial = true;
         }
     }
