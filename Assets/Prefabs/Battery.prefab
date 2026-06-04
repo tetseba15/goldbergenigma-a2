@@ -129,5 +129,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a8f0972a3b8660499546bae18527030, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BatteryPickup
-  _rechargeAmount: 25
+  _batteriesToGive: 1
   _promptText: '[E] Tomar pilas'
+  _batteryPickupSFX: {fileID: 8300000, guid: a5c14749ab315e84eb4d994cd03a041f, type: 3}

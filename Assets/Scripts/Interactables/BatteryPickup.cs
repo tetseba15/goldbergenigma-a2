@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class BatteryPickup : MonoBehaviour, IInteractable
@@ -5,6 +6,7 @@ public class BatteryPickup : MonoBehaviour, IInteractable
     [Header("Settings")]
     [SerializeField] private int _batteriesToGive = 1;
     [SerializeField] private string _promptText = "[E] Tomar pilas";
+    [SerializeField] private AudioClip _batteryPickupSFX;
 
     public string GetInteractPrompt(GameObject interactor) => _promptText;
 
@@ -17,7 +19,8 @@ public class BatteryPickup : MonoBehaviour, IInteractable
         {
             inventory.AddBatteries(_batteriesToGive);
 
-            // TODO: FX de recoger ítem (sonido de guardar en el bolsillo)
+            if (_batteryPickupSFX != null)
+                AudioManager.Instance.PlaySFX(_batteryPickupSFX, .5f);
 
             Destroy(gameObject);
         }
