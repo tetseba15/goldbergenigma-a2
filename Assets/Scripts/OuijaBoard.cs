@@ -18,9 +18,13 @@ public class OuijaBoard : MonoBehaviour, IInteractable
     [SerializeField] private string _act2Reminder = "La niña dijo que vaya a la chimenea.";
     [SerializeField] private string _act3Reminder = "La niña dijo que vaya al fogón.";
 
+    [Header("Referencias de escena")]
+    [SerializeField] private GameObject _fireplaceLookAtDialogue;
+
     private int _currentAct = 1;
     private bool _isOnCooldown = false;
     private int _useCount = 0;
+    public int CurrentAct => _currentAct;
 
     public static event Action<PlayerInventory.ItemType> OnInteract;
 
@@ -66,6 +70,9 @@ public class OuijaBoard : MonoBehaviour, IInteractable
         {
             _currentAct++;
             _useCount = 0;
+
+            if (_currentAct == 2 && _fireplaceLookAtDialogue != null)
+                _fireplaceLookAtDialogue.SetActive(true);
         }
     }
 
