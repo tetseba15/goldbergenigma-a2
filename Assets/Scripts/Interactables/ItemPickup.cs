@@ -10,16 +10,16 @@ public class ItemPickup : MonoBehaviour, IInteractable
 
     [Header("Requiere Ouija")]
     [SerializeField] private bool _requiresOuijaAct = false;
-    [SerializeField] private int _requiredAct = 2;
+    [SerializeField] private bool _requiresAct2Ouija = false;
 
     public static event Action<PlayerInventory, PlayerInventory.ItemType> OnInteract;
 
     public string GetInteractPrompt(GameObject interactor)
     {
-        if (_requiresOuijaAct)
+        if (_requiresAct2Ouija)
         {
             OuijaBoard ouija = FindObjectOfType<OuijaBoard>();
-            if (ouija != null && ouija.CurrentAct < _requiredAct)
+            if (ouija != null && !ouija.HasUsedAct2Ouija)
                 return string.Empty;
         }
         return _promptText;
@@ -27,10 +27,10 @@ public class ItemPickup : MonoBehaviour, IInteractable
 
     public void Interact(GameObject interactor)
     {
-        if (_requiresOuijaAct)
+        if (_requiresAct2Ouija)
         {
             OuijaBoard ouija = FindObjectOfType<OuijaBoard>();
-            if (ouija != null && ouija.CurrentAct < _requiredAct) return;
+            if (ouija != null && !ouija.HasUsedAct2Ouija) return;
         }
 
         PlayerInventory inventory = interactor.GetComponent<PlayerInventory>();

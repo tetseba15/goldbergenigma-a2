@@ -24,7 +24,9 @@ public class OuijaBoard : MonoBehaviour, IInteractable
     private int _currentAct = 1;
     private bool _isOnCooldown = false;
     private int _useCount = 0;
+
     public int CurrentAct => _currentAct;
+    public bool HasUsedAct2Ouija { get; private set; } = false;
 
     public static event Action<PlayerInventory.ItemType> OnInteract;
 
@@ -37,6 +39,9 @@ public class OuijaBoard : MonoBehaviour, IInteractable
     {
         if (_isOnCooldown) return;
         _useCount++;
+
+        if (_currentAct == 2)
+            HasUsedAct2Ouija = true;
 
         if (_useCount == 1 && _ghostAppearance != null)
         {
