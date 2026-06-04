@@ -24,11 +24,17 @@ public class GhostAppearance : MonoBehaviour
     public void Appear(Vector3 position)
     {
         if (_ghostModel == null) return;
-
         if (_disappearCoroutine != null)
             StopCoroutine(_disappearCoroutine);
 
         _ghostModel.transform.position = position;
+
+        // Mirar hacia el jugador
+        Vector3 directionToCamera = Camera.main.transform.position - position;
+        directionToCamera.y = 0f;
+        if (directionToCamera != Vector3.zero)
+            _ghostModel.transform.rotation = Quaternion.LookRotation(directionToCamera);
+
         _ghostModel.SetActive(true);
         EnemyAI.TriggerRoar(_roarDuration, _roarDuration);
         _disappearCoroutine = StartCoroutine(DisappearAfterDelay());
@@ -38,11 +44,8 @@ public class GhostAppearance : MonoBehaviour
     {
         yield return new WaitForSeconds(_appearDuration);
         _ghostModel.SetActive(false);
-       
-        //Sonido de la risa
-        if (_audioSource != null && _disappearSound != null)
-        {
-            _audioSource.PlayOneShot(_disappearSound);
-        }
+
+        OuijaBoard ouija = FindObjectOfType<OuijaBoard>();
+        if (ouija != null) ouija.ResetCooldown();
     }
 }
