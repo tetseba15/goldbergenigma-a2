@@ -16,6 +16,14 @@ PrefabInstance:
       propertyPath: _promptText
       value: '[E] Recoger llave del patio'
       objectReference: {fileID: 0}
+    - target: {fileID: 2122577070186727066, guid: fea91023b29b7fa4d940ae8f476c6926, type: 3}
+      propertyPath: _pickupDialogue
+      value: Esta debe ser la llave del patio. Hay que explorar afuera.
+      objectReference: {fileID: 0}
+    - target: {fileID: 2122577070186727066, guid: fea91023b29b7fa4d940ae8f476c6926, type: 3}
+      propertyPath: _hasPickupDialogue
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3404054586166060691, guid: fea91023b29b7fa4d940ae8f476c6926, type: 3}
       propertyPath: m_LocalPosition.x
       value: 584.5556

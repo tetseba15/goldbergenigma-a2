@@ -12,6 +12,10 @@ public class ItemPickup : MonoBehaviour, IInteractable
     [SerializeField] private bool _requiresOuijaAct = false;
     [SerializeField] private bool _requiresAct2Ouija = false;
 
+    [Header("Dialogo al recoger")]
+    [SerializeField] private bool _hasPickupDialogue = false;
+    [SerializeField, TextArea(2, 5)] private string _pickupDialogue;
+
     public static event Action<PlayerInventory, PlayerInventory.ItemType> OnInteract;
 
     public string GetInteractPrompt(GameObject interactor)
@@ -37,6 +41,12 @@ public class ItemPickup : MonoBehaviour, IInteractable
         if (inventory != null)
         {
             inventory.AddItem(_itemType);
+
+            if (_hasPickupDialogue && !string.IsNullOrEmpty(_pickupDialogue))
+            {
+                DialogueManager.Instance.ShowDialogue(_pickupDialogue);
+            }
+
             if (_pickUpClip != null)
             {
                 AudioManager.Instance.PlaySFX(_pickUpClip, .35f);
