@@ -10,15 +10,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 344064894222223518, guid: 93b1b8239bea0964889b6a321b734552, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -31.424
+      value: 585.2726
       objectReference: {fileID: 0}
     - target: {fileID: 344064894222223518, guid: 93b1b8239bea0964889b6a321b734552, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 6.488
+      value: 0.182
       objectReference: {fileID: 0}
     - target: {fileID: 344064894222223518, guid: 93b1b8239bea0964889b6a321b734552, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -47.621
+      value: -119.189
       objectReference: {fileID: 0}
     - target: {fileID: 344064894222223518, guid: 93b1b8239bea0964889b6a321b734552, type: 3}
       propertyPath: m_LocalRotation.w
@@ -48,6 +48,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2859286224366148991, guid: 93b1b8239bea0964889b6a321b734552, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 28c47575ce7cba54ca09ecc435e6a374, type: 2}
+    - target: {fileID: 2859286224366148991, guid: 93b1b8239bea0964889b6a321b734552, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 28c47575ce7cba54ca09ecc435e6a374, type: 2}
     - target: {fileID: 4409707689421109243, guid: 93b1b8239bea0964889b6a321b734552, type: 3}
       propertyPath: _noteContent
       value: "Es una foto de la madre con la ni\xF1a, dice algo detr\xE1s... \n\n\"Mi
