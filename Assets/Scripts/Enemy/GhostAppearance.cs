@@ -10,6 +10,10 @@ public class GhostAppearance : MonoBehaviour
     [SerializeField] private float _appearDuration = 5f;
     [SerializeField] private float _roarDuration = 2f;
 
+    [Header("Sound")]
+    [SerializeField] private AudioSource _audioSource;
+    [SerializeField] private AudioClip _disappearSound;
+    
     private Coroutine _disappearCoroutine;
 
     public void Appear()
@@ -34,5 +38,11 @@ public class GhostAppearance : MonoBehaviour
     {
         yield return new WaitForSeconds(_appearDuration);
         _ghostModel.SetActive(false);
+       
+        //Sonido de la risa
+        if (_audioSource != null && _disappearSound != null)
+        {
+            _audioSource.PlayOneShot(_disappearSound);
+        }
     }
 }
