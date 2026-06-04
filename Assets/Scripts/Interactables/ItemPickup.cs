@@ -8,7 +8,7 @@ public class ItemPickup : MonoBehaviour, IInteractable
     [SerializeField] private string _promptText = "Recoger objeto";
     [SerializeField] private AudioClip _pickUpClip;
 
-    public static event Action<PlayerInventory> OnInteract;
+    public static event Action<PlayerInventory, PlayerInventory.ItemType> OnInteract;
 
     public string GetInteractPrompt(GameObject interactor) => _promptText;
 
@@ -43,7 +43,7 @@ public class ItemPickup : MonoBehaviour, IInteractable
                 }
             }
 
-            OnInteract?.Invoke(interactor.GetComponent<PlayerInventory>());
+            OnInteract?.Invoke(interactor.GetComponent<PlayerInventory>(), _itemType);
 
             Destroy(gameObject);
         }

@@ -3,6 +3,9 @@ using UnityEngine;
 public class ProgressHintManager : MonoBehaviour
 {
     [SerializeField] private string firstActHint = "Debería revisar el segundo piso.";
+    [SerializeField] private string secondActHint = "Debería usar la ouija.";
+
+    [SerializeField] private float secondActHintDelay = 20f;
 
     private bool interactedWithOuija = false;
     private bool wentUpstairs = false;
@@ -14,7 +17,7 @@ public class ProgressHintManager : MonoBehaviour
         UpstairsTrigger.OnTrigger += WentUpstairs;
     }
 
-    private void GiveHint(PlayerInventory playerInventory)
+    private void GiveHint(PlayerInventory playerInventory, PlayerInventory.ItemType itemType)
     {
         if (
             playerInventory.HasItem(PlayerInventory.ItemType.BathroomKey) &&
@@ -24,6 +27,13 @@ public class ProgressHintManager : MonoBehaviour
         )
         {
             DialogueManager.Instance.ShowDialogue(firstActHint);
+        }
+
+        if (
+            itemType == PlayerInventory.ItemType.Cross
+        )
+        {
+            DialogueManager.Instance.ShowDialogueWithDelay(secondActHint, 20f);
         }
     }
 

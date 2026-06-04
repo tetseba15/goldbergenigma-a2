@@ -25,6 +25,17 @@ public class DialogueManager : MonoBehaviour
         _currentDialogue = StartCoroutine(PlayDialogue(text));
     }
 
+    public void ShowDialogueWithDelay(string text, float delay)
+    {
+        StartCoroutine(PlayDialogue(text, delay));
+    }
+
+    private IEnumerator PlayDialogue(string text, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        ShowDialogue(text);
+    }
+
     private IEnumerator PlayDialogue(string text)
     {
         if (AudioManager.Instance != null) AudioManager.Instance.SetDialogueState(true);
