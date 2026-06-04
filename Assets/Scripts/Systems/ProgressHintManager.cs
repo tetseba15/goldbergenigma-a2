@@ -33,7 +33,7 @@ public class ProgressHintManager : MonoBehaviour
             itemType == PlayerInventory.ItemType.Cross
         )
         {
-            DialogueManager.Instance.ShowDialogueWithDelay(secondActHint, 20f);
+            DialogueManager.Instance.ShowDialogueWithDelay(secondActHint, secondActHintDelay);
         }
     }
 
