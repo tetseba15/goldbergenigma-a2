@@ -19,6 +19,9 @@ public class InspectableObject : MonoBehaviour, IInteractable
     [SerializeField, TextArea(3, 10), Tooltip("Lo que dice el protagonista")]
     private string _playerDialogue;
 
+    [Header("Tiene doblaje?")]
+    [SerializeField] private AudioClip _pensamientoVozClip;
+
     [Header("Configuración del Canvas de UI")]
     [SerializeField, Tooltip("Arrastra aquí el componente de texto de tu HUD Canvas (TextMeshPro)")]
     private TextMeshProUGUI _uiTextComponent;
@@ -172,7 +175,7 @@ public class InspectableObject : MonoBehaviour, IInteractable
 
         if (DialogueManager.Instance != null && !string.IsNullOrEmpty(_playerDialogue))
         {
-            DialogueManager.Instance.ShowDialogue(_playerDialogue);
+            DialogueManager.Instance.ShowDialogue(_playerDialogue, _pensamientoVozClip);
         }
 
         _isTransitioning = false;

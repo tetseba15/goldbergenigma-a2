@@ -7,6 +7,9 @@ public class LookAtDialogue : MonoBehaviour
     [SerializeField] private float _detectionAngle = 15f;
     private bool _triggered = false;
 
+    [Header("Tiene doblaje?")]
+    [SerializeField] private AudioClip _pensamientoVozClip;
+
     private void Update()
     {
         if (_triggered) return;
@@ -22,7 +25,7 @@ public class LookAtDialogue : MonoBehaviour
         if (distance <= _detectionDistance && angle <= _detectionAngle)
         {
             _triggered = true;
-            DialogueManager.Instance.ShowDialogue(_dialogue);
+            DialogueManager.Instance.ShowDialogue(_dialogue, _pensamientoVozClip);
         }
     }
 }
