@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.AI; // 🟢 NUEVO: Necesario para poder controlar el NavMeshAgent del enemigo
+using UnityEngine.AI;
 using TMPro;
 
 public class InspectableObject : MonoBehaviour, IInteractable

@@ -9,16 +9,14 @@ public class HolyWaterController : MonoBehaviour
     [SerializeField] private GameObject _bottleVisual;
     [SerializeField] private Animator _bottleAnimator;
 
-    
     [Header("Audio")]
-    [SerializeField] private AudioSource _audioSource;   
-    [SerializeField] private AudioClip _throwSound;     
+    [SerializeField] private AudioSource _audioSource;
+    [SerializeField] private AudioClip _throwSound;
 
     [Header("Configuración")]
     [SerializeField] private float _animationDuration;
     [SerializeField] private float _effectDistance;
 
-    //para el UI
     [Header("Ajustes de Agua Bendita")]
     [SerializeField] private float _maxWater = 3f;
     private float _currentWater = 0f;
@@ -30,7 +28,8 @@ public class HolyWaterController : MonoBehaviour
         {
             _bottleVisual.SetActive(false);
         }
-        GameEvent.holyWater(_currentWater, _maxWater);//para llamar el event
+        _currentWater = _maxWater;
+        GameEvent.holyWater(_currentWater, _maxWater);
     }
 
     void Update()
@@ -39,18 +38,20 @@ public class HolyWaterController : MonoBehaviour
 
         if (Keyboard.current.qKey.wasPressedThisFrame)
         {
+            
             bool tieneItem = _inventory.HasItem(PlayerInventory.ItemType.Bottle);
 
-            if (tieneItem && !_isUsing && _currentWater > 0)//para verificar que quede agua
+            if (tieneItem && !_isUsing && _currentWater > 0)
             {
                 StartCoroutine(UseHolyWaterRoutine());
             }
         }
     }
+
     public void RefillBottle()
     {
-        _currentWater = _maxWater; // Se llena al máximo (3)
-        GameEvent.holyWater(_currentWater, _maxWater); // Actualiza la UI instantáneamente
+        _currentWater = _maxWater; 
+        GameEvent.holyWater(_currentWater, _maxWater); 
     }
 
     private IEnumerator UseHolyWaterRoutine()
@@ -58,12 +59,10 @@ public class HolyWaterController : MonoBehaviour
         _isUsing = true;
         _bottleVisual.SetActive(true);
 
-        
-        _currentWater--;//UI descuenta un uso
-        GameEvent.holyWater(_currentWater, _maxWater);//para el event UI
-        // Descuenta un uso y dispara el evento
-        if (_currentWater <= 0) yield break;//Para eliminar el sonido si esta vacia
+        _currentWater--; 
+        GameEvent.holyWater(_currentWater, _maxWater);
 
+        
 
         if (_audioSource != null && _throwSound != null)
         {
@@ -85,12 +84,15 @@ public class HolyWaterController : MonoBehaviour
                 EnemyAI enemyAI = enemyObject.GetComponent<EnemyAI>();
                 if (enemyAI != null)
                 {
-                  enemyAI.HolyWaterImpact(); //volver a poner en caso de emergencia
+                    enemyAI.HolyWaterImpact();
                 }
             }
         }
 
+        
         yield return new WaitForSeconds(_animationDuration);
+
+        
         _bottleVisual.SetActive(false);
         _isUsing = false;
     }
