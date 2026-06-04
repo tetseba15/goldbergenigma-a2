@@ -26,6 +26,11 @@ public class PlayerInteractor : MonoBehaviour
 
     private void Update()
     {
+        if (UIManager.Instance != null && UIManager.Instance.IsReadingNote)
+        {
+            return;
+        }
+
         HandleRaycast();
         HandleInteraction();
     }

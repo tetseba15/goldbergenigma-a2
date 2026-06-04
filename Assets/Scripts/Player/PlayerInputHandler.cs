@@ -7,6 +7,7 @@ public class PlayerInputHandler : MonoBehaviour
     private PlayerFlashlight _playerFlashlight;
 
     public event System.Action OnCancelTriggered;
+    public event System.Action OnInteractTriggered;
 
     public Vector2 MoveInput { get; private set; }
     public Vector2 LookInput { get; private set; }
@@ -61,7 +62,12 @@ public class PlayerInputHandler : MonoBehaviour
         _inputActions.Gameplay.Sprint.performed += ctx => IsSprinting = true;
         _inputActions.Gameplay.Sprint.canceled += ctx => IsSprinting = false;
 
-        _inputActions.Gameplay.Interact.performed += ctx => IsInteracting = true;
+        _inputActions.Gameplay.Interact.performed += ctx =>
+        {
+            IsInteracting = true;
+            OnInteractTriggered?.Invoke(); 
+        };
+
         _inputActions.Gameplay.Interact.canceled += ctx => IsInteracting = false;
 
         _inputActions.Gameplay.Crouch.performed += ctx => IsCrouching = true;

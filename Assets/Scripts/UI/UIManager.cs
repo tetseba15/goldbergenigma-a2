@@ -10,6 +10,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _noteText;
     [SerializeField] private TextMeshProUGUI _interactPromptText;
 
+    private int _frameNoteOpened = -1;
+
     // Others can know if player is reading something
     public bool IsReadingNote { get; private set; }
 
@@ -35,8 +37,8 @@ public class UIManager : MonoBehaviour
         {
             _inputHandler = player.GetComponent<PlayerInputHandler>();
 
-            // PATRÓN OBSERVER: Nos suscribimos al evento
             _inputHandler.OnCancelTriggered += HandleCancelAction;
+            _inputHandler.OnInteractTriggered += HandleInteractAction;
         }
 
         HideInteractPrompt();
@@ -48,16 +50,11 @@ public class UIManager : MonoBehaviour
         if (_inputHandler != null)
         {
             _inputHandler.OnCancelTriggered -= HandleCancelAction;
+            _inputHandler.OnInteractTriggered -= HandleInteractAction;
         }
     }
 
-    private void Update()
-    {
-        if (IsReadingNote && _inputHandler != null && _inputHandler.CancelInput)
-        {
-            HideNote();
-        }
-    }
+    
 
     private void HandleCancelAction()
     {
@@ -67,17 +64,39 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    private void HandleInteractAction()
+    {
+        if (IsReadingNote && Time.frameCount > _frameNoteOpened)
+        {
+            HideNote();
+
+            if (_inputHandler != null)
+            {
+                _inputHandler.ConsumeInteractInput();
+            }
+        }
+    }
+
     public void ShowNote(string content)
     {
         _noteText.text = content;
         _notePanel.SetActive(true);
         IsReadingNote = true;
+
+        _frameNoteOpened = Time.frameCount;
+
+        string stackTrace = StackTraceUtility.ExtractStackTrace();
+        Debug.Log("La función fue llamada desde: \n" + stackTrace);
     }
 
     public void HideNote()
     {
         _notePanel.SetActive(false);
         IsReadingNote = false;
+
+        string stackTrace = StackTraceUtility.ExtractStackTrace();
+        Debug.Log("La función fue llamada desde: \n" + stackTrace);
+
     }
 
     public void ShowInteractPrompt(string message)

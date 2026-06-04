@@ -148,7 +148,7 @@ AudioMixerController:
     - bd659b49f87ea73468356d0633f55e60
     name: View
   m_CurrentViewIndex: 0
-  m_TargetSnapshot: {fileID: 9201931624929187593}
+  m_TargetSnapshot: {fileID: 820930148082782030}
 --- !u!243 &24300002
 AudioMixerGroupController:
   m_ObjectHideFlags: 0
@@ -312,7 +312,7 @@ AudioMixerSnapshotController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Dialogue
+  m_Name: Voice
   m_AudioMixer: {fileID: 24100000}
   m_SnapshotID: 814a848b25d020a4486065a0085c73d2
   m_FloatValues:
