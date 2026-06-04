@@ -22,7 +22,7 @@ public class ItemPickup : MonoBehaviour, IInteractable
     {
         if (_requiresAct2Ouija)
         {
-            OuijaBoard ouija = FindObjectOfType<OuijaBoard>();
+            OuijaBoard ouija = OuijaBoard.Instance;
             if (ouija != null && !ouija.HasUsedAct2Ouija)
                 return string.Empty;
         }
@@ -33,7 +33,7 @@ public class ItemPickup : MonoBehaviour, IInteractable
     {
         if (_requiresAct2Ouija)
         {
-            OuijaBoard ouija = FindObjectOfType<OuijaBoard>();
+            OuijaBoard ouija = OuijaBoard.Instance;
             if (ouija != null && !ouija.HasUsedAct2Ouija) return;
         }
 
@@ -64,6 +64,11 @@ public class ItemPickup : MonoBehaviour, IInteractable
                 {
                     waterController.RefillBottle();
                 }
+            }
+            if (_itemType == PlayerInventory.ItemType.QuinchoKey)
+            {
+                OuijaBoard.Instance.AdvanceToNextAct();
+                OuijaBoard.Instance.ResetCooldown();
             }
             OnInteract?.Invoke(interactor.GetComponent<PlayerInventory>(), _itemType);
             Destroy(gameObject);

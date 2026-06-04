@@ -28,7 +28,15 @@ public class OuijaBoard : MonoBehaviour, IInteractable
     public int CurrentAct => _currentAct;
     public bool HasUsedAct2Ouija { get; private set; } = false;
 
+    public static OuijaBoard Instance { get; private set; }
+
     public static event Action<PlayerInventory.ItemType> OnInteract;
+
+    private void Awake()
+    {
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+    }
 
     public string GetInteractPrompt(GameObject interactor)
     {
