@@ -47,8 +47,6 @@ public class EnemyAI : MonoBehaviour
     [SerializeField, Tooltip("Multiplicador de velocidad cuando se queda atrás (ej. 1.3 = 30% más rápido)")]
     private float _rubberBandSpeedMultiplier = 1.3f;
 
-    private bool _isFinalSequenceStarted = false;
-
     private float _invulnerabilityTimer = 0f;
 
     [Header("Death Sequence")]
@@ -222,16 +220,28 @@ public class EnemyAI : MonoBehaviour
     {
         if (!isFinalObjective) return;
 
-        if (_isFinalSequenceStarted) return;
-        _isFinalSequenceStarted = true;
-
         if (!gameObject.activeInHierarchy)
         {
             gameObject.SetActive(true);
         }
 
-        StartCoroutine(FinalChaseIntroRoutine());
+
+
+        _isStunned = false;
+        _invulnerabilityTimer = 9999f;
+
+        if (_finalSpawnPoint != null)
+        {
+            _agent.enabled = false;
+
+            transform.position = _finalSpawnPoint.position;
+
+            _agent.enabled = true;
+        }
+
+        ChangeState(AIState.FinalChase);
     }
+
     private void HandleFinalChase()
     {
         Transform playerTarget = PlayerTarget.Instance.PlayerTransform;
@@ -240,11 +250,9 @@ public class EnemyAI : MonoBehaviour
 
         float distanceToPlayer = 0f;
 
-        NavMeshPath path = new NavMeshPath();
-
-        if (NavMesh.CalculatePath(transform.position, playerTarget.position, NavMesh.AllAreas, path))
+        if (!_agent.pathPending)
         {
-            distanceToPlayer = GetPathLength(path);
+            distanceToPlayer = _agent.remainingDistance;
         }
         else
         {
@@ -261,20 +269,6 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    private float GetPathLength(NavMeshPath path)
-    {
-        float length = 0f;
-
-        if (path.corners.Length < 2) return 0f;
-
-        for (int i = 0; i < path.corners.Length - 1; i++)
-        {
-            length += Vector3.Distance(path.corners[i], path.corners[i + 1]);
-        }
-
-        return length;
-    }
-
     private void TriggerDeathSequence()
     {
         if (_currentState == AIState.Death) return;
@@ -282,36 +276,6 @@ public class EnemyAI : MonoBehaviour
         if (!gameObject.activeInHierarchy) gameObject.SetActive(true);
 
         StartCoroutine(DeathRoutine());
-    }
-
-    private IEnumerator FinalChaseIntroRoutine()
-    {
-        yield return null;
-
-        _currentState = AIState.Enraged;
-        _isStunned = true;
-        _invulnerabilityTimer = 9999f;
-
-        if (_finalSpawnPoint != null && _agent.isOnNavMesh)
-        {
-            _agent.Warp(_finalSpawnPoint.position);
-            _agent.isStopped = true;
-            _agent.velocity = Vector3.zero;
-        }
-
-        if (_audioManager != null) _audioManager.PlayEnraged();
-        OnEnemyRoaring?.Invoke(_enragedRoarDuration, _enragedRoarDuration);
-
-        yield return new WaitForSeconds(_enragedRoarDuration);
-
-        // A correr
-        _isStunned = false;
-        if (_agent.isOnNavMesh)
-        {
-            _agent.isStopped = false;
-        }
-
-        ChangeState(AIState.FinalChase);
     }
 
     private IEnumerator DeathRoutine()
@@ -551,14 +515,14 @@ public class EnemyAI : MonoBehaviour
     {
         if (_currentState == newState) return;
 
-        if (_currentState == AIState.Chase || _currentState == AIState.FinalChase)
+        if (_currentState == AIState.Chase)
         {
             OnChaseStateChanged?.Invoke(false);
         }
 
         _currentState = newState;
 
-        if (_currentState == AIState.Chase || _currentState == AIState.FinalChase)
+        if (_currentState == AIState.Chase)
         {
             OnChaseStateChanged?.Invoke(true);
         }
@@ -595,23 +559,23 @@ public class EnemyAI : MonoBehaviour
         ChangeState(AIState.Chase);
     }
 
-    //private IEnumerator EnragePlayerRoutine()
-    //{
-    //    _currentState = AIState.Spotted;
-    //    _agent.isStopped = true;
-    //    _agent.velocity = Vector3.zero;
+    private IEnumerator EnragePlayerRoutine()
+    {
+        _currentState = AIState.Spotted;
+        _agent.isStopped = true;
+        _agent.velocity = Vector3.zero;
 
-    //    _invulnerabilityTimer = _invulnerabilityDuration;
+        _invulnerabilityTimer = _invulnerabilityDuration;
 
-    //    if (_audioManager != null) _audioManager.PlayEnraged();
+        if (_audioManager != null) _audioManager.PlayEnraged();
 
-    //    OnEnemyRoaring?.Invoke(_enragedRoarDuration, _invulnerabilityDuration);
+        OnEnemyRoaring?.Invoke(_enragedRoarDuration, _invulnerabilityDuration);
 
-    //    yield return new WaitForSeconds(_enragedRoarDuration);
+        yield return new WaitForSeconds(_enragedRoarDuration);
 
-    //    _agent.isStopped = false;
-    //    ChangeState(AIState.Chase);
-    //}
+        _agent.isStopped = false;
+        ChangeState(AIState.Chase);
+    }
 
     private IEnumerator EnrageRoutine()
     {
