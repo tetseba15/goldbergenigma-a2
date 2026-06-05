@@ -39,19 +39,16 @@ public class InteractableDoor : MonoBehaviour, IInteractable
     [SerializeField] private float _loudNoiseRadius = 15f;
     [SerializeField] private float _creakNoiseRadius = 2f;
 
-
     private bool _isOpen = false;
+    private bool _permanentlyLocked = false;
     private float _currentTargetAngle;
-
     private float _lastRattleTime = 0f;
     private float _rattleCooldown = 1f;
 
     private void Awake()
     {
         _originalLimits = _hingeJoint.limits;
-
         _hingeJoint.useSpring = true;
-
         if (_isLocked) LockDoorPhysically();
     }
 
@@ -59,10 +56,10 @@ public class InteractableDoor : MonoBehaviour, IInteractable
     {
         if (_isLocked)
         {
+            if (_permanentlyLocked) return _lockedMessage;
             PlayerInventory inventory = interactor.GetComponent<PlayerInventory>();
             return (inventory != null && inventory.HasItem(_requiredKey)) ? _unlockPromptMessage : _lockedMessage;
         }
-
         return _isOpen ? _closedMessage : _unlockedMessage;
     }
 
@@ -73,7 +70,6 @@ public class InteractableDoor : MonoBehaviour, IInteractable
             HandleLockedInteraction(interactor);
             return;
         }
-
         if (_isOpen) CloseDoor();
         else OpenDoor(interactor.transform.position, false);
     }
@@ -85,28 +81,28 @@ public class InteractableDoor : MonoBehaviour, IInteractable
             RattleLockedDoor();
             return;
         }
-
         if (_isOpen)
         {
             if (isSprinting && _hingeJoint.spring.spring < _sprintSpringForce)
-            {
                 UpgradeToSlam();
-            }
             return;
         }
-
         OpenDoor(interactorPosition, isSprinting);
+    }
+
+    public void ForceLock()
+    {
+        _isLocked = true;
+        _permanentlyLocked = true;
+        LockDoorPhysically();
     }
 
     private void OpenDoor(Vector3 interactorPosition, bool isSprinting)
     {
         _isOpen = true;
-
         Vector3 referencePoint = _doorCollider != null ? _doorCollider.bounds.center : transform.position;
-
         Vector3 dirToPlayer = (interactorPosition - referencePoint).normalized;
         float dot = Vector3.Dot(transform.forward, dirToPlayer);
-
         float angleMultiplier = _reverseOpenDirection ? -1f : 1f;
         _currentTargetAngle = (dot > 0 ? -_openAngle : _openAngle) * angleMultiplier;
 
@@ -133,7 +129,6 @@ public class InteractableDoor : MonoBehaviour, IInteractable
         JointSpring spring = _hingeJoint.spring;
         spring.spring = _sprintSpringForce;
         _hingeJoint.spring = spring;
-
         AudioManager.Instance.PlaySFXAtPosition(_slamSound, transform.position, 1f, Random.Range(0.9f, 1.1f));
         NoiseManager.EmitNoise(transform.position, _loudNoiseRadius);
     }
@@ -141,23 +136,27 @@ public class InteractableDoor : MonoBehaviour, IInteractable
     private void CloseDoor()
     {
         _isOpen = false;
-
         JointSpring spring = _hingeJoint.spring;
         spring.targetPosition = 0f;
         spring.spring = _walkSpringForce;
         _hingeJoint.spring = spring;
-
         AudioManager.Instance.PlaySFXAtPosition(_creakSound, transform.position, 1f, Random.Range(0.95f, 1.05f));
     }
 
     private void HandleLockedInteraction(GameObject interactor)
     {
+        if (_permanentlyLocked)
+        {
+            AudioManager.Instance.PlaySFXAtPosition(_lockedRattleSound, transform.position, 1f, Random.Range(0.95f, 1.05f));
+            _doorRigidbody.AddRelativeTorque(Vector3.up * 5f, ForceMode.Impulse);
+            return;
+        }
+
         PlayerInventory inventory = interactor.GetComponent<PlayerInventory>();
         if (inventory != null && inventory.HasItem(_requiredKey))
         {
             _isLocked = false;
             _hingeJoint.limits = _originalLimits;
-
             AudioManager.Instance.PlaySFXAtPosition(_unlockSound, transform.position, 1f, 1f);
         }
         else
@@ -173,7 +172,6 @@ public class InteractableDoor : MonoBehaviour, IInteractable
         {
             AudioManager.Instance.PlaySFXAtPosition(_lockedRattleSound, transform.position, 1f, Random.Range(0.95f, 1.05f));
             _doorRigidbody.AddRelativeTorque(Vector3.up * 5f, ForceMode.Impulse);
-
             _lastRattleTime = Time.time;
         }
     }
