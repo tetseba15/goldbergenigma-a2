@@ -89,6 +89,18 @@ public class HolyWaterController : MonoBehaviour
             }
         }
 
+        //ESTO ES TEMPORAL :c
+        GameObject firepot = GameObject.FindWithTag("Firepot");
+        if (firepot != null)            
+        {
+            float distanceToPot = Vector3.Distance(transform.position, firepot.transform.position);
+
+            if (distanceToPot <= _effectDistance)
+            {
+                firepot.GetComponent<Bonfire>().Extinguish();
+            }
+        }
+
         
         yield return new WaitForSeconds(_animationDuration);
 

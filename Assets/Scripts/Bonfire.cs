@@ -1,7 +1,10 @@
+using System;
 using UnityEngine;
 
 public class Bonfire : MonoBehaviour, IInteractable
 {
+    public static event Action<bool> OnFireExtinguished;
+
     [SerializeField] private GameObject _fireEffect;
     [SerializeField, TextArea(2, 5)] private string _noLighterPrompt = "Necesito algo para prender esto.";
 
@@ -53,6 +56,9 @@ public class Bonfire : MonoBehaviour, IInteractable
     public void Extinguish()
     {
         _isLit = false;
+
+        OnFireExtinguished?.Invoke(true);
+
         if (_fireEffect != null)
             _fireEffect.SetActive(false);
     }
