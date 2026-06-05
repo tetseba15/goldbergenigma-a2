@@ -17,6 +17,9 @@ public class ItemPickup : MonoBehaviour, IInteractable
     [SerializeField] private bool _hasPickupDialogue = false;
     [SerializeField, TextArea(2, 5)] private string _pickupDialogue;
 
+    [Header("Activa objeto al recoger")]
+    [SerializeField] private GameObject _objectToActivate;
+
     public static event Action<PlayerInventory, PlayerInventory.ItemType> OnInteract;
 
     public string GetInteractPrompt(GameObject interactor)
@@ -48,6 +51,9 @@ public class ItemPickup : MonoBehaviour, IInteractable
                 DialogueManager.Instance.ShowDialogue(_pickupDialogue);
             }
 
+            if (_objectToActivate != null)
+                _objectToActivate.SetActive(true);
+
             if (_pickUpClip != null)
             {
                 AudioManager.Instance.PlaySFX(_pickUpClip, .35f);
@@ -72,6 +78,10 @@ public class ItemPickup : MonoBehaviour, IInteractable
                 OuijaBoard.Instance.ResetCooldown();
             }
 
+            if (_itemType == PlayerInventory.ItemType.PatioKey)
+            {
+                OuijaBoard.Instance.OnPatioKeyPickedUp();
+            }
             OnInteract?.Invoke(interactor.GetComponent<PlayerInventory>(), _itemType);
             Destroy(gameObject);
         }

@@ -14,20 +14,20 @@ public class ShovelController : MonoBehaviour
     [SerializeField] private AudioSource _audioSource;
     [SerializeField] private AudioClip _shovelSound;
 
-    
     [Header("Llaves")]
     [SerializeField, Tooltip("Llave chimenea")]
     private GameObject _chimneyKeyPrefab;
-
     [SerializeField, Tooltip("Llave tumba")]
     private GameObject _graveKeyPrefab;
-
     [SerializeField, Tooltip("Sonido de llave")]
     private AudioClip _keySpawnSound;
 
     [Header("NotaMadre chimenea")]
     [SerializeField, Tooltip("Nota madre chimenea")]
     private GameObject _notaMadrePrefab;
+
+    [Header("Dialogos")]
+    [SerializeField] private GameObject _chimneyExitDialogue;
 
     [Header("Configuración")]
     [SerializeField] private float _animationDuration;
@@ -42,7 +42,6 @@ public class ShovelController : MonoBehaviour
         {
             _shovelVisual.SetActive(false);
         }
-
         if (_mainCamera == null)
         {
             _mainCamera = Camera.main;
@@ -52,11 +51,9 @@ public class ShovelController : MonoBehaviour
     void Update()
     {
         if (Keyboard.current == null) return;
-
         if (Keyboard.current.gKey.wasPressedThisFrame)
         {
             bool tienePala = _inventory.HasItem(PlayerInventory.ItemType.Shovel);
-
             if (tienePala && !_isUsing)
             {
                 TryInteractWithShovel();
@@ -68,7 +65,6 @@ public class ShovelController : MonoBehaviour
     {
         Ray ray = _mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit hit;
-
         if (Physics.Raycast(ray, out hit, _interactionDistance, _interactableMask))
         {
             if (hit.collider.CompareTag("Chimney") || hit.collider.CompareTag("Grave"))
@@ -87,7 +83,6 @@ public class ShovelController : MonoBehaviour
         {
             _audioSource.PlayOneShot(_shovelSound);
         }
-
         if (_shovelAnimator != null)
         {
             _shovelAnimator.SetTrigger("Dig");
@@ -95,16 +90,15 @@ public class ShovelController : MonoBehaviour
 
         yield return new WaitForSeconds(_animationDuration * 0.5f);
 
-        
         GameObject llave = null;
         GameObject nota = null;
 
-        
         if (targetObject.CompareTag("Chimney"))
         {
             llave = _chimneyKeyPrefab;
-
             nota = _notaMadrePrefab;
+            if (_chimneyExitDialogue != null)
+                _chimneyExitDialogue.SetActive(true);
         }
         else if (targetObject.CompareTag("Grave"))
         {
@@ -114,17 +108,13 @@ public class ShovelController : MonoBehaviour
         if (nota != null)
         {
             Vector3 spawnPosition = targetObject.transform.position + new Vector3(0f, 0.1f, 0f);
-
-
-            GameObject nuevaNota = Instantiate(nota, spawnPosition, Quaternion.identity);
+            Instantiate(nota, spawnPosition, Quaternion.identity);
         }
+
         if (llave != null)
         {
             Vector3 spawnPosition = targetObject.transform.position + new Vector3(0f, 0.1f, 0f);
-
-            
-            GameObject nuevaLlave = Instantiate(llave, spawnPosition, Quaternion.identity);
-
+            Instantiate(llave, spawnPosition, Quaternion.identity);
             if (_audioSource != null && _keySpawnSound != null)
             {
                 _audioSource.PlayOneShot(_keySpawnSound);
@@ -132,9 +122,7 @@ public class ShovelController : MonoBehaviour
         }
 
         targetObject.tag = "Untagged";
-
         yield return new WaitForSeconds(_animationDuration * 0.5f);
-
         _shovelVisual.SetActive(false);
         _isUsing = false;
     }

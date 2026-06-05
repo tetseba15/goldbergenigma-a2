@@ -12,6 +12,7 @@ public class OuijaBoard : MonoBehaviour, IInteractable
     [SerializeField] private string _act1Message = "Habitación. Arriba.";
     [SerializeField] private string _act2Message = "Chimenea.";
     [SerializeField] private string _act3Message = "Fogón. Fuego. Enfrentamiento.";
+    [SerializeField] private string _act2TombMessage = "Mi tumba. Llave.";
 
     [Header("Mensajes de recordatorio")]
     [SerializeField] private string _act1Reminder = "La niña dijo que vaya a la habitación de arriba.";
@@ -24,10 +25,10 @@ public class OuijaBoard : MonoBehaviour, IInteractable
     private int _currentAct = 1;
     private bool _isOnCooldown = false;
     private int _useCount = 0;
+    private bool _patioKeyPickedUp = false;
 
     public int CurrentAct => _currentAct;
     public bool HasUsedAct2Ouija { get; private set; } = false;
-
     public static OuijaBoard Instance { get; private set; }
 
     public static event Action<PlayerInventory.ItemType> OnInteract;
@@ -54,7 +55,6 @@ public class OuijaBoard : MonoBehaviour, IInteractable
         if (_useCount == 1 && _ghostAppearance != null)
         {
             _isOnCooldown = true;
-
             Vector3 spawnPos = interactor.transform.position + interactor.transform.forward * 3f;
             spawnPos.y = interactor.transform.position.y;
 
@@ -77,6 +77,12 @@ public class OuijaBoard : MonoBehaviour, IInteractable
         _isOnCooldown = false;
     }
 
+    public void OnPatioKeyPickedUp()
+    {
+        _patioKeyPickedUp = true;
+        ResetCooldown();
+    }
+
     public void AdvanceToNextAct()
     {
         if (_currentAct < 3)
@@ -91,21 +97,18 @@ public class OuijaBoard : MonoBehaviour, IInteractable
 
     private string GetCurrentMessage()
     {
-        if (_useCount > 1)
-        {
-            switch (_currentAct)
-            {
-                case 2: return _act2Reminder;
-                case 3: return _act3Reminder;
-                default: return _act1Reminder;
-            }
-        }
-
         switch (_currentAct)
         {
-            case 2: return _act2Message;
-            case 3: return _act3Message;
-            default: return _act1Message;
+            case 2:
+                if (_patioKeyPickedUp) return _act2TombMessage;
+                if (_useCount > 1) return _act2Reminder;
+                return _act2Message;
+            case 3:
+                if (_useCount > 1) return _act3Reminder;
+                return _act3Message;
+            default:
+                if (_useCount > 1) return _act1Reminder;
+                return _act1Message;
         }
     }
 }
