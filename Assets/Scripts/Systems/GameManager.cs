@@ -79,5 +79,8 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(2);
     }
 
-
+    public void Win()
+    {
+        SceneManager.LoadScene("Win");
+    }
 }

@@ -7,12 +7,17 @@ public class Bonfire : MonoBehaviour, IInteractable
 
     [SerializeField] private GameObject _fireEffect;
     [SerializeField, TextArea(2, 5)] private string _noLighterPrompt = "Necesito algo para prender esto.";
+    [SerializeField] private float timer = 10f;//para la SCENE WIN
 
     private bool _isLit = false;
     private bool _unlocked = false;
 
     public bool IsLit => _isLit;
 
+    private void Update()//agregado scene WIN
+    {
+        timer -= Time.deltaTime;//Agregado WIN
+    }
     private void OnEnable()
     {
         WorkshopExitTrigger.OnPlayerFinalObjective += Unlock;
@@ -61,5 +66,11 @@ public class Bonfire : MonoBehaviour, IInteractable
 
         if (_fireEffect != null)
             _fireEffect.SetActive(false);
+
+        if (timer <= 0)//Agregado SCENE WIN
+        {
+            GameManager.Instance.Win();
+        }
+
     }
 }
