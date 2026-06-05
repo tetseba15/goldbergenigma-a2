@@ -9,7 +9,7 @@ public class Menu : MonoBehaviour
     private void Start()
     {
     #if UNITY_WEBGL
-        exitButton.SetActive(false);
+       exitButton.SetActive(false);
     #endif
     }
    
@@ -28,6 +28,7 @@ public class Menu : MonoBehaviour
 
     public void BackTomenu()
     {
+       
         SceneManager.LoadScene("Menu");
     }
 
