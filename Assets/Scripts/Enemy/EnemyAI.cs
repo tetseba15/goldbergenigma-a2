@@ -136,7 +136,7 @@ public class EnemyAI : MonoBehaviour
         if (_currentState != AIState.Spotted && _currentState != AIState.Fleeing)
         {
             CheckSensors();
-            //CheckFlashlight();
+            CheckFlashlight();
         }
 
         switch (_currentState)
