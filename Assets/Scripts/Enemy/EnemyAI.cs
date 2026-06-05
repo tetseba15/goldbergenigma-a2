@@ -79,6 +79,11 @@ public class EnemyAI : MonoBehaviour
 
     private void Awake()
     {
+        gameObject.SetActive(false);
+
+        WorkshopExitTrigger.OnPlayerFinalObjective += StartFinalSequence;
+
+
         _agent = GetComponent<NavMeshAgent>();
         _animator = GetComponentInChildren<Animator>();
 
@@ -94,7 +99,6 @@ public class EnemyAI : MonoBehaviour
 
     private void OnEnable()
     {
-        WorkshopExitTrigger.OnPlayerFinalObjective += StartFinalSequence;
 
 
         NoiseManager.OnNoiseEmitted += HearNoise;
@@ -108,9 +112,13 @@ public class EnemyAI : MonoBehaviour
 
     private void OnDisable()
     {
-        WorkshopExitTrigger.OnPlayerFinalObjective -= StartFinalSequence;
 
         NoiseManager.OnNoiseEmitted -= HearNoise;
+    }
+    private void OnDestroy()
+    {
+        WorkshopExitTrigger.OnPlayerFinalObjective -= StartFinalSequence;
+
     }
 
     private void Start()
@@ -200,12 +208,21 @@ public class EnemyAI : MonoBehaviour
     {
         if (!isFinalObjective) return;
 
+        if (!gameObject.activeInHierarchy)
+        {
+            gameObject.SetActive(true);
+        }
+
         _isStunned = false;
         _invulnerabilityTimer = 9999f;
 
         if (_finalSpawnPoint != null)
         {
-            _agent.Warp(_finalSpawnPoint.position);
+            _agent.enabled = false;
+
+            transform.position = _finalSpawnPoint.position;
+
+            _agent.enabled = true;
         }
 
         ChangeState(AIState.FinalChase);
