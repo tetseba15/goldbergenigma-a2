@@ -44,4 +44,8 @@ public class Menu : MonoBehaviour
     {
         SceneManager.LoadScene("Tutorial");
     }
+    public void Win()
+    {
+        SceneManager.LoadScene("Win");
+    }
 }
