@@ -1,6 +1,7 @@
 using System;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class ItemPickup : MonoBehaviour, IInteractable
 {
@@ -65,11 +66,12 @@ public class ItemPickup : MonoBehaviour, IInteractable
                     waterController.RefillBottle();
                 }
             }
-            if (_itemType == PlayerInventory.ItemType.QuinchoKey)
+            if (_itemType == PlayerInventory.ItemType.WorkshopKey)
             {
                 OuijaBoard.Instance.AdvanceToNextAct();
                 OuijaBoard.Instance.ResetCooldown();
             }
+
             OnInteract?.Invoke(interactor.GetComponent<PlayerInventory>(), _itemType);
             Destroy(gameObject);
         }
