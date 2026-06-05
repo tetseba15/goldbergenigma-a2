@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class Bonfire : MonoBehaviour, IInteractable
@@ -16,7 +17,7 @@ public class Bonfire : MonoBehaviour, IInteractable
 
     private void Update()//agregado scene WIN
     {
-        timer -= Time.deltaTime;//Agregado WIN
+        //timer -= Time.deltaTime;//Agregado WIN
     }
     private void OnEnable()
     {
@@ -67,10 +68,18 @@ public class Bonfire : MonoBehaviour, IInteractable
         if (_fireEffect != null)
             _fireEffect.SetActive(false);
 
-        if (timer <= 0)//Agregado SCENE WIN
-        {
-            GameManager.Instance.Win();
-        }
+        //if (timer <= 0)//Agregado SCENE WIN
+        //{
+        //    GameManager.Instance.Win();
+        //}
 
+        StartCoroutine(StartWin());
+
+    }
+
+    private IEnumerator StartWin()
+    {
+        yield return new WaitForSeconds(timer);
+        GameManager.Instance.Win();
     }
 }

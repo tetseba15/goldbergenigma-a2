@@ -20,10 +20,10 @@ public class EnemyAI : MonoBehaviour
 
     [Header("Enemy Data")]
     [SerializeField] private EnemyData _data;
-    
+
     [Header("References")]
     [SerializeField] private Transform _lookAtTarget;
-    [SerializeField] private EnemyAudioManager _audioManager; 
+    [SerializeField] private EnemyAudioManager _audioManager;
     [SerializeField] private EnemySpawnEnabler _spawnEnabler;
 
     [Header("Timers & Delays")]
@@ -46,6 +46,8 @@ public class EnemyAI : MonoBehaviour
     private float _rubberBandDistance = 15f;
     [SerializeField, Tooltip("Multiplicador de velocidad cuando se queda atrás (ej. 1.3 = 30% más rápido)")]
     private float _rubberBandSpeedMultiplier = 1.3f;
+
+    private bool _isFinalSequenceStarted = false;
 
     private float _invulnerabilityTimer = 0f;
 
@@ -203,7 +205,7 @@ public class EnemyAI : MonoBehaviour
 
         if (_agent.velocity.magnitude > 0.1f)
         {
-            
+
             _animator.speed = _agent.velocity.magnitude / _data.patrolSpeed;
         }
         else
@@ -212,7 +214,7 @@ public class EnemyAI : MonoBehaviour
         }
 
         UpdateLookAt();
-    
+
     }
     #region Final Secuence
 
@@ -220,26 +222,16 @@ public class EnemyAI : MonoBehaviour
     {
         if (!isFinalObjective) return;
 
+        if (_isFinalSequenceStarted) return;
+        _isFinalSequenceStarted = true;
+
         if (!gameObject.activeInHierarchy)
         {
             gameObject.SetActive(true);
         }
 
-        _isStunned = false;
-        _invulnerabilityTimer = 9999f;
-
-        if (_finalSpawnPoint != null)
-        {
-            _agent.enabled = false;
-
-            transform.position = _finalSpawnPoint.position;
-
-            _agent.enabled = true;
-        }
-
-        ChangeState(AIState.FinalChase);
+        StartCoroutine(FinalChaseIntroRoutine());
     }
-
     private void HandleFinalChase()
     {
         Transform playerTarget = PlayerTarget.Instance.PlayerTransform;
@@ -248,9 +240,27 @@ public class EnemyAI : MonoBehaviour
 
         float distanceToPlayer = 0f;
 
-        if (!_agent.pathPending)
+        NavMeshPath path = new NavMeshPath();
+
+        if (NavMesh.CalculatePath(transform.position, playerTarget.position, NavMesh.AllAreas, path))
         {
-            distanceToPlayer = _agent.remainingDistance;
+            if (path.status == NavMeshPathStatus.PathComplete)
+            {
+                distanceToPlayer = GetPathLength(path);
+            }
+            else if (path.status == NavMeshPathStatus.PathPartial)
+            {
+                float linearDistance = Vector3.Distance(transform.position, playerTarget.position);
+
+                if (linearDistance > _rubberBandDistance)
+                {
+                    distanceToPlayer = Mathf.Infinity;
+                }
+                else
+                {
+                    distanceToPlayer = linearDistance;
+                }
+            }
         }
         else
         {
@@ -266,6 +276,19 @@ public class EnemyAI : MonoBehaviour
             _agent.speed = _data.chaseSpeed;
         }
     }
+    private float GetPathLength(NavMeshPath path)
+    {
+        float length = 0f;
+
+        if (path.corners.Length < 2) return 0f;
+
+        for (int i = 0; i < path.corners.Length - 1; i++)
+        {
+            length += Vector3.Distance(path.corners[i], path.corners[i + 1]);
+        }
+
+        return length;
+    }
 
     private void TriggerDeathSequence()
     {
@@ -274,6 +297,36 @@ public class EnemyAI : MonoBehaviour
         if (!gameObject.activeInHierarchy) gameObject.SetActive(true);
 
         StartCoroutine(DeathRoutine());
+    }
+
+    private IEnumerator FinalChaseIntroRoutine()
+    {
+        yield return null;
+
+        _currentState = AIState.Enraged;
+        _isStunned = true;
+        _invulnerabilityTimer = 9999f;
+
+        if (_finalSpawnPoint != null && _agent.isOnNavMesh)
+        {
+            _agent.Warp(_finalSpawnPoint.position);
+            _agent.isStopped = true;
+            _agent.velocity = Vector3.zero;
+        }
+
+        if (_audioManager != null) _audioManager.PlayEnraged();
+        OnEnemyRoaring?.Invoke(_enragedRoarDuration, _enragedRoarDuration);
+
+        yield return new WaitForSeconds(_enragedRoarDuration);
+
+        // A correr
+        _isStunned = false;
+        if (_agent.isOnNavMesh)
+        {
+            _agent.isStopped = false;
+        }
+
+        ChangeState(AIState.FinalChase);
     }
 
     private IEnumerator DeathRoutine()
@@ -287,11 +340,11 @@ public class EnemyAI : MonoBehaviour
             _agent.velocity = Vector3.zero;
         }
 
-        if (_audioManager != null) _audioManager.PlayHurt(); 
-        if (_animator != null) _animator.speed = 1f; 
+        if (_audioManager != null) _audioManager.PlayHurt();
+        if (_animator != null) _animator.speed = 1f;
 
         if (_deathVFXPrefab != null)
-        {            
+        {
             Instantiate(_deathVFXPrefab, transform.position, _deathVFXPrefab.transform.rotation);
         }
 
@@ -344,7 +397,7 @@ public class EnemyAI : MonoBehaviour
 
         float sqrDistanceToPlayer = (transform.position - playerCam.position).sqrMagnitude;
 
-        
+
         float maxInterferenceDistance = _data.flashlightRepelDistance * 1.5f;
 
         if (sqrDistanceToPlayer > (maxInterferenceDistance * maxInterferenceDistance))
@@ -460,7 +513,7 @@ public class EnemyAI : MonoBehaviour
     private void HearNoise(Vector3 noisePosition, float noiseVolume)
     {
         // ignore noises if state is chase,spotter,fleeing or stunned
-        if (_playerInSafeZone || _currentState == AIState.Chase || _currentState == AIState.Spotted  || _isStunned) return;
+        if (_playerInSafeZone || _currentState == AIState.Chase || _currentState == AIState.Spotted || _isStunned) return;
 
         float sqrDistanceToNoise = (noisePosition - transform.position).sqrMagnitude;
 
@@ -482,8 +535,8 @@ public class EnemyAI : MonoBehaviour
     {
         if (_invulnerabilityTimer > 0f || _isStunned) return;
 
-        
-         if (PlayerTarget.Instance.Flashlight == null || !PlayerTarget.Instance.Flashlight.IsOn()) return;
+
+        if (PlayerTarget.Instance.Flashlight == null || !PlayerTarget.Instance.Flashlight.IsOn()) return;
 
         Transform target = PlayerTarget.Instance.PlayerTransform;
         float sqrDistanceToPlayer = (transform.position - target.position).sqrMagnitude;
@@ -513,14 +566,14 @@ public class EnemyAI : MonoBehaviour
     {
         if (_currentState == newState) return;
 
-        if (_currentState == AIState.Chase)
+        if (_currentState == AIState.Chase || _currentState == AIState.FinalChase)
         {
             OnChaseStateChanged?.Invoke(false);
         }
 
         _currentState = newState;
 
-        if (_currentState == AIState.Chase)
+        if (_currentState == AIState.Chase || _currentState == AIState.FinalChase)
         {
             OnChaseStateChanged?.Invoke(true);
         }
@@ -557,23 +610,23 @@ public class EnemyAI : MonoBehaviour
         ChangeState(AIState.Chase);
     }
 
-    private IEnumerator EnragePlayerRoutine()
-    {
-        _currentState = AIState.Spotted;
-        _agent.isStopped = true;
-        _agent.velocity = Vector3.zero;
+    //private IEnumerator EnragePlayerRoutine()
+    //{
+    //    _currentState = AIState.Spotted;
+    //    _agent.isStopped = true;
+    //    _agent.velocity = Vector3.zero;
 
-        _invulnerabilityTimer = _invulnerabilityDuration;
+    //    _invulnerabilityTimer = _invulnerabilityDuration;
 
-        if (_audioManager != null) _audioManager.PlayEnraged();
+    //    if (_audioManager != null) _audioManager.PlayEnraged();
 
-        OnEnemyRoaring?.Invoke(_enragedRoarDuration, _invulnerabilityDuration);
+    //    OnEnemyRoaring?.Invoke(_enragedRoarDuration, _invulnerabilityDuration);
 
-        yield return new WaitForSeconds(_enragedRoarDuration);
+    //    yield return new WaitForSeconds(_enragedRoarDuration);
 
-        _agent.isStopped = false;
-        ChangeState(AIState.Chase);
-    }
+    //    _agent.isStopped = false;
+    //    ChangeState(AIState.Chase);
+    //}
 
     private IEnumerator EnrageRoutine()
     {
@@ -672,7 +725,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (other.CompareTag("Player") && !_isStunned && _currentState != AIState.Death)
         {
-             GameManager.Instance.GameOver();
+            GameManager.Instance.GameOver();
         }
     }
 
