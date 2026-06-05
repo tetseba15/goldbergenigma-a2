@@ -11,13 +11,15 @@ public class OuijaBoard : MonoBehaviour, IInteractable
     [Header("Mensajes")]
     [SerializeField] private string _act1Message = "Habitación. Arriba.";
     [SerializeField] private string _act2Message = "Chimenea.";
-    [SerializeField] private string _act3Message = "Fogón. Fuego. Enfrentamiento.";
     [SerializeField] private string _act2TombMessage = "Mi tumba. Llave.";
+    [SerializeField] private string _act3Message = "Taller. cuadros";
+    //[SerializeField] private string _act3FinalMessage = "Fogón. Fuego. Enfrentamiento.";
 
     [Header("Mensajes de recordatorio")]
     [SerializeField] private string _act1Reminder = "La niña dijo que vaya a la habitación de arriba.";
     [SerializeField] private string _act2Reminder = "La niña dijo que vaya a la chimenea.";
-    [SerializeField] private string _act3Reminder = "La niña dijo que vaya al fogón.";
+    [SerializeField] private string _act3Reminder = "La niña dijo que vaya al taller de cuadros.";
+    //[SerializeField] private string _act3FinalReminder = "La niña dijo que vaya al fogón.";
 
     [Header("Referencias de escena")]
     [SerializeField] private GameObject _fireplaceLookAtDialogue;
@@ -83,9 +85,15 @@ public class OuijaBoard : MonoBehaviour, IInteractable
         ResetCooldown();
     }
 
+    public void OnWorkshopKeyPickedUp() 
+    { 
+
+    }
+
+
     public void AdvanceToNextAct()
     {
-        if (_currentAct < 3)
+        if (_currentAct < 4)
         {
             _currentAct++;
             _useCount = 0;
@@ -106,6 +114,8 @@ public class OuijaBoard : MonoBehaviour, IInteractable
             case 3:
                 if (_useCount > 1) return _act3Reminder;
                 return _act3Message;
+            //case 4:
+            //    if(_)
             default:
                 if (_useCount > 1) return _act1Reminder;
                 return _act1Message;
