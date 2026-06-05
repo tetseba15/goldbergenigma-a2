@@ -45,15 +45,17 @@ public class GameManager : MonoBehaviour
     }
     public void Pause()
     {
-        Time.timeScale = 0f;
+        Time.timeScale = 0f;          
+        AudioListener.pause = true;   
         isPaused = true;
     }
+
     public void Unpause()
     {
-        Time.timeScale = 1f;
+        Time.timeScale = 1f;          
+        AudioListener.pause = false;  
         isPaused = false;
     }
-
     private void OnEnable()
     {
         
