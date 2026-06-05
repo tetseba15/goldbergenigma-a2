@@ -113,7 +113,7 @@ public class ShovelController : MonoBehaviour
 
         if (llave != null)
         {
-            Vector3 spawnPosition = targetObject.transform.position + new Vector3(0f, 0.1f, 0f);
+            Vector3 spawnPosition = targetObject.transform.position + new Vector3(0f, 0.2f, 0f);
             Instantiate(llave, spawnPosition, Quaternion.identity);
             if (_audioSource != null && _keySpawnSound != null)
             {
