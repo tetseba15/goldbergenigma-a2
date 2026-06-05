@@ -15,6 +15,8 @@ public class Menu : MonoBehaviour
    
     public void StarGame()
     {
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
         SceneManager.LoadScene(1);
     }
     public void Exit()

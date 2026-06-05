@@ -10,11 +10,6 @@ public static class GameEvent
         OnHolyWater?. Invoke(currentWater, maxWater);//? Evita el null si esta vacio
     }
 
-    public static Action <float, float> OnBattery;
 
-    public static void Battery(float currentBattery, float maxBattery)
-    {
-        OnBattery?. Invoke(currentBattery, maxBattery);
-    }
 }
 
