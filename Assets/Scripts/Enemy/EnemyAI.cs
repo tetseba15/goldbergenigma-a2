@@ -225,19 +225,7 @@ public class EnemyAI : MonoBehaviour
             gameObject.SetActive(true);
         }
 
-        _isStunned = false;
-        _invulnerabilityTimer = 9999f;
-
-        if (_finalSpawnPoint != null)
-        {
-            _agent.enabled = false;
-
-            transform.position = _finalSpawnPoint.position;
-
-            _agent.enabled = true;
-        }
-
-        ChangeState(AIState.FinalChase);
+        StartCoroutine(FinalChaseIntroRoutine());
     }
 
     private void HandleFinalChase()
@@ -274,6 +262,39 @@ public class EnemyAI : MonoBehaviour
         if (!gameObject.activeInHierarchy) gameObject.SetActive(true);
 
         StartCoroutine(DeathRoutine());
+    }
+
+    private IEnumerator FinalChaseIntroRoutine()
+    {
+        _isStunned = true;
+        _invulnerabilityTimer = 9999f;
+
+        if (_finalSpawnPoint != null)
+        {
+            _agent.enabled = false;
+            transform.position = _finalSpawnPoint.position;
+            _agent.enabled = true;
+
+            if (_agent.isOnNavMesh)
+            {
+                _agent.isStopped = true;
+                _agent.velocity = Vector3.zero;
+            }
+        }
+
+        if (_audioManager != null) _audioManager.PlayEnraged(); 
+
+        OnEnemyRoaring?.Invoke(_enragedRoarDuration, _enragedRoarDuration);
+
+        yield return new WaitForSeconds(_enragedRoarDuration);
+
+        _isStunned = false;
+        if (_agent.isOnNavMesh)
+        {
+            _agent.isStopped = false;
+        }
+
+        ChangeState(AIState.FinalChase);
     }
 
     private IEnumerator DeathRoutine()
