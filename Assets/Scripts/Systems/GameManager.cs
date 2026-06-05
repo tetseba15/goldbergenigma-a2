@@ -6,6 +6,10 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
     private bool isPaused = false;
+    
+    [Header("UI Referencias")]
+    
+    public GameObject menuPausaUI;
     private void Awake()
     {
         if (Instance == null)
@@ -45,15 +49,26 @@ public class GameManager : MonoBehaviour
     }
     public void Pause()
     {
-        Time.timeScale = 0f;
+        Time.timeScale = 0f;          
+        AudioListener.pause = true;   
         isPaused = true;
-    }
-    public void Unpause()
-    {
-        Time.timeScale = 1f;
-        isPaused = false;
+        if (menuPausaUI != null) menuPausaUI.SetActive(true);//Activa imagen pause
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
+    public void Unpause()
+    {
+        Time.timeScale = 1f;          
+        AudioListener.pause = false;  
+        isPaused = false;
+        if (menuPausaUI != null) menuPausaUI.SetActive(false);
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = false;
+
+    }
     private void OnEnable()
     {
         
