@@ -47,6 +47,8 @@ public class EnemyAI : MonoBehaviour
     [SerializeField, Tooltip("Multiplicador de velocidad cuando se queda atrás (ej. 1.3 = 30% más rápido)")]
     private float _rubberBandSpeedMultiplier = 1.3f;
 
+    private bool _isFinalSequenceStarted = false;
+
     private float _invulnerabilityTimer = 0f;
 
     [Header("Death Sequence")]
@@ -220,6 +222,9 @@ public class EnemyAI : MonoBehaviour
     {
         if (!isFinalObjective) return;
 
+        if (_isFinalSequenceStarted) return;
+        _isFinalSequenceStarted = true;
+
         if (!gameObject.activeInHierarchy)
         {
             gameObject.SetActive(true);
@@ -227,7 +232,6 @@ public class EnemyAI : MonoBehaviour
 
         StartCoroutine(FinalChaseIntroRoutine());
     }
-
     private void HandleFinalChase()
     {
         Transform playerTarget = PlayerTarget.Instance.PlayerTransform;
@@ -282,28 +286,25 @@ public class EnemyAI : MonoBehaviour
 
     private IEnumerator FinalChaseIntroRoutine()
     {
+        yield return null;
+
+        _currentState = AIState.Enraged;
         _isStunned = true;
         _invulnerabilityTimer = 9999f;
 
-        if (_finalSpawnPoint != null)
+        if (_finalSpawnPoint != null && _agent.isOnNavMesh)
         {
-            _agent.enabled = false;
-            transform.position = _finalSpawnPoint.position;
-            _agent.enabled = true;
-
-            if (_agent.isOnNavMesh)
-            {
-                _agent.isStopped = true;
-                _agent.velocity = Vector3.zero;
-            }
+            _agent.Warp(_finalSpawnPoint.position);
+            _agent.isStopped = true;
+            _agent.velocity = Vector3.zero;
         }
 
-        if (_audioManager != null) _audioManager.PlayEnraged(); 
-
+        if (_audioManager != null) _audioManager.PlayEnraged();
         OnEnemyRoaring?.Invoke(_enragedRoarDuration, _enragedRoarDuration);
 
         yield return new WaitForSeconds(_enragedRoarDuration);
 
+        // A correr
         _isStunned = false;
         if (_agent.isOnNavMesh)
         {
@@ -550,14 +551,16 @@ public class EnemyAI : MonoBehaviour
     {
         if (_currentState == newState) return;
 
-        if (_currentState == AIState.Chase)
+        // Apagamos la música si SALIMOS de alguna de las persecuciones
+        if (_currentState == AIState.Chase || _currentState == AIState.FinalChase)
         {
             OnChaseStateChanged?.Invoke(false);
         }
 
         _currentState = newState;
 
-        if (_currentState == AIState.Chase)
+        // Prendemos la música si ENTRAMOS a alguna de las persecuciones
+        if (_currentState == AIState.Chase || _currentState == AIState.FinalChase)
         {
             OnChaseStateChanged?.Invoke(true);
         }
