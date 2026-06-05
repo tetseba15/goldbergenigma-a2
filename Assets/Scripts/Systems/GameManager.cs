@@ -24,16 +24,16 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (Keyboard.current.digit9Key.wasPressedThisFrame)
-        {
-            SceneManager.LoadScene(2);
+        //if (Keyboard.current.digit9Key.wasPressedThisFrame)
+        //{
+        //    SceneManager.LoadScene(2);
 
-        }
-        if (Keyboard.current.digit8Key.wasPressedThisFrame)
-        {
-            SceneManager.LoadScene(3);
+        //}
+        //if (Keyboard.current.digit8Key.wasPressedThisFrame)
+        //{
+        //    SceneManager.LoadScene(3);
 
-        }
+        //}
 
         if (Keyboard.current.pKey.wasPressedThisFrame)
         {
@@ -76,7 +76,7 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        SceneManager.LoadScene(2);
     }
 
 

@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Bonfire : MonoBehaviour, IInteractable
 {
-    public static event Action<bool> OnFireExtinguished;
+    public static event Action OnFireExtinguished;
 
     [SerializeField] private GameObject _fireEffect;
     [SerializeField, TextArea(2, 5)] private string _noLighterPrompt = "Necesito algo para prender esto.";
@@ -35,7 +35,7 @@ public class Bonfire : MonoBehaviour, IInteractable
 
         PlayerInventory inventory = interactor.GetComponent<PlayerInventory>();
         if (inventory != null && inventory.HasItem(PlayerInventory.ItemType.Lighter))
-            return "Prender fogón";
+            return "[E] Prender fogón";
 
         return _noLighterPrompt;
     }
@@ -57,7 +57,7 @@ public class Bonfire : MonoBehaviour, IInteractable
     {
         _isLit = false;
 
-        OnFireExtinguished?.Invoke(true);
+        OnFireExtinguished?.Invoke();
 
         if (_fireEffect != null)
             _fireEffect.SetActive(false);

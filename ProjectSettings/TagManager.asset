@@ -8,6 +8,7 @@ TagManager:
   - Chimney
   - Grave
   - SurfaceExterior
+  - Firepot
   layers:
   - Default
   - TransparentFX

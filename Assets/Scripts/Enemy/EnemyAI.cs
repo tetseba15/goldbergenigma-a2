@@ -13,7 +13,7 @@ public class EnemyAI : MonoBehaviour
 
     public static event Action<bool> OnFlashlightInterference;
 
-    public enum AIState { Patrol, Chase, Idle, Investigate, Spotted, Enraged, FinalChase }
+    public enum AIState { Patrol, Chase, Idle, Investigate, Spotted, Enraged, FinalChase, Death }
     private AIState _currentState;
 
 
@@ -49,6 +49,12 @@ public class EnemyAI : MonoBehaviour
 
     private float _invulnerabilityTimer = 0f;
 
+    [Header("Death Sequence")]
+    [SerializeField, Tooltip("El prefab del VFX de fuego")]
+    private GameObject _deathVFXPrefab;
+    [SerializeField, Tooltip("Cuánto tarda en desaparecer después de prenderse fuego")]
+    private float _deathDuration = 3f;
+
 
     [Space(20)]
     [SerializeField] private Transform[] _patrolWaypoints;
@@ -82,6 +88,8 @@ public class EnemyAI : MonoBehaviour
         gameObject.SetActive(false);
 
         WorkshopExitTrigger.OnPlayerFinalObjective += StartFinalSequence;
+
+        Bonfire.OnFireExtinguished += TriggerDeathSequence;
 
 
         _agent = GetComponent<NavMeshAgent>();
@@ -118,6 +126,7 @@ public class EnemyAI : MonoBehaviour
     private void OnDestroy()
     {
         WorkshopExitTrigger.OnPlayerFinalObjective -= StartFinalSequence;
+        Bonfire.OnFireExtinguished -= TriggerDeathSequence;
 
     }
 
@@ -131,6 +140,8 @@ public class EnemyAI : MonoBehaviour
 
     private void Update()
     {
+        if (_currentState == AIState.Death) return;
+
         if (_invulnerabilityTimer > 0f)
         {
             _invulnerabilityTimer -= Time.deltaTime;
@@ -203,6 +214,7 @@ public class EnemyAI : MonoBehaviour
         UpdateLookAt();
     
     }
+    #region Final Secuence
 
     private void StartFinalSequence(bool isFinalObjective)
     {
@@ -246,6 +258,40 @@ public class EnemyAI : MonoBehaviour
             _agent.speed = _data.chaseSpeed;
         }
     }
+
+    private void TriggerDeathSequence()
+    {
+        if (_currentState == AIState.Death) return;
+
+        if (!gameObject.activeInHierarchy) gameObject.SetActive(true);
+
+        StartCoroutine(DeathRoutine());
+    }
+
+    private IEnumerator DeathRoutine()
+    {
+        ChangeState(AIState.Death);
+
+        _isStunned = true;
+        if (_agent != null && _agent.isOnNavMesh)
+        {
+            _agent.isStopped = true;
+            _agent.velocity = Vector3.zero;
+        }
+
+        if (_audioManager != null) _audioManager.PlayHurt(); 
+        if (_animator != null) _animator.speed = 1f; 
+
+        if (_deathVFXPrefab != null)
+        {            
+            Instantiate(_deathVFXPrefab, transform.position, _deathVFXPrefab.transform.rotation);
+        }
+
+        yield return new WaitForSeconds(_deathDuration);
+
+        gameObject.SetActive(false);
+    }
+    #endregion
 
     #region Combat & Reactions
 
@@ -619,7 +665,7 @@ public class EnemyAI : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player") && !_isStunned)
+        if (other.CompareTag("Player") && !_isStunned && _currentState != AIState.Death)
         {
             // GameManager.Instance.GameOver();
         }
@@ -659,4 +705,6 @@ public class EnemyAI : MonoBehaviour
         OnEnemyRoaring?.Invoke(duration, arg2);
     }
     #endregion
+
+
 }
