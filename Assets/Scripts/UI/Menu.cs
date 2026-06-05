@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 
 public class Menu : MonoBehaviour
 {
-    [SerializeField] private GameObject exitButton;
+    
     private bool isPaused = false;
     private void Start()
     {
