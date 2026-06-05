@@ -667,7 +667,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (other.CompareTag("Player") && !_isStunned && _currentState != AIState.Death)
         {
-            // GameManager.Instance.GameOver();
+             GameManager.Instance.GameOver();
         }
     }
 
