@@ -236,9 +236,11 @@ public class EnemyAI : MonoBehaviour
 
         float distanceToPlayer = 0f;
 
-        if (!_agent.pathPending)
+        NavMeshPath path = new NavMeshPath();
+
+        if (NavMesh.CalculatePath(transform.position, playerTarget.position, NavMesh.AllAreas, path))
         {
-            distanceToPlayer = _agent.remainingDistance;
+            distanceToPlayer = GetPathLength(path);
         }
         else
         {
@@ -253,6 +255,20 @@ public class EnemyAI : MonoBehaviour
         {
             _agent.speed = _data.chaseSpeed;
         }
+    }
+
+    private float GetPathLength(NavMeshPath path)
+    {
+        float length = 0f;
+
+        if (path.corners.Length < 2) return 0f;
+
+        for (int i = 0; i < path.corners.Length - 1; i++)
+        {
+            length += Vector3.Distance(path.corners[i], path.corners[i + 1]);
+        }
+
+        return length;
     }
 
     private void TriggerDeathSequence()
