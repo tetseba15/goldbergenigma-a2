@@ -551,7 +551,6 @@ public class EnemyAI : MonoBehaviour
     {
         if (_currentState == newState) return;
 
-        // Apagamos la música si SALIMOS de alguna de las persecuciones
         if (_currentState == AIState.Chase || _currentState == AIState.FinalChase)
         {
             OnChaseStateChanged?.Invoke(false);
@@ -559,7 +558,6 @@ public class EnemyAI : MonoBehaviour
 
         _currentState = newState;
 
-        // Prendemos la música si ENTRAMOS a alguna de las persecuciones
         if (_currentState == AIState.Chase || _currentState == AIState.FinalChase)
         {
             OnChaseStateChanged?.Invoke(true);
@@ -597,23 +595,23 @@ public class EnemyAI : MonoBehaviour
         ChangeState(AIState.Chase);
     }
 
-    private IEnumerator EnragePlayerRoutine()
-    {
-        _currentState = AIState.Spotted;
-        _agent.isStopped = true;
-        _agent.velocity = Vector3.zero;
+    //private IEnumerator EnragePlayerRoutine()
+    //{
+    //    _currentState = AIState.Spotted;
+    //    _agent.isStopped = true;
+    //    _agent.velocity = Vector3.zero;
 
-        _invulnerabilityTimer = _invulnerabilityDuration;
+    //    _invulnerabilityTimer = _invulnerabilityDuration;
 
-        if (_audioManager != null) _audioManager.PlayEnraged();
+    //    if (_audioManager != null) _audioManager.PlayEnraged();
 
-        OnEnemyRoaring?.Invoke(_enragedRoarDuration, _invulnerabilityDuration);
+    //    OnEnemyRoaring?.Invoke(_enragedRoarDuration, _invulnerabilityDuration);
 
-        yield return new WaitForSeconds(_enragedRoarDuration);
+    //    yield return new WaitForSeconds(_enragedRoarDuration);
 
-        _agent.isStopped = false;
-        ChangeState(AIState.Chase);
-    }
+    //    _agent.isStopped = false;
+    //    ChangeState(AIState.Chase);
+    //}
 
     private IEnumerator EnrageRoutine()
     {
