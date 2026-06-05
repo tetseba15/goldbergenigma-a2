@@ -10,9 +10,20 @@ public class Bonfire : MonoBehaviour, IInteractable
 
     public bool IsLit => _isLit;
 
-    public void Unlock()
+    private void OnEnable()
     {
-        _unlocked = true;
+        WorkshopExitTrigger.OnPlayerFinalObjective += Unlock;
+    }
+
+    private void OnDisable()
+    {
+        WorkshopExitTrigger.OnPlayerFinalObjective -= Unlock;
+
+    }
+
+    public void Unlock(bool isUnlocked)
+    {
+        _unlocked = isUnlocked;
     }
 
     public string GetInteractPrompt(GameObject interactor)

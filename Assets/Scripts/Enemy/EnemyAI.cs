@@ -11,7 +11,11 @@ public class EnemyAI : MonoBehaviour
 
     public static event Action<bool> OnChaseStateChanged;
 
-    public enum AIState { Patrol, Chase, Idle, Investigate, Spotted, Fleeing }
+    public static event Action<bool> OnFlashlightInterference;
+
+    public enum AIState { Patrol, Chase, Idle, Investigate, Spotted, Enraged, FinalChase }
+    private AIState _currentState;
+
 
 
     [Header("Enemy Data")]
@@ -32,8 +36,16 @@ public class EnemyAI : MonoBehaviour
     [SerializeField, Tooltip("How long the enemy ignores the flashlight (and flashlight flickers)")]
     private float _invulnerabilityDuration = 8f;
 
-    [SerializeField, Tooltip("How long the enemy runs away when successfully blinded")]
-    private float _fleeDuration = 3f;
+    //[SerializeField, Tooltip("How long the enemy runs away when successfully blinded")]
+    //private float _fleeDuration = 3f;
+
+    [Header("Final Sequence (Scripted)")]
+    [SerializeField, Tooltip("El punto exacto donde aparece al iniciar la huida")]
+    private Transform _finalSpawnPoint;
+    [SerializeField, Tooltip("Distancia a partir de la cual el enemigo acelera para alcanzarte")]
+    private float _rubberBandDistance = 15f;
+    [SerializeField, Tooltip("Multiplicador de velocidad cuando se queda atrás (ej. 1.3 = 30% más rápido)")]
+    private float _rubberBandSpeedMultiplier = 1.3f;
 
     private float _invulnerabilityTimer = 0f;
 
@@ -46,7 +58,6 @@ public class EnemyAI : MonoBehaviour
 
     private NavMeshAgent _agent;
     private Animator _animator;
-    private AIState _currentState;
     private Vector3 _investigateTarget;
     private int _currentWaypointIndex;
     private bool _playerInSafeZone = false;
@@ -83,9 +94,13 @@ public class EnemyAI : MonoBehaviour
 
     private void OnEnable()
     {
+        WorkshopExitTrigger.OnPlayerFinalObjective += StartFinalSequence;
+
+
         NoiseManager.OnNoiseEmitted += HearNoise;
         _appearTimer = 0f;
-        _hasBeenBlindedByFlashlight = false; 
+        _hasBeenBlindedByFlashlight = false;
+
 
         if (_data != null)
             _currentAppearDuration = UnityEngine.Random.Range(_data.minAppearDuration, _data.maxAppearDuration);
@@ -93,6 +108,8 @@ public class EnemyAI : MonoBehaviour
 
     private void OnDisable()
     {
+        WorkshopExitTrigger.OnPlayerFinalObjective -= StartFinalSequence;
+
         NoiseManager.OnNoiseEmitted -= HearNoise;
     }
 
@@ -106,6 +123,13 @@ public class EnemyAI : MonoBehaviour
 
     private void Update()
     {
+        if (_invulnerabilityTimer > 0f)
+        {
+            _invulnerabilityTimer -= Time.deltaTime;
+        }
+
+        CheckFlashlightInterference();
+
         if (_isStunned)
         {
             _animator.SetFloat("Speed", 0f);
@@ -122,18 +146,15 @@ public class EnemyAI : MonoBehaviour
 
 
         // Control de Tiempos
-        if (_currentState == AIState.Fleeing)
-        {
-            _fleeTimer -= Time.deltaTime;
-            if (_fleeTimer <= 0) ChangeState(AIState.Patrol);
-        }
+        //if (_currentState == AIState.Fleeing)
+        //{
+        //    _fleeTimer -= Time.deltaTime;
+        //    if (_fleeTimer <= 0) ChangeState(AIState.Patrol);
+        //}
 
-        if (_invulnerabilityTimer > 0f)
-        {
-            _invulnerabilityTimer -= Time.deltaTime;
-        }
 
-        if (_currentState != AIState.Spotted && _currentState != AIState.Fleeing)
+
+        if (_currentState != AIState.Spotted && _currentState != AIState.FinalChase)
         {
             CheckSensors();
             CheckFlashlight();
@@ -150,10 +171,12 @@ public class EnemyAI : MonoBehaviour
             case AIState.Investigate:
                 HandleInvestigate();
                 break;
-            case AIState.Fleeing:
-                // El NavMeshAgent ya tiene su destino de huida seteado en CheckFlashlight()
-                break;
+            //case AIState.Fleeing:
+            //    break;
             case AIState.Spotted:
+                break;
+            case AIState.FinalChase:
+                HandleFinalChase();
                 break;
         }
 
@@ -173,7 +196,39 @@ public class EnemyAI : MonoBehaviour
     
     }
 
-    
+    private void StartFinalSequence(bool isFinalObjective)
+    {
+        if (!isFinalObjective) return;
+
+        _isStunned = false;
+        _invulnerabilityTimer = 9999f;
+
+        if (_finalSpawnPoint != null)
+        {
+            _agent.Warp(_finalSpawnPoint.position);
+        }
+
+        ChangeState(AIState.FinalChase);
+    }
+
+    private void HandleFinalChase()
+    {
+        Transform playerTarget = PlayerTarget.Instance.PlayerTransform;
+
+        _agent.SetDestination(playerTarget.position);
+
+        float sqrDistance = (transform.position - playerTarget.position).sqrMagnitude;
+        float rubberBandSqrDist = _rubberBandDistance * _rubberBandDistance;
+
+        if (sqrDistance > rubberBandSqrDist)
+        {
+            _agent.speed = _data.chaseSpeed * _rubberBandSpeedMultiplier;
+        }
+        else
+        {
+            _agent.speed = _data.chaseSpeed;
+        }
+    }
 
     #region Combat & Reactions
 
@@ -209,6 +264,36 @@ public class EnemyAI : MonoBehaviour
     #endregion
 
     #region Handlers (Patrol, Chase, Investigate)
+
+    private void CheckFlashlightInterference()
+    {
+        if (PlayerTarget.Instance == null || PlayerTarget.Instance.PlayerTransform == null) return;
+
+        Transform playerCam = PlayerTarget.Instance.PlayerTransform;
+
+        float sqrDistanceToPlayer = (transform.position - playerCam.position).sqrMagnitude;
+
+        
+        float maxInterferenceDistance = _data.flashlightRepelDistance * 1.5f;
+
+        if (sqrDistanceToPlayer > (maxInterferenceDistance * maxInterferenceDistance))
+        {
+            OnFlashlightInterference?.Invoke(false);
+            return;
+        }
+
+        Vector3 dirToEnemy = (transform.position - playerCam.position).normalized;
+        float dotProduct = Vector3.Dot(playerCam.forward, dirToEnemy);
+
+        if (dotProduct > 0.85f && _currentState != AIState.Idle)
+        {
+            OnFlashlightInterference?.Invoke(true);
+        }
+        else
+        {
+            OnFlashlightInterference?.Invoke(false);
+        }
+    }
 
     private void HandlePatrol()
     {
@@ -277,7 +362,7 @@ public class EnemyAI : MonoBehaviour
                     {
                         StartCoroutine(SpotPlayerRoutine());
                     }
-                    else if (_currentState != AIState.Spotted && _currentState != AIState.Fleeing)
+                    else if (_currentState != AIState.Spotted)
                     {
                         ChangeState(AIState.Chase);
                         _lastKnownPosition = target.position;
@@ -304,7 +389,7 @@ public class EnemyAI : MonoBehaviour
     private void HearNoise(Vector3 noisePosition, float noiseVolume)
     {
         // ignore noises if state is chase,spotter,fleeing or stunned
-        if (_playerInSafeZone || _currentState == AIState.Chase || _currentState == AIState.Spotted || _currentState == AIState.Fleeing || _isStunned) return;
+        if (_playerInSafeZone || _currentState == AIState.Chase || _currentState == AIState.Spotted  || _isStunned) return;
 
         float sqrDistanceToNoise = (noisePosition - transform.position).sqrMagnitude;
 
@@ -315,13 +400,19 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    public void OnIlluminated()
+    {
+        if (_invulnerabilityTimer > 0 || _isStunned) return;
+
+        StartCoroutine(EnrageRoutine());
+    }
+
     private void CheckFlashlight()
     {
-        if (_invulnerabilityTimer > 0f) return;
+        if (_invulnerabilityTimer > 0f || _isStunned) return;
 
-        if (PlayerTarget.Instance.Flashlight == null || !PlayerTarget.Instance.Flashlight.IsOn()) return;
-
-        if (PlayerTarget.Instance.Flashlight == null || !PlayerTarget.Instance.Flashlight.IsOn()) return;
+        
+         if (PlayerTarget.Instance.Flashlight == null || !PlayerTarget.Instance.Flashlight.IsOn()) return;
 
         Transform target = PlayerTarget.Instance.PlayerTransform;
         float sqrDistanceToPlayer = (transform.position - target.position).sqrMagnitude;
@@ -337,22 +428,11 @@ public class EnemyAI : MonoBehaviour
             {
                 _hasBeenBlindedByFlashlight = true;
 
-                StartCoroutine(EnragePlayerRoutine());
-                return;
+                OnIlluminated();
             }
-
-            Vector3 fleeDirection = (transform.position - target.position).normalized;
-            Vector3 fleeTarget = transform.position + fleeDirection * _data.flashlightRepelDistance;
-
-            if (NavMesh.SamplePosition(fleeTarget, out NavMeshHit hit, _data.flashlightRepelDistance, NavMesh.AllAreas))
-            {
-                _agent.SetDestination(hit.position);
-            }
-
-            _fleeTimer = _fleeDuration;
-            ChangeState(AIState.Fleeing);
         }
     }
+
 
     #endregion
 
@@ -424,6 +504,28 @@ public class EnemyAI : MonoBehaviour
         ChangeState(AIState.Chase);
     }
 
+    private IEnumerator EnrageRoutine()
+    {
+        _isStunned = true;
+        _currentState = AIState.Enraged;
+
+        GetComponent<NavMeshAgent>().isStopped = true;
+
+        if (_audioManager != null) _audioManager.PlayEnraged();
+
+        OnEnemyRoaring?.Invoke(_enragedRoarDuration, _invulnerabilityDuration);
+
+        yield return new WaitForSeconds(_enragedRoarDuration);
+
+        _invulnerabilityTimer = _invulnerabilityDuration;
+        _isStunned = false;
+        GetComponent<NavMeshAgent>().isStopped = false;
+
+        ChangeState(AIState.Chase);
+    }
+
+    
+
     #endregion
 
     #region Spawning & Utilities
@@ -435,8 +537,8 @@ public class EnemyAI : MonoBehaviour
             // 1. Check if the enemy is actively engaged with the player or the environment
             bool isEngaged = _currentState == AIState.Chase ||
                              _currentState == AIState.Investigate ||
-                             _currentState == AIState.Spotted ||
-                             _currentState == AIState.Fleeing;
+                             _currentState == AIState.Spotted;
+                            // _currentState == AIState.Fleeing;
 
             // 2. If engaged, reset the timer so it doesn't vanish mid-action or immediately after losing the player
             if (isEngaged)

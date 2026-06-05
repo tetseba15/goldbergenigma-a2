@@ -80,6 +80,9 @@ public class PlayerFlashlight : MonoBehaviour
     private bool _isReloading = false;
     public bool IsReloading() => _isReloading;
 
+    private bool _isReceivingInterference = false;
+
+    public bool IsReceivingInterference() => _isReceivingInterference;
 
     private void Awake()
     {
@@ -104,6 +107,16 @@ public class PlayerFlashlight : MonoBehaviour
         _currentBattery = _maxBattery / 3f;
     }
 
+    private void OnEnable()
+    {
+        EnemyAI.OnFlashlightInterference += HandleInterference;
+    }
+
+    private void OnDisable()
+    {
+        EnemyAI.OnFlashlightInterference -= HandleInterference;
+    }
+
     private void Start()
     {
         _normalLocalRotation = Quaternion.Euler(_normalLocalRotationEuler);
@@ -122,6 +135,14 @@ public class PlayerFlashlight : MonoBehaviour
 
     private void Update()
     {
+        if (_isReceivingInterference && _isOn)
+        {
+            _lightComponent.intensity = Mathf.Lerp(_lightComponent.intensity, UnityEngine.Random.Range(0.1f, 0.5f), Time.deltaTime * 20f);
+        }
+        else if (_isOn && !_isReceivingInterference)
+        {
+            _lightComponent.intensity = Mathf.Lerp(_lightComponent.intensity, BaseIntensity, Time.deltaTime * 10f);
+        }
 
         if (_isOn)
         {
@@ -129,6 +150,11 @@ public class PlayerFlashlight : MonoBehaviour
         }
 
         HandleInspection();
+    }
+
+    private void HandleInterference(bool isInterfering)
+    {
+        _isReceivingInterference = isInterfering;
     }
 
     public void TryReload()

@@ -1,9 +1,12 @@
+using System;
 using UnityEngine;
 
 public class WorkshopExitTrigger : MonoBehaviour
 {
+    public static event Action<bool> OnPlayerFinalObjective;
+
     [SerializeField, TextArea(2, 5)] private string _exitDialogue;
-    [SerializeField] private Bonfire _bonfire;
+    //[SerializeField] private Bonfire _bonfire;
 
     private int _triggerCount = 0;
     private bool _triggered = false;
@@ -18,8 +21,11 @@ public class WorkshopExitTrigger : MonoBehaviour
         {
             _triggered = true;
             DialogueManager.Instance.ShowDialogue(_exitDialogue);
-            if (_bonfire != null)
-                _bonfire.Unlock();
+
+            OnPlayerFinalObjective?.Invoke(true);
+
+            //if (_bonfire != null)
+            //    _bonfire.Unlock();
         }
     }
 }
