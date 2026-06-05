@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9562227ab3ecb744c931ee535008fdc4, type: 3}
   m_Name: EnemyData
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
-  patrolSpeed: 3
-  chaseSpeed: 3.5
+  patrolSpeed: 2.5
+  chaseSpeed: 3
   viewRadius: 25
   viewAngle: 90
   flashlightRepelDistance: 10
