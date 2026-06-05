@@ -246,10 +246,18 @@ public class EnemyAI : MonoBehaviour
 
         _agent.SetDestination(playerTarget.position);
 
-        float sqrDistance = (transform.position - playerTarget.position).sqrMagnitude;
-        float rubberBandSqrDist = _rubberBandDistance * _rubberBandDistance;
+        float distanceToPlayer = 0f;
 
-        if (sqrDistance > rubberBandSqrDist)
+        if (!_agent.pathPending)
+        {
+            distanceToPlayer = _agent.remainingDistance;
+        }
+        else
+        {
+            distanceToPlayer = Vector3.Distance(transform.position, playerTarget.position);
+        }
+
+        if (distanceToPlayer > _rubberBandDistance)
         {
             _agent.speed = _data.chaseSpeed * _rubberBandSpeedMultiplier;
         }
@@ -587,7 +595,7 @@ public class EnemyAI : MonoBehaviour
         ChangeState(AIState.Chase);
     }
 
-    
+
 
     #endregion
 
@@ -597,27 +605,24 @@ public class EnemyAI : MonoBehaviour
     {
         if (_spawnEnabler != null)
         {
-            // 1. Check if the enemy is actively engaged with the player or the environment
             bool isEngaged = _currentState == AIState.Chase ||
                              _currentState == AIState.Investigate ||
-                             _currentState == AIState.Spotted;
-                            // _currentState == AIState.Fleeing;
+                             _currentState == AIState.Spotted ||
+                             _currentState == AIState.FinalChase;
 
-            // 2. If engaged, reset the timer so it doesn't vanish mid-action or immediately after losing the player
             if (isEngaged)
             {
                 _appearTimer = 0f;
                 return false;
             }
 
-            // 3. Only count down if the enemy is relaxed (Patrol or Idle)
             _appearTimer += Time.deltaTime;
 
             if (_appearTimer >= _currentAppearDuration)
             {
                 _appearTimer = 0f;
                 _spawnEnabler.DespawnEnemy();
-                return true; // Signal that despawn happened
+                return true;
             }
         }
         return false;
@@ -653,7 +658,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (_lookAtTarget == null) return;
 
-        if (_currentState == AIState.Chase)
+        if (_currentState == AIState.Chase || _currentState == AIState.FinalChase)
         {
             _lookAtTarget.position = Vector3.Lerp(
                 _lookAtTarget.position,
