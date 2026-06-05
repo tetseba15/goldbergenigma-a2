@@ -4,11 +4,12 @@ using UnityEngine.SceneManagement;
 
 public class Menu : MonoBehaviour
 {
-    
+    [SerializeField] GameObject exitButton;
     private bool isPaused = false;
     private void Start()
     {
     #if UNITY_WEBGL
+        if(exitButton != null)
        exitButton.SetActive(false);
     #endif
     }
