@@ -10,6 +10,9 @@ public class LookAtDialogue : MonoBehaviour
     [Header("Tiene doblaje?")]
     [SerializeField] private AudioClip _pensamientoVozClip;
 
+    private RaycastHit hit;
+    private Vector3 directionToPlayer;
+
     private void Update()
     {
         if (_triggered) return;
@@ -18,14 +21,20 @@ public class LookAtDialogue : MonoBehaviour
         Camera cam = Camera.main;
         if (cam == null) return;
 
-        Vector3 directionToObject = (transform.position - cam.transform.position).normalized;
+        directionToPlayer = (cam.transform.position - transform.position).normalized;
         float distance = Vector3.Distance(cam.transform.position, transform.position);
-        float angle = Vector3.Angle(cam.transform.forward, directionToObject);
+        //float angle = Vector3.Angle(cam.transform.forward, directionToPlayer);
 
-        if (distance <= _detectionDistance && angle <= _detectionAngle)
+        if (Physics.Raycast(transform.position, directionToPlayer, out hit, _detectionDistance, LayerMask.GetMask("Player", "Obstacle")) && hit.collider.CompareTag("Player"))
         {
             _triggered = true;
             DialogueManager.Instance.ShowDialogue(_dialogue, _pensamientoVozClip);
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawRay(transform.position, directionToPlayer * _detectionDistance);
     }
 }
