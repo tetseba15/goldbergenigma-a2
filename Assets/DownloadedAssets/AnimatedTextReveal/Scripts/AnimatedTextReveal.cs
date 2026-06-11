@@ -108,6 +108,8 @@ namespace BitWave_Labs.AnimatedTextReveal
                 // Wait just like your old methods
                 yield return new WaitForSeconds(0.02f + (0.25f - fadeSpeed * 0.01f));
             }
+
+            if (!fadeIn) textMesh.alpha = 0f;
         }
 
         /// <summary>
