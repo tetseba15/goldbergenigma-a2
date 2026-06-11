@@ -77,11 +77,16 @@ public class DiaryManager : MonoBehaviour
             string inventoryString = "Llaves:\n\n";
             string batteryInventoryString = "Baterías: \n\n";
 
-            
+            if (_playerInventory.HasItem(PlayerInventory.ItemType.BathroomKey))
+            {
+                inventoryString += "- Llave del baño\n";
+            }
+
             if (_playerInventory.HasItem(PlayerInventory.ItemType.MansionKey))
             {
                 inventoryString += "- Llave de la Mansión\n";
             }
+
             if (_playerInventory.HasItem(PlayerInventory.ItemType.PatioKey)) 
             {
                 inventoryString += "- Llave del Patio\n";
