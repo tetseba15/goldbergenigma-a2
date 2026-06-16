@@ -17,6 +17,13 @@ public class Note : MonoBehaviour, IInteractable
 
     private bool _hasBeenRead = false;
 
+    private ObjectiveReporter objectiveReporter;
+
+    private void Awake()
+    {
+        objectiveReporter = GetComponent<ObjectiveReporter>();
+    }
+
     public string GetInteractPrompt(GameObject interactor) => _promptText;
 
     public void Interact(GameObject interactor)
@@ -31,6 +38,11 @@ public class Note : MonoBehaviour, IInteractable
             {
                 OnNoteRead?.Invoke(); 
                 _hasBeenRead = true;
+
+                if (objectiveReporter != null)
+                {
+                    objectiveReporter.ReportObjective();
+                }
             }
         }
     }
