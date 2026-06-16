@@ -107,7 +107,11 @@ public class OuijaBoard : MonoBehaviour, IInteractable
             _useCount = 0;
 
             if (_currentAct == 2 && _fireplaceLookAtDialogue != null)
+            {
                 _fireplaceLookAtDialogue.SetActive(true);
+            }
+
+            if (objectiveReporter != null) objectiveReporter.AllowUpdate();
         }
     }
 

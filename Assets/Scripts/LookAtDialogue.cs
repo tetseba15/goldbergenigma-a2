@@ -13,6 +13,13 @@ public class LookAtDialogue : MonoBehaviour
     private RaycastHit hit;
     private Vector3 directionToPlayer;
 
+    private ObjectiveReporter objectiveReporter;
+
+    private void Start()
+    {
+        objectiveReporter = GetComponent<ObjectiveReporter>();
+    }
+
     private void Update()
     {
         if (_triggered) return;
@@ -29,6 +36,8 @@ public class LookAtDialogue : MonoBehaviour
         {
             _triggered = true;
             DialogueManager.Instance.ShowDialogue(_dialogue, _pensamientoVozClip);
+
+            if (objectiveReporter != null) objectiveReporter.ReportObjective();
         }
     }
 

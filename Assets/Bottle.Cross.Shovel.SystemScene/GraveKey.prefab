@@ -79,5 +79,31 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8966589675890446096, guid: fea91023b29b7fa4d940ae8f476c6926, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -414054915965367657}
   m_SourcePrefab: {fileID: 100100000, guid: fea91023b29b7fa4d940ae8f476c6926, type: 3}
+--- !u!1 &5922691721369415561 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8966589675890446096, guid: fea91023b29b7fa4d940ae8f476c6926, type: 3}
+  m_PrefabInstance: {fileID: 3341135943330193561}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &-414054915965367657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5922691721369415561}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 231d7373aad323d46a783bdaf6945a48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ObjectiveReporter
+  _addObjective: 1
+  _objectiveMessages:
+  - Ahora puedo entrar al quincho
+  _objectiveId: 1
+  _deleteObjective: 0
+  _objectiveIdRemove: 0
