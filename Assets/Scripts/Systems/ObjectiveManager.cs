@@ -44,6 +44,8 @@ public class ObjectiveManager : MonoBehaviour
     {
         newObjectiveMessage = newObjectiveMessage.Replace("\\n", "\n");
 
+        Debug.Log("Contains key: " + !objectives.ContainsKey(objectiveId));
+
         if (!objectives.ContainsKey(objectiveId)) objectives.Add(objectiveId, newObjectiveMessage);
         else objectives[objectiveId] = newObjectiveMessage;
 
@@ -57,8 +59,6 @@ public class ObjectiveManager : MonoBehaviour
 
             _hasSeenDiaryTutorial = true;
         }
-
-        Debug.Log("Objective Added: " + objectiveId);
     }
 
     public void DeleteObjective(ObjectiveId objectiveId)
@@ -69,8 +69,6 @@ public class ObjectiveManager : MonoBehaviour
             UpdateObjectiveMessage();
 
             OnObjectiveChanged?.Invoke(currentObjective);
-
-            Debug.Log("Objective deleted: " + objectiveId);
         }
     }
 

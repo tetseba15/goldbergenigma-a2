@@ -20,7 +20,14 @@ public class ItemPickup : MonoBehaviour, IInteractable
     [Header("Activa objeto al recoger")]
     [SerializeField] private GameObject _objectToActivate;
 
+    private ObjectiveReporter objectiveReporter;
+
     public static event Action<PlayerInventory, PlayerInventory.ItemType> OnInteract;
+
+    private void Start()
+    {
+        objectiveReporter = GetComponent<ObjectiveReporter>();
+    }
 
     public string GetInteractPrompt(GameObject interactor)
     {
@@ -82,6 +89,8 @@ public class ItemPickup : MonoBehaviour, IInteractable
             {
                 OuijaBoard.Instance.OnPatioKeyPickedUp();
             }
+
+            if (objectiveReporter != null) objectiveReporter.ReportObjective();
             OnInteract?.Invoke(interactor.GetComponent<PlayerInventory>(), _itemType);
             Destroy(gameObject);
         }

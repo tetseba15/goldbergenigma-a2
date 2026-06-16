@@ -29,6 +29,8 @@ public class OuijaBoard : MonoBehaviour, IInteractable
     private int _useCount = 0;
     private bool _patioKeyPickedUp = false;
 
+    private ObjectiveReporter objectiveReporter;
+
     public int CurrentAct => _currentAct;
     public bool HasUsedAct2Ouija { get; private set; } = false;
     public static OuijaBoard Instance { get; private set; }
@@ -39,6 +41,11 @@ public class OuijaBoard : MonoBehaviour, IInteractable
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+    }
+
+    private void Start()
+    {
+        objectiveReporter = GetComponent<ObjectiveReporter>();
     }
 
     public string GetInteractPrompt(GameObject interactor)
@@ -71,6 +78,7 @@ public class OuijaBoard : MonoBehaviour, IInteractable
         if (DialogueManager.Instance != null)
             DialogueManager.Instance.ShowDialogue(GetCurrentMessage());
 
+        if (objectiveReporter != null) objectiveReporter.ReportObjective();
         OnInteract?.Invoke(_itemType);
     }
 
