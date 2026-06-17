@@ -15,7 +15,9 @@ public class TutorialTrigger : MonoBehaviour
 
         if (other.CompareTag("Player")) 
         {
-            TutorialManager.Instance.ShowTutorial(_tutorialMessage, _durationOnScreen);
+            //TutorialManager.Instance.ShowTutorial(_tutorialMessage, _durationOnScreen);
+
+            TutorialManager.RequestTimedTutorial?.Invoke(_tutorialMessage, _durationOnScreen);
 
             _hasTriggered = true;
         }

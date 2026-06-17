@@ -1,32 +1,24 @@
+using System;
 using UnityEngine;
-using TMPro; 
 
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
-    [Header("UI Elements")]
-    [SerializeField] private GameObject _notePanel;
-    [SerializeField] private TextMeshProUGUI _noteText;
-    [SerializeField] private TextMeshProUGUI _interactPromptText;
+    public static event Action<string> OnShowNoteUI;
+    public static event Action OnHideNoteUI;
+    public static event Action<string> OnShowInteractPromptUI;
+    public static event Action OnHideInteractPromptUI;
 
-    private int _frameNoteOpened = -1;
-
-    // Others can know if player is reading something
     public bool IsReadingNote { get; private set; }
 
+    private int _frameNoteOpened = -1;
     private PlayerInputHandler _inputHandler;
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
     }
 
     private void Start()
@@ -40,13 +32,10 @@ public class UIManager : MonoBehaviour
             _inputHandler.OnCancelTriggered += HandleCancelAction;
             _inputHandler.OnInteractTriggered += HandleInteractAction;
         }
-
-        HideInteractPrompt();
     }
 
     private void OnDestroy()
     {
-        
         if (_inputHandler != null)
         {
             _inputHandler.OnCancelTriggered -= HandleCancelAction;
@@ -54,14 +43,9 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    
-
     private void HandleCancelAction()
     {
-        if (IsReadingNote)
-        {
-            HideNote();
-        }
+        if (IsReadingNote) HideNote();
     }
 
     private void HandleInteractAction()
@@ -77,35 +61,29 @@ public class UIManager : MonoBehaviour
         }
     }
 
+
     public void ShowNote(string content)
     {
-        _noteText.text = content;
-        _notePanel.SetActive(true);
         IsReadingNote = true;
-
         _frameNoteOpened = Time.frameCount;
 
-        string stackTrace = StackTraceUtility.ExtractStackTrace();
-        Debug.Log("La función fue llamada desde: \n" + stackTrace);
+        OnShowNoteUI?.Invoke(content);
     }
 
     public void HideNote()
     {
-        _notePanel.SetActive(false);
         IsReadingNote = false;
 
-        string stackTrace = StackTraceUtility.ExtractStackTrace();
-        Debug.Log("La función fue llamada desde: \n" + stackTrace);
-
+        OnHideNoteUI?.Invoke();
     }
 
     public void ShowInteractPrompt(string message)
     {
-        _interactPromptText.text = message;
-        _interactPromptText.gameObject.SetActive(true);
+        OnShowInteractPromptUI?.Invoke(message);
     }
+
     public void HideInteractPrompt()
     {
-        _interactPromptText.gameObject.SetActive(false);
+        OnHideInteractPromptUI?.Invoke();
     }
 }

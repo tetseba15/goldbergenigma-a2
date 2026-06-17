@@ -54,8 +54,10 @@ public class ObjectiveManager : MonoBehaviour
 
         if (!_hasSeenDiaryTutorial)
         {
-            TutorialManager.Instance.ShowTutorial("Se actualizó un objetivo.\nPresiona [Tab] para revisar la libreta",
-                () => DiaryManager.Instance.IsOpen());
+            //TutorialManager.Instance.ShowTutorial("Se actualizó un objetivo.\nPresiona [Tab] para revisar la libreta",
+            //    () => DiaryManager.Instance.IsOpen());
+
+            TutorialManager.RequestConditionTutorial?.Invoke("Se actualizó un objetivo.\nPresiona [Tab] para revisar la libreta", () => DiaryManager.Instance.IsOpen());
 
             _hasSeenDiaryTutorial = true;
         }

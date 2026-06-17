@@ -255,9 +255,12 @@ public class PlayerFlashlight : MonoBehaviour
         if (_flashlightMeshRenderer != null) _flashlightMeshRenderer.enabled = true;
         if (_canvasIndicator != null) _canvasIndicator.enabled = true;
 
-        TutorialManager.Instance.ShowTutorial("Presiona [F] para alternar la linterna", () => IsOn());
+        //TutorialManager.Instance.ShowTutorial("Presiona [F] para alternar la linterna", () => IsOn());
 
-        TutorialManager.Instance.ShowTutorial("Mantén [F] para revisar la batería", () => _isInspecting);
+        //TutorialManager.Instance.ShowTutorial("Mantén [F] para revisar la batería", () => _isInspecting);
+
+        TutorialManager.RequestConditionTutorial?.Invoke("Presiona [F] para alternar la linterna", () => IsOn());
+        TutorialManager.RequestConditionTutorial?.Invoke("Mantén [F] para revisar la batería", () => _isInspecting);
     }
 
     public void SetInspectState(bool isInspecting)

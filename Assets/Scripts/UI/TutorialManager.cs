@@ -1,123 +1,105 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 
 public class TutorialManager : MonoBehaviour
 {
-    public static TutorialManager Instance { get; private set; }
+    //IN
+    public static Action<string, Func<bool>> RequestConditionTutorial;
+    public static Action<string, float> RequestTimedTutorial;
 
-    [Header("UI References")]
-    [SerializeField] private TextMeshProUGUI _tutorialText;
-    [SerializeField] private CanvasGroup _canvasGroup;
+    public static Action RequestClearTutorials;
 
-    [Header("Settings")]
-    [SerializeField] private float _fadeSpeed = 3f;
+    //OUT
+    public static event Action<string> OnShowTutorialUI;
+    public static event Action OnHideTutorialUI;
+
 
     private class TutorialStep
     {
         public string Text;
         public Func<bool> CompletionCondition;
-        public float Timer;
+        public float Timer; 
     }
 
-    // If multiple tutorials triggers, add them to the Queue
     private Queue<TutorialStep> _tutorialQueue = new Queue<TutorialStep>();
     private TutorialStep _currentStep;
-    private bool _isFadingOut = false;
-    private float _currentTimer;
 
-    private void Awake()
+    private float _transitionDelay = 1f;
+    private float _transitionTimer = 0f;
+
+    private void OnEnable()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
-
-        _canvasGroup.alpha = 0f;
+        RequestConditionTutorial += EnqueueConditionTutorial;
+        RequestTimedTutorial += EnqueueTimedTutorial;
+        RequestClearTutorials += ClearAllTutorials;
     }
 
-    /// <summary>
-    /// Añade un tutorial a la cola. 
-    /// Ejemplo de uso: TutorialManager.Instance.ShowTutorial("Presiona F", () => _linterna.EstaPrendida);
-    /// </summary>
-    public void ShowTutorial(string message, Func<bool> conditionToComplete)
+    private void OnDisable()
     {
-        _tutorialQueue.Enqueue(new TutorialStep { Text = message, CompletionCondition = conditionToComplete });
+        RequestConditionTutorial -= EnqueueConditionTutorial;
+        RequestTimedTutorial -= EnqueueTimedTutorial;
+        RequestClearTutorials -= ClearAllTutorials;
     }
 
-    public void ShowTutorial(string message, float durationInSeconds)
+    private void EnqueueConditionTutorial(string message, Func<bool> conditionToComplete)
     {
-        _tutorialQueue.Enqueue(new TutorialStep { Text = message, CompletionCondition = null, Timer = durationInSeconds });
+        _tutorialQueue.Enqueue(new TutorialStep { Text = message, CompletionCondition = conditionToComplete, Timer = -1f });
+    }
+
+    private void EnqueueTimedTutorial(string message, float duration)
+    {
+        _tutorialQueue.Enqueue(new TutorialStep { Text = message, CompletionCondition = null, Timer = duration });
     }
 
     private void Update()
     {
+        if (_transitionTimer > 0)
+        {
+            _transitionTimer -= Time.deltaTime;
+            return;
+        }
+
         if (_currentStep == null)
         {
             if (_tutorialQueue.Count > 0)
             {
                 _currentStep = _tutorialQueue.Dequeue();
-                _tutorialText.text = _currentStep.Text;
-                _currentTimer = _currentStep.Timer; 
-                _isFadingOut = false;
+                OnShowTutorialUI?.Invoke(_currentStep.Text);
             }
-            else
-            {
-                Fade(0f);
-                return;
-            }
+            return;
         }
 
-        // Fade
-        bool isReading = UIManager.Instance != null && UIManager.Instance.IsReadingNote;
-
-        if (!_isFadingOut)
+        if (_currentStep.CompletionCondition != null)
         {
-            Fade(isReading ? 0f : 1f);
-
-            if (!isReading)
+            if (_currentStep.CompletionCondition.Invoke())
             {
-                if (_currentStep.CompletionCondition != null)
-                {
-                    if (_currentStep.CompletionCondition.Invoke())
-                    {
-                        _isFadingOut = true;
-                    }
-                }
-                else
-                {
-                    _currentTimer -= Time.deltaTime;
-                    if (_currentTimer <= 0f)
-                    {
-                        _isFadingOut = true;
-                    }
-                }
+                FinishCurrentTutorial();
             }
         }
-        else 
+        else if (_currentStep.Timer > 0)
         {
-            Fade(0f);
-            if (_canvasGroup.alpha <= 0.01f)
+            _currentStep.Timer -= Time.deltaTime;
+            if (_currentStep.Timer <= 0)
             {
-                _currentStep = null;
+                FinishCurrentTutorial();
             }
         }
     }
 
-    private void Fade(float targetAlpha)
+    private void FinishCurrentTutorial()
     {
-        _canvasGroup.alpha = Mathf.MoveTowards(_canvasGroup.alpha, targetAlpha, Time.deltaTime * _fadeSpeed);
+        OnHideTutorialUI?.Invoke();
+        _currentStep = null;
+        _transitionTimer = _transitionDelay;
     }
 
-    public void ClearAllTutorials()
+    private void ClearAllTutorials()
     {
         _tutorialQueue.Clear();
-
-        if (_currentStep != null && !_isFadingOut)
+        if (_currentStep != null)
         {
-            _isFadingOut = true;
-
-            _currentStep.Timer = 0f;
-            _currentStep.CompletionCondition = () => true;
+            FinishCurrentTutorial();
         }
     }
 }

@@ -6,7 +6,9 @@ public class ClearTutorialsTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            TutorialManager.Instance.ClearAllTutorials();
+            //TutorialManager.Instance.ClearAllTutorials();
+
+            TutorialManager.RequestClearTutorials?.Invoke();
         }
     }
 }
