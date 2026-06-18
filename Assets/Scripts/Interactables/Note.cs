@@ -6,6 +6,7 @@ public class Note : MonoBehaviour, IInteractable
     [Header("Note Settings")]
     [SerializeField] private string _promptText = "[E] Leer nota";
     [SerializeField, TextArea(3, 10)] private string _noteContent;
+    [SerializeField] private string _noteCancelDialogue;
     [SerializeField] private AudioClip _readNoteClip;
 
     [Header("Eventos Especiales")]
@@ -31,7 +32,7 @@ public class Note : MonoBehaviour, IInteractable
         if (!UIManager.Instance.IsReadingNote)
         {
             AudioManager.Instance.PlaySFX(_readNoteClip, 0.5f); 
-            UIManager.Instance.ShowNote(_noteContent);
+            UIManager.Instance.ShowNote(_noteContent, _noteCancelDialogue);
             UIManager.Instance.HideInteractPrompt();
 
             if (!_hasBeenRead || !_triggerEventOnlyOnce)

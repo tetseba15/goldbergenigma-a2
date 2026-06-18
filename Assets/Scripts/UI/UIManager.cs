@@ -11,6 +11,7 @@ public class UIManager : MonoBehaviour
     public static event Action OnHideInteractPromptUI;
 
     public bool IsReadingNote { get; private set; }
+    public string NoteCancelText { get; private set; }
 
     private int _frameNoteOpened = -1;
     private PlayerInputHandler _inputHandler;
@@ -62,10 +63,12 @@ public class UIManager : MonoBehaviour
     }
 
 
-    public void ShowNote(string content)
+    public void ShowNote(string content, string cancelContent)
     {
         IsReadingNote = true;
         _frameNoteOpened = Time.frameCount;
+
+        if (!string.IsNullOrEmpty(cancelContent)) NoteCancelText = cancelContent;
 
         OnShowNoteUI?.Invoke(content);
     }
@@ -73,6 +76,11 @@ public class UIManager : MonoBehaviour
     public void HideNote()
     {
         IsReadingNote = false;
+        if (!string.IsNullOrEmpty(NoteCancelText))
+        {
+            DialogueManager.Instance.ShowDialogue(NoteCancelText);
+            NoteCancelText = null;
+        }
 
         OnHideNoteUI?.Invoke();
     }
