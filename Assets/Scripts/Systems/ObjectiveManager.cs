@@ -18,15 +18,17 @@ public class ObjectiveManager : MonoBehaviour
         FinalChallenge
     }
 
+    private class ObjectiveData
+    {
+        public string Message;
+        public bool IsCompleted;
+    }
+
     public static ObjectiveManager Instance { get; private set; }
 
-    [Header("Current State")]
-    private string currentObjective;
+    public static event Action<string> OnObjectiveUpdated;
 
-    private Dictionary<ObjectiveId, string> objectives = new Dictionary<ObjectiveId, string>();
-
-    public static event Action<string> OnObjectiveChanged;
-
+    private Dictionary<ObjectiveId, ObjectiveData> _activeObjectives = new Dictionary<ObjectiveId, ObjectiveData>();
     private bool _hasSeenDiaryTutorial = false;
 
     private void Awake()
@@ -37,74 +39,97 @@ public class ObjectiveManager : MonoBehaviour
 
     private void Start()
     {
-        UpdateObjective(ObjectiveId.MerrinCar, "Explorar el auto del padre Merrin");
+        AddObjective(ObjectiveId.MerrinCar, "Explorar el auto del padre Merrin");
     }
 
-    public void UpdateObjective(ObjectiveId objectiveId, string newObjectiveMessage)
+    public void AddObjective(ObjectiveId id, string message)
     {
-        newObjectiveMessage = newObjectiveMessage.Replace("\\n", "\n");
+        if (!_activeObjectives.ContainsKey(id))
+        {
+            _activeObjectives.Add(id, new ObjectiveData { Message = message, IsCompleted = false });
+            RefreshObjectiveText();
+            ShowTutorialIfNeeded();
+        }
+    }
 
-        Debug.Log("Contains key: " + !objectives.ContainsKey(objectiveId));
+    // On objective completed, the objective will be look crossed out
+    public void CompleteObjective(ObjectiveId id)
+    {
+        if (_activeObjectives.ContainsKey(id) && !_activeObjectives[id].IsCompleted)
+        {
+            _activeObjectives[id].IsCompleted = true;
+            RefreshObjectiveText();
+            ShowTutorialIfNeeded();
+        }
+    }
 
-        if (!objectives.ContainsKey(objectiveId)) objectives.Add(objectiveId, newObjectiveMessage);
-        else objectives[objectiveId] = newObjectiveMessage;
+    public void RemoveObjective(ObjectiveId id)
+    {
+        if (_activeObjectives.ContainsKey(id))
+        {
+            _activeObjectives.Remove(id);
+            RefreshObjectiveText();
+        }
+    }
 
-        UpdateObjectiveMessage();
-        OnObjectiveChanged?.Invoke(currentObjective);
+    public void ClearAllObjectives()
+    {
+        _activeObjectives.Clear();
+        RefreshObjectiveText();
+    }
 
+    public void UpdateObjective(ObjectiveId id, string message)
+    {
+        message = message.Replace("\\n", "\n");
+
+        if (!_activeObjectives.ContainsKey(id))
+        {
+            _activeObjectives.Add(id, new ObjectiveData { Message = message, IsCompleted = false });
+        }
+        else
+        {
+            _activeObjectives[id].Message = message;
+            _activeObjectives[id].IsCompleted = false; 
+        }
+
+        RefreshObjectiveText();
+        ShowTutorialIfNeeded();
+    }
+
+    private void RefreshObjectiveText()
+    {
+        string formattedText = "";
+
+        foreach (var kvp in _activeObjectives)
+        {
+            if (kvp.Value.IsCompleted)
+            {
+                // Usamos <color> con un código Hexadecimal para volverlo gris y <s> para tacharlo
+                formattedText += $"<color=#888888><s>- {kvp.Value.Message}</s></color>\n\n";
+            }
+            else
+            {
+                formattedText += $"- {kvp.Value.Message}\n\n";
+            }
+        }
+
+        if (string.IsNullOrEmpty(formattedText))
+        {
+            formattedText = "Nada por ahora...";
+        }
+
+        OnObjectiveUpdated?.Invoke(formattedText);
+    }
+
+    private void ShowTutorialIfNeeded()
+    {
         if (!_hasSeenDiaryTutorial)
         {
-            //TutorialManager.Instance.ShowTutorial("Se actualizó un objetivo.\nPresiona [Tab] para revisar la libreta",
-            //    () => DiaryManager.Instance.IsOpen());
-
-            TutorialManager.RequestConditionTutorial?.Invoke("Se actualizó un objetivo.\nPresiona [Tab] para revisar la libreta", () => DiaryManager.Instance.IsOpen());
+            TutorialManager.RequestConditionTutorial?.Invoke(
+                "Se actualizó un objetivo.\nPresiona [Tab] para revisar la libreta",
+                () => DiaryManager.Instance != null && DiaryManager.Instance.IsOpen());
 
             _hasSeenDiaryTutorial = true;
         }
-    }
-
-    public void DeleteObjective(ObjectiveId objectiveId)
-    {
-        if (objectives.ContainsKey(objectiveId))
-        {
-            objectives.Remove(objectiveId);
-            UpdateObjectiveMessage();
-
-            OnObjectiveChanged?.Invoke(currentObjective);
-        }
-    }
-
-    private void UpdateObjectiveMessage()
-    {
-        currentObjective = "";
-
-        foreach (string objectiveMessage in objectives.Values)
-        {
-            currentObjective += objectiveMessage + " \n";
-        }
-    }
-
-    //public void UpdateObjective(string newObjective)
-    //{
-
-    //    newObjective = newObjective.Replace("\\n", "\n");
-
-    //    if (_currentObjective == newObjective) return;
-
-    //    _currentObjective = newObjective;
-    //    OnObjectiveChanged?.Invoke(_currentObjective);
-
-    //    if (!_hasSeenDiaryTutorial)
-    //    {
-    //        TutorialManager.Instance.ShowTutorial("Se actualizó un objetivo.\nPresiona [Tab] para revisar la libreta",
-    //            () => DiaryManager.Instance.IsOpen());
-
-    //        _hasSeenDiaryTutorial = true;
-    //    }
-    //}
-
-    public string GetCurrentObjective()
-    {
-        return currentObjective;
     }
 }

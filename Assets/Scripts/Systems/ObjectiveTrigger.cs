@@ -18,7 +18,10 @@ public class ObjectiveTrigger : MonoBehaviour
 
         if (other.CompareTag("Player"))
         {
-            ObjectiveManager.Instance.UpdateObjective(_objectiveId, _newObjective);
+            if (ObjectiveManager.Instance != null)
+                ObjectiveManager.Instance.AddObjective(_objectiveId, _newObjective);
+            else
+                Debug.LogWarning("No ObjectiveManager found!");
 
             if (_triggerOnce)
             {

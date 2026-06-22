@@ -15,6 +15,8 @@ public class DiaryManager : MonoBehaviour
 
     private int _currentBatteries = 0;
 
+    private string _currentObjectivesText = "Nada por ahora...";
+
     private PlayerInputActions _inputActions;
     private bool _isOpen = false;
     public bool IsOpen() => _isOpen;
@@ -45,6 +47,7 @@ public class DiaryManager : MonoBehaviour
         _inputActions.Enable();
         PlayerInventory.OnItemCollected += RegisterItem;
         PlayerInventory.OnBatteryCountChanged += UpdateBatteryCount;
+        ObjectiveManager.OnObjectiveUpdated += UpdateObjectiveText;
     }
 
     private void OnDisable()
@@ -52,6 +55,7 @@ public class DiaryManager : MonoBehaviour
         _inputActions.Disable();
         PlayerInventory.OnItemCollected -= RegisterItem;
         PlayerInventory.OnBatteryCountChanged -= UpdateBatteryCount;
+        ObjectiveManager.OnObjectiveUpdated -= UpdateObjectiveText;
     }
 
     private void RegisterItem(PlayerInventory.ItemType newItem)
@@ -75,13 +79,18 @@ public class DiaryManager : MonoBehaviour
             UpdateDiaryData();
         }
     }
+    private void UpdateObjectiveText(string newText)
+    {
+        _currentObjectivesText = newText;
+
+        if (_isOpen) UpdateDiaryData();
+    }
 
     public void UpdateDiaryData()
     {
         if (!_isOpen) return;
 
-        // 1. Obtener Objetivos (asumiendo que tienes una función similar, la puliremos en el paso 2)
-        string objectiveText = ObjectiveManager.Instance != null ? ObjectiveManager.Instance.GetCurrentObjective() : "";
+        string objectiveText = _currentObjectivesText;
 
         string batteryString = $"Baterías:\n\n {_currentBatteries}";
 

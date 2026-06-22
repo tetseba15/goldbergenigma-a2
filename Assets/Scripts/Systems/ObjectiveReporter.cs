@@ -3,40 +3,51 @@ using UnityEngine;
 
 public class ObjectiveReporter : MonoBehaviour
 {
-    [Header("Objetivo a agregar")]
+    [Header("Objetivo a Agregar (Pendiente)")]
     [SerializeField] private bool _addObjective;
+
+    [TextArea(2, 5)]
     [SerializeField] private List<string> _objectiveMessages;
+
     [SerializeField] private ObjectiveManager.ObjectiveId _objectiveId;
 
-    private bool ableToUpdate = true;
+    [Header("Objetivo a Completar (Tachado)")]
+    [SerializeField] private bool _completeObjective;
+    [SerializeField] private ObjectiveManager.ObjectiveId _objectiveIdToComplete;
 
-    private int objectiveIndex = 0;
-
-    [Header("Objetivo a eliminar")]
+    [Header("Objetivo a Eliminar (Borrado total)")]
     [SerializeField] private bool _deleteObjective;
-    [SerializeField] private ObjectiveManager.ObjectiveId _objectiveIdRemove;
+    [SerializeField] private ObjectiveManager.ObjectiveId _objectiveIdToRemove;
 
-    private bool objectiveDeleted;
+    private bool _ableToUpdate = true;
+    private int _objectiveIndex = 0;
+    private bool _objectiveCompleted = false;
+    private bool _objectiveDeleted = false;
 
     public void ReportObjective()
     {
-        if (_addObjective && ableToUpdate && objectiveIndex < _objectiveMessages.Count)
+        if (_addObjective && _ableToUpdate && _objectiveIndex < _objectiveMessages.Count)
         {
-            ObjectiveManager.Instance.UpdateObjective(_objectiveId, _objectiveMessages[objectiveIndex]);
-            objectiveIndex++;
-
-            ableToUpdate = false;
+            ObjectiveManager.Instance.AddObjective(_objectiveId, _objectiveMessages[_objectiveIndex]);
+            _objectiveIndex++;
+            _ableToUpdate = false;
         }
-            
-        if (_deleteObjective && !objectiveDeleted)
+
+        if (_completeObjective && !_objectiveCompleted)
         {
-            ObjectiveManager.Instance.DeleteObjective(_objectiveIdRemove);
-            objectiveDeleted = true;
+            ObjectiveManager.Instance.CompleteObjective(_objectiveIdToComplete);
+            _objectiveCompleted = true;
+        }
+
+        if (_deleteObjective && !_objectiveDeleted)
+        {
+            ObjectiveManager.Instance.RemoveObjective(_objectiveIdToRemove);
+            _objectiveDeleted = true;
         }
     }
 
     public void AllowUpdate()
     {
-        ableToUpdate = true;
+        _ableToUpdate = true;
     }
 }
