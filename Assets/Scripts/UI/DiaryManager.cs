@@ -1,24 +1,33 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 using UnityEngine.InputSystem;
 
 public class DiaryManager : MonoBehaviour
 {
-    public static DiaryManager Instance;
+    public static DiaryManager Instance { get; private set; }
 
-    [Header("UI Elements")]
-    [SerializeField] private GameObject _diaryPanel;
-    [SerializeField] private TextMeshProUGUI _objectiveText;
-    [SerializeField] private TextMeshProUGUI _keysText;
-    [SerializeField] private TextMeshProUGUI _batteryText;
+    // --- Out events ---
+    public static event Action<bool> OnDiaryStateChanged;
+    public static event Action<string, string, string> OnDiaryDataUpdated; // Objectives, Keys, Batteries
 
     [Header("Dependencies")]
-    [SerializeField, Tooltip("Arrastra al jugador aquí para leer su inventario")]
-    private PlayerInventory _playerInventory;
+    [SerializeField] private PlayerInventory _playerInventory;
 
     private PlayerInputActions _inputActions;
     private bool _isOpen = false;
     public bool IsOpen() => _isOpen;
+
+    // ADD KEYS HERE
+    private readonly Dictionary<PlayerInventory.ItemType, string> _itemNames = new Dictionary<PlayerInventory.ItemType, string>
+    {
+        { PlayerInventory.ItemType.BathroomKey, "Llave del baño" },
+        { PlayerInventory.ItemType.MansionKey, "Llave de la Mansión" },
+        { PlayerInventory.ItemType.PatioKey, "Llave del Patio" },
+        { PlayerInventory.ItemType.QuinchoKey, "Llave del Quincho" },
+        { PlayerInventory.ItemType.OfficeKey, "Llave de la Oficina" },
+        { PlayerInventory.ItemType.WorkshopKey, "Llave del Taller" }
+    };
 
     private void Awake()
     {
@@ -26,91 +35,48 @@ public class DiaryManager : MonoBehaviour
         else Destroy(gameObject);
 
         _inputActions = new PlayerInputActions();
-
         _inputActions.Gameplay.OpenDiary.performed += ctx => ToggleDiary();
-
         _inputActions.UI.Cancel.performed += ctx => { if (_isOpen) ToggleDiary(); };
     }
 
-    private void OnEnable()
-    {
-        _inputActions.Enable();
-    }
-
-    private void OnDisable()
-    {
-        _inputActions.Disable();
-    }
+    private void OnEnable() => _inputActions.Enable();
+    private void OnDisable() => _inputActions.Disable();
 
     public void ToggleDiary()
     {
         _isOpen = !_isOpen;
-        _diaryPanel.SetActive(_isOpen);
+
+        OnDiaryStateChanged?.Invoke(_isOpen);
 
         if (_isOpen)
         {
-            UpdateDiaryContent();
-
-            Time.timeScale = 0f;
-
-            _inputActions.Gameplay.Disable();
-            _inputActions.UI.Enable();
-        }
-        else
-        {
-            Time.timeScale = 1f;
-
-            _inputActions.UI.Disable();
-            _inputActions.Gameplay.Enable();
+            UpdateDiaryData();
         }
     }
 
-    private void UpdateDiaryContent()
+    public void UpdateDiaryData()
     {
-        if (ObjectiveManager.Instance != null)
+        if (!_isOpen) return;
+
+        // 1. Obtener Objetivos (asumiendo que tienes una función similar, la puliremos en el paso 2)
+        string objectiveText = ObjectiveManager.Instance != null ? ObjectiveManager.Instance.GetCurrentObjective() : "";
+
+        string batteryString = $"Baterías:\n\n {_playerInventory.BatteryCount}";
+
+        string inventoryString = "Llaves:\n\n";
+        bool hasKeys = false;
+
+        foreach (var item in _playerInventory.GetCollectedItems())
         {
-            _objectiveText.text = ObjectiveManager.Instance.GetCurrentObjective();
+            if (_itemNames.TryGetValue(item, out string itemName))
+            {
+                inventoryString += $"- {itemName}\n";
+                hasKeys = true;
+            }
         }
 
-        if (_playerInventory != null)
-        {
-            string inventoryString = "Llaves:\n\n";
-            string batteryInventoryString = "Baterías: \n\n";
+        if (!hasKeys) inventoryString += "(Vacío)";
 
-            if (_playerInventory.HasItem(PlayerInventory.ItemType.BathroomKey))
-            {
-                inventoryString += "- Llave del baño\n";
-            }
-
-            if (_playerInventory.HasItem(PlayerInventory.ItemType.MansionKey))
-            {
-                inventoryString += "- Llave de la Mansión\n";
-            }
-
-            if (_playerInventory.HasItem(PlayerInventory.ItemType.PatioKey)) 
-            {
-                inventoryString += "- Llave del Patio\n";
-            }
-
-            if (_playerInventory.HasItem(PlayerInventory.ItemType.QuinchoKey))
-            {
-                inventoryString += "- Llave del Quincho\n";
-            }
-
-            if (_playerInventory.HasItem(PlayerInventory.ItemType.OfficeKey))
-            {
-                inventoryString += "- Llave de la oficina\n";
-            }
-
-            batteryInventoryString += $"\n {_playerInventory.BatteryCount}\n";
-
-            if (inventoryString == "Llaves:\n\n")
-            {
-                inventoryString += "(Vacío)";
-            }
-
-            _keysText.text = inventoryString;
-            _batteryText.text = batteryInventoryString;
-        }
+        OnDiaryDataUpdated?.Invoke(objectiveText, inventoryString, batteryString);
     }
 }

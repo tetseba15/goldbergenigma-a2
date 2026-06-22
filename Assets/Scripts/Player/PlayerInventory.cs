@@ -42,6 +42,11 @@ public class PlayerInventory : MonoBehaviour
         return _items.Contains(type);
     }
 
+    public IEnumerable<ItemType> GetCollectedItems()
+    {
+        return _items;
+    }
+
     public void AddBatteries(int amount)
     {
         BatteryCount += amount;
