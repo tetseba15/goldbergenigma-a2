@@ -26,7 +26,11 @@ public class ObjectiveManager : MonoBehaviour
 
     public static ObjectiveManager Instance { get; private set; }
 
+    //Events
     public static event Action<string> OnObjectiveUpdated;
+
+    public static event Action<ObjectiveId> OnObjectiveCompleted;
+
 
     private Dictionary<ObjectiveId, ObjectiveData> _activeObjectives = new Dictionary<ObjectiveId, ObjectiveData>();
     private bool _hasSeenDiaryTutorial = false;
@@ -55,9 +59,13 @@ public class ObjectiveManager : MonoBehaviour
     // On objective completed, the objective will be look crossed out
     public void CompleteObjective(ObjectiveId id)
     {
+
         if (_activeObjectives.ContainsKey(id) && !_activeObjectives[id].IsCompleted)
         {
             _activeObjectives[id].IsCompleted = true;
+
+            OnObjectiveCompleted?.Invoke(id);
+
             RefreshObjectiveText();
             ShowTutorialIfNeeded();
         }

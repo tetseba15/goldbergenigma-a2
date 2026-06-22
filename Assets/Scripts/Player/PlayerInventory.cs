@@ -13,6 +13,8 @@ public class PlayerInventory : MonoBehaviour
         PatioKey = 4,
         BathroomKey = 5,
         WorkshopKey = 6,
+
+        ActLockKey = 99,
         // ITEMS AND TOOLS
         Flashlight = 100,
         Crucifix = 101,

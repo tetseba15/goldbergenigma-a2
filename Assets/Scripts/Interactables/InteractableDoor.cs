@@ -1,7 +1,10 @@
 using UnityEngine;
 
+
 public class InteractableDoor : MonoBehaviour, IInteractable
 {
+    public event System.Action OnNarrativeLockHit;
+
     [Header("References")]
     [SerializeField] private Rigidbody _doorRigidbody;
     [SerializeField] private HingeJoint _hingeJoint;
@@ -90,11 +93,20 @@ public class InteractableDoor : MonoBehaviour, IInteractable
         OpenDoor(interactorPosition, isSprinting);
     }
 
-    public void ForceLock()
+    public void ApplyNarrativeLock()
     {
-        _isLocked = true;
         _permanentlyLocked = true;
         LockDoorPhysically();
+    }
+
+    public void RemoveNarrativeLock()
+    {
+        _permanentlyLocked = false;
+
+        if (!_isLocked)
+        {
+            _hingeJoint.limits = _originalLimits;
+        }
     }
 
     private void OpenDoor(Vector3 interactorPosition, bool isSprinting)
@@ -149,6 +161,8 @@ public class InteractableDoor : MonoBehaviour, IInteractable
         {
             AudioManager.Instance.PlaySFXAtPosition(_lockedRattleSound, transform.position, 1f, Random.Range(0.95f, 1.05f));
             _doorRigidbody.AddRelativeTorque(Vector3.up * 5f, ForceMode.Impulse);
+            
+            OnNarrativeLockHit?.Invoke(); 
             return;
         }
 

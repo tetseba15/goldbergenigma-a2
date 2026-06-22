@@ -25,8 +25,8 @@ public class WorkshopExitTrigger : MonoBehaviour
             OnPlayerFinalObjective?.Invoke(true);
             //if (_bonfire != null)
             //    _bonfire.Unlock();
-            if (_patioDoor != null)
-                _patioDoor.ForceLock();
+            //if (_patioDoor != null)
+                //_patioDoor.ForceLock();
         }
     }
 }
