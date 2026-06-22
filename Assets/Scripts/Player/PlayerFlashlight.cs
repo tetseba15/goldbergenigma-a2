@@ -70,6 +70,8 @@ public class PlayerFlashlight : MonoBehaviour
 
     private bool _isInspecting = false;
 
+    private bool _isReadingUI = false;
+
     private bool _isOn = false;
     public bool IsOn() => _isOn;
 
@@ -109,11 +111,21 @@ public class PlayerFlashlight : MonoBehaviour
 
     private void OnEnable()
     {
+        UIManager.OnShowNoteUI += HandleNoteOpened;
+        UIManager.OnHideNoteUI += HandleUIClosed;
+        DiaryManager.OnDiaryStateChanged += HandleDiaryState;
+        InspectableObject.OnInspectionStarted += HandleInspectionStarted;
+        InspectableObject.OnInspectionEnded += HandleInspectionEnded;
         EnemyAI.OnFlashlightInterference += HandleInterference;
     }
 
     private void OnDisable()
     {
+        UIManager.OnShowNoteUI -= HandleNoteOpened;
+        UIManager.OnHideNoteUI -= HandleUIClosed;
+        DiaryManager.OnDiaryStateChanged -= HandleDiaryState;
+        InspectableObject.OnInspectionStarted -= HandleInspectionStarted;
+        InspectableObject.OnInspectionEnded -= HandleInspectionEnded;
         EnemyAI.OnFlashlightInterference -= HandleInterference;
     }
 
@@ -152,6 +164,12 @@ public class PlayerFlashlight : MonoBehaviour
         HandleInspection();
     }
 
+    private void HandleNoteOpened(string content) => _isReadingUI = true;
+    private void HandleUIClosed() => _isReadingUI = false;
+    private void HandleDiaryState(bool isOpen) => _isReadingUI = isOpen;
+    private void HandleInspectionStarted() => _isReadingUI = true;
+    private void HandleInspectionEnded() => _isReadingUI = false;
+
     private void HandleInterference(bool isInterfering)
     {
         _isReceivingInterference = isInterfering;
@@ -184,10 +202,13 @@ public class PlayerFlashlight : MonoBehaviour
 
     private void DrainBattery()
     {
-        _currentBattery -= _drainRate * Time.deltaTime;
-        _currentBattery = Mathf.Clamp(_currentBattery, 0f, _maxBattery);
+        if (!_isReloading && !_isInspecting && !_isReadingUI)
+        {
+            _currentBattery -= _drainRate * Time.deltaTime;
+            _currentBattery = Mathf.Clamp(_currentBattery, 0f, _maxBattery);
 
-        OnBatteryChanged?.Invoke(_currentBattery / _maxBattery);
+            OnBatteryChanged?.Invoke(_currentBattery / _maxBattery);
+        }
 
         if (_currentBattery <= 0f)
         {

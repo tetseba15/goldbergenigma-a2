@@ -7,6 +7,9 @@ using TMPro;
 
 public class InspectableObject : MonoBehaviour, IInteractable
 {
+    public static event System.Action OnInspectionStarted;
+    public static event System.Action OnInspectionEnded;
+
     [Header("1. TEXTO DEL CARTELITO (HUD)")]
     [SerializeField, Tooltip("Lo que dice la pantalla al mirar el objeto")]
     private string _interactPromptText = "Presiona E para examinar";
@@ -87,6 +90,8 @@ public class InspectableObject : MonoBehaviour, IInteractable
     {
         _isTransitioning = true;
         _isInspecting = true;
+
+        OnInspectionStarted?.Invoke();
 
         _originalCamPosition = _mainCamera.transform.localPosition;
         _originalCamRotation = _mainCamera.transform.localRotation;
@@ -179,6 +184,7 @@ public class InspectableObject : MonoBehaviour, IInteractable
         }
 
         _isTransitioning = false;
+
     }
 
     private IEnumerator ExitInspectionRoutine()
@@ -244,5 +250,8 @@ public class InspectableObject : MonoBehaviour, IInteractable
 
         _isInspecting = false;
         _isTransitioning = false;
+
+        OnInspectionEnded?.Invoke();
+
     }
 }
