@@ -104,7 +104,7 @@ public class ObjectiveManager : MonoBehaviour
         {
             if (kvp.Value.IsCompleted)
             {
-                // Usamos <color> con un código Hexadecimal para volverlo gris y <s> para tacharlo
+                // Using <color> with a hexadecimal code to make it gray and <s> to cross it out
                 formattedText += $"<color=#888888><s>- {kvp.Value.Message}</s></color>\n\n";
             }
             else
