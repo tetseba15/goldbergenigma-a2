@@ -75,6 +75,9 @@ public class ObjectiveManager : MonoBehaviour
     {
         if (_activeObjectives.ContainsKey(id))
         {
+
+            OnObjectiveCompleted?.Invoke(id);
+
             _activeObjectives.Remove(id);
             RefreshObjectiveText();
         }

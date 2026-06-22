@@ -8,7 +8,11 @@ public class GameFlowManager : MonoBehaviour
     public enum Act {Introduction ,Act1_GroundFloor, Act2_UpperFloor, Act3_Exterior, Epilogue }
     public Act CurrentAct { get; private set; } = Act.Introduction;
 
+    // Events
+    public static event Action<string, string, Func<bool>> OnChapterTitleRequested;
+
     public static event Action<Act> OnActChanged;
+
 
     private bool _hasOfficeKey = false;
     private bool _hasCheckedCar = false;
@@ -67,7 +71,7 @@ public class GameFlowManager : MonoBehaviour
                 break;
 
             case Act.Act2_UpperFloor:
-                // Aquí pondrás tus condiciones para pasar al acto 3 en el futuro...
+                // Act 3 condiciones
                 // if (_hasReadFinalNote) AdvanceToAct(Act.Act3_Exterior);
                 break;
         }
@@ -77,18 +81,38 @@ public class GameFlowManager : MonoBehaviour
     {
         CurrentAct = newAct;
 
-        // 1. Limpiamos la libreta para empezar un capítulo nuevo
         ObjectiveManager.Instance.ClearAllObjectives();
 
-        // 2. Le damos su primer objetivo del nuevo Acto y un tutorial narrativo
-        if (newAct == Act.Act2_UpperFloor)
+        // 2. CONTROL CENTRALIZADO DE MISIONES INICIALES POR ACTO
+        // El director decide qué misión arranca en cada parte de la historia
+        switch (newAct)
         {
-            ObjectiveManager.Instance.UpdateObjective(ObjectiveManager.ObjectiveId.UpstairsExploration, "Explorar la planta alta");
-            //TutorialManager.RequestTimedTutorial?.Invoke("ACTO II\nEl horror asciende", 5f);
+            case Act.Act1_GroundFloor:
+                // Cuando arranca el Acto 1, forzamos la misión de la mansión desde acá
+                ObjectiveManager.Instance.UpdateObjective(
+                    ObjectiveManager.ObjectiveId.MansionExploration,
+                    "Explorar la mansión"
+                );
+                OnChapterTitleRequested?.Invoke("ACTO I", "La Mansión Goldberg", () => !UIManager.Instance.IsReadingNote);
+                break;
+
+            case Act.Act2_UpperFloor:
+                ObjectiveManager.Instance.UpdateObjective(
+                    ObjectiveManager.ObjectiveId.UpstairsExploration,
+                    "Explorar la planta alta"
+                );
+                OnChapterTitleRequested?.Invoke("ACTO II", "El horror asciende", null);
+                break;
+
+            case Act.Act3_Exterior:
+                // Ejemplo para el futuro:
+                // ObjectiveManager.Instance.UpdateObjective(ObjectiveManager.ObjectiveId.Workshop, "Buscar la llave del quincho");
+                break;
         }
 
+        // 3. Notificamos al mundo (bloqueadores de puertas, luces, IA, etc.)
         OnActChanged?.Invoke(CurrentAct);
 
-        Debug.Log($"<color=cyan><b>GAME FLOW: Avanzando al {newAct}</b></color>");
+        Debug.Log($"<color=cyan><b>GAME FLOW: Avanzando al {newAct} y asignando misión inicial.</b></color>");
     }
 }
