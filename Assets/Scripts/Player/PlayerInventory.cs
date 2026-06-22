@@ -1,8 +1,9 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerInventory : MonoBehaviour
-{
+{    
     public enum ItemType
     {
         // KEYS
@@ -24,9 +25,13 @@ public class PlayerInventory : MonoBehaviour
         Note = 200
     }
 
+
     private HashSet<ItemType> _items = new HashSet<ItemType>();
     private bool _hasSeenBatteryTutorial = false;
     public int BatteryCount { get; private set; } = 0;
+
+    public static event Action<ItemType> OnItemCollected;
+    public static event Action<int> OnBatteryCountChanged;
 
     public void AddItem(ItemType type)
     {
@@ -34,6 +39,8 @@ public class PlayerInventory : MonoBehaviour
         {
             _items.Add(type);
             Debug.Log($"New Object: {type}");
+
+            OnItemCollected?.Invoke(type);
         }
     }
 
@@ -51,6 +58,9 @@ public class PlayerInventory : MonoBehaviour
     {
         BatteryCount += amount;
         Debug.Log($"Baterías recogidas. Total: {BatteryCount}");
+
+        OnBatteryCountChanged?.Invoke(BatteryCount);
+
         if (!_hasSeenBatteryTutorial)
         {
             //TutorialManager.Instance.ShowTutorial("Presiona [R] para recargar la linterna",
@@ -66,6 +76,8 @@ public class PlayerInventory : MonoBehaviour
         if (BatteryCount > 0)
         {
             BatteryCount--;
+
+            OnBatteryCountChanged?.Invoke(BatteryCount);
         }
     }
 }

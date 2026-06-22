@@ -11,8 +11,9 @@ public class DiaryManager : MonoBehaviour
     public static event Action<bool> OnDiaryStateChanged;
     public static event Action<string, string, string> OnDiaryDataUpdated; // Objectives, Keys, Batteries
 
-    [Header("Dependencies")]
-    [SerializeField] private PlayerInventory _playerInventory;
+    private HashSet<PlayerInventory.ItemType> _unlockedItems = new HashSet<PlayerInventory.ItemType>();
+
+    private int _currentBatteries = 0;
 
     private PlayerInputActions _inputActions;
     private bool _isOpen = false;
@@ -39,8 +40,29 @@ public class DiaryManager : MonoBehaviour
         _inputActions.UI.Cancel.performed += ctx => { if (_isOpen) ToggleDiary(); };
     }
 
-    private void OnEnable() => _inputActions.Enable();
-    private void OnDisable() => _inputActions.Disable();
+    private void OnEnable()
+    {
+        _inputActions.Enable();
+        PlayerInventory.OnItemCollected += RegisterItem;
+        PlayerInventory.OnBatteryCountChanged += UpdateBatteryCount;
+    }
+
+    private void OnDisable()
+    {
+        _inputActions.Disable();
+        PlayerInventory.OnItemCollected -= RegisterItem;
+        PlayerInventory.OnBatteryCountChanged -= UpdateBatteryCount;
+    }
+
+    private void RegisterItem(PlayerInventory.ItemType newItem)
+    {
+        _unlockedItems.Add(newItem);
+    }
+
+    private void UpdateBatteryCount(int newCount)
+    {
+        _currentBatteries = newCount;
+    }
 
     public void ToggleDiary()
     {
@@ -61,12 +83,12 @@ public class DiaryManager : MonoBehaviour
         // 1. Obtener Objetivos (asumiendo que tienes una función similar, la puliremos en el paso 2)
         string objectiveText = ObjectiveManager.Instance != null ? ObjectiveManager.Instance.GetCurrentObjective() : "";
 
-        string batteryString = $"Baterías:\n\n {_playerInventory.BatteryCount}";
+        string batteryString = $"Baterías:\n\n {_currentBatteries}";
 
         string inventoryString = "Llaves:\n\n";
         bool hasKeys = false;
 
-        foreach (var item in _playerInventory.GetCollectedItems())
+        foreach (var item in _unlockedItems)
         {
             if (_itemNames.TryGetValue(item, out string itemName))
             {
