@@ -40,6 +40,11 @@ public class GhostAppearance : MonoBehaviour
     {
         if (_meshRenderer == null) return;
         _meshRenderer.enabled = false;
+
+        foreach (GameObject position in _settedPositions)
+        {
+            position.transform.parent = null;
+        }
     }
 
     public void Appear(GenericEventsTrigger.GameEventType gameEventType) // Called by generic trigger
