@@ -28,7 +28,7 @@ public class ObjectiveReporter : MonoBehaviour
     {
         if (_addObjective && _ableToUpdate && _objectiveIndex < _objectiveMessages.Count)
         {
-            ObjectiveManager.Instance.AddObjective(_objectiveId, _objectiveMessages[_objectiveIndex]);
+            ObjectiveManager.Instance.UpdateObjective(_objectiveId, _objectiveMessages[_objectiveIndex]);
             _objectiveIndex++;
             _ableToUpdate = false;
         }
