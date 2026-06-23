@@ -24,9 +24,7 @@ public class AudioTrigger : MonoBehaviour
             if (_audioSource != null && _soundToPlay != null)
             {
                 _audioSource.PlayOneShot(_soundToPlay);
-                _hasPlayed = true; 
-
-                    
+                _hasPlayed = true;
             }
         }
     }
