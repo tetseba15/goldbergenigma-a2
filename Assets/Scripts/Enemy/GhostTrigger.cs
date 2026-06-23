@@ -11,7 +11,7 @@ public class GhostTrigger : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             _triggered = true;
-            _ghostAppearance.Appear();
+            //_ghostAppearance.Appear();
         }
     }
 }
