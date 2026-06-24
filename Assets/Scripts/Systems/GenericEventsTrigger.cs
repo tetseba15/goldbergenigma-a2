@@ -5,7 +5,8 @@ public class GenericEventsTrigger : MonoBehaviour
 {
     public enum GameEventType
     {
-        GhostAppearance
+        GhostAppearance,
+        BloodBath
     }
 
     [Header("Trigger Type")]
