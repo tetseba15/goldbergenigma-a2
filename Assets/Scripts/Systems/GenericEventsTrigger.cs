@@ -7,7 +7,8 @@ public class GenericEventsTrigger : MonoBehaviour
     {
         GhostAppearance,
         BloodBath,
-        GhostlyWhispering
+        GhostlyWhispering,
+        Radio
     }
 
     [Header("Trigger Type")]

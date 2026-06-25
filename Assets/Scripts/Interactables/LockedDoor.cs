@@ -20,7 +20,6 @@ public class LockedDoor : MonoBehaviour, IInteractable
     private float _animationDuration = 1.2f;
 
     [Header("Audio of the Door")]
-    [SerializeField] private AudioSource _miAudioSource; // El parlante
     [SerializeField] private AudioClip _openDoorSound;  // Sonido de abrir (.mp3 / .wav)
     [SerializeField] private AudioClip _closeDoorSound;
 
@@ -95,9 +94,9 @@ public class LockedDoor : MonoBehaviour, IInteractable
             _animator.SetTrigger("Open");
             _isOpen = true;
             // REPRODUCIR SONIDO AL ABRIR
-            if (_miAudioSource != null && _openDoorSound != null)
+            if (_openDoorSound != null)
             {
-                _miAudioSource.PlayOneShot(_openDoorSound);
+                AudioManager.Instance.PlaySFXAtPosition(_openDoorSound, transform.position, 1f, Random.Range(0.95f, 1.05f));
             }
 
         }
@@ -106,9 +105,10 @@ public class LockedDoor : MonoBehaviour, IInteractable
             _animator.SetTrigger("Close");
             _isOpen = false;
             // REPRODUCIR SONIDO AL CERRAR
-            if (_miAudioSource != null && _closeDoorSound != null)
+            if (_closeDoorSound != null)
             {
-                _miAudioSource.PlayOneShot(_closeDoorSound);
+                AudioManager.Instance.PlaySFXAtPosition(_closeDoorSound, transform.position, 1f, Random.Range(0.95f, 1.05f));
+
             }
 
         }

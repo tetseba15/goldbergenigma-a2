@@ -3,16 +3,12 @@ using UnityEngine;
 
 public class Block : MonoBehaviour
 {
+    [Header("Audio")]
     [SerializeField] private AudioClip _fallClip;
     [SerializeField] private float _clipDelay = 2f;
+    [SerializeField] private float _maxDistance = 50;
 
-    private AudioSource audioSource;
     private bool positionChanged = false;
-
-    private void Awake()
-    {
-        audioSource = GetComponent<AudioSource>();
-    }
 
     private void OnEnable()
     {
@@ -43,6 +39,6 @@ public class Block : MonoBehaviour
     private IEnumerator PlayClip()
     {
         yield return new WaitForSeconds(_clipDelay);
-        audioSource.PlayOneShot(_fallClip);
+        AudioManager.Instance.PlaySFXAtPosition(_fallClip, transform.position, 1f, Random.Range(0.8f, 1f), _maxDistance);
     }
 }
