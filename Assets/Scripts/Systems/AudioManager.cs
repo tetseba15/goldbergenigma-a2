@@ -75,6 +75,32 @@ public class AudioManager : MonoBehaviour
         EnemyAI.OnChaseStateChanged -= HandleChaseState;
     }
 
+    /// <summary>
+    /// Cambia la música de exploración actual de forma fluida (Fade Out -> Change -> Fade In)
+    /// </summary>
+    public void ChangeExplorationMusic(AudioClip newMusicClip, float fadeDuration = 1.5f)
+    {
+        if (newMusicClip == null || _musicAudioSource.clip == newMusicClip) return;
+
+        _explorationMusicClip = newMusicClip;
+
+        if (!_isCurrentlyChasing)
+        {
+            StartCoroutine(MusicFadeRoutine(newMusicClip, fadeDuration));
+        }
+    }
+
+    /// <summary>
+    /// Permite actualizar el clip de música de persecución para actos avanzados
+    /// </summary>
+    public void ChangeChaseMusic(AudioClip newChaseClip)
+    {
+        if (newChaseClip == null) return;
+        _chaseMusicClip = newChaseClip;
+    }
+
+   
+
     public void ChangeAmbience(AudioClip newAmbienceClip, float fadeDuration = 3f)
     {
         AudioSource activeSource = _isSource1Active ? _ambienceSource1 : _ambienceSource2;
@@ -254,15 +280,42 @@ public class AudioManager : MonoBehaviour
         _crossfadeRoutine = null;
     }
 
+    private IEnumerator MusicFadeRoutine(AudioClip newClip, float duration)
+    {
+        float halfDuration = duration / 2f;
+        float startVolume = _musicAudioSource.volume;
+        float time = 0f;
+
+        // 1. Fade Out
+        while (time < halfDuration)
+        {
+            time += Time.deltaTime;
+            _musicAudioSource.volume = Mathf.Lerp(startVolume, 0f, time / halfDuration);
+            yield return null;
+        }
+
+        _musicAudioSource.volume = 0f;
+        _musicAudioSource.clip = newClip;
+        _musicAudioSource.Play();
+
+        // 2. Fade In
+        time = 0f;
+        while (time < halfDuration)
+        {
+            time += Time.deltaTime;
+            _musicAudioSource.volume = Mathf.Lerp(0f, startVolume, time / halfDuration);
+            yield return null;
+        }
+
+        _musicAudioSource.volume = startVolume;
+    }
+
     private IEnumerator TemporaryAmbienceRoutine(AudioClip tempClip, AudioClip fallbackClip, float duration, float intro, float outro)
     {
-        // 1. Fundido rápido hacia el sonido estridente (ej. 0.5 segundos para dar impacto)
         yield return StartCoroutine(CrossfadeRoutine(tempClip, intro));
 
-        // 2. Mantenemos el ambiente de tensión el tiempo solicitado
         yield return new WaitForSeconds(duration);
 
-        // 3. Volvemos suavemente a la calma
         yield return StartCoroutine(CrossfadeRoutine(fallbackClip, outro));
 
         _temporaryAmbienceRoutine = null;
