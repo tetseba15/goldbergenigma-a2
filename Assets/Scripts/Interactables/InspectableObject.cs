@@ -46,10 +46,11 @@ public class InspectableObject : MonoBehaviour, IInteractable
     private PlayerLook _playerLook;
     private List<MonoBehaviour> _disabledCameraScripts = new List<MonoBehaviour>();
 
-    
-    private List<EnemyAI> _frozenAIs = new List<EnemyAI>();
-    private List<NavMeshAgent> _frozenAgents = new List<NavMeshAgent>();
-    private List<Animator> _frozenAnimators = new List<Animator>();
+    //Ahora se maneja con eventos, se agregó a EnemyAI lo necesario
+
+    //private List<EnemyAI> _frozenAIs = new List<EnemyAI>();
+    //private List<NavMeshAgent> _frozenAgents = new List<NavMeshAgent>();
+    //private List<Animator> _frozenAnimators = new List<Animator>();
 
     void Start()
     {
@@ -117,40 +118,40 @@ public class InspectableObject : MonoBehaviour, IInteractable
         }
 
         
-        _frozenAIs.Clear();
-        _frozenAgents.Clear();
-        _frozenAnimators.Clear();
+        //_frozenAIs.Clear();
+        //_frozenAgents.Clear();
+        //_frozenAnimators.Clear();
 
-        EnemyAI[] enemiesInScene = FindObjectsByType<EnemyAI>(FindObjectsSortMode.None);
-        foreach (EnemyAI enemy in enemiesInScene)
-        {
-            if (enemy != null)
-            {
+        //EnemyAI[] enemiesInScene = FindObjectsByType<EnemyAI>(FindObjectsSortMode.None);
+        //foreach (EnemyAI enemy in enemiesInScene)
+        //{
+        //    if (enemy != null)
+        //    {
                 
-                if (enemy.enabled)
-                {
-                    enemy.enabled = false;
-                    _frozenAIs.Add(enemy);
-                }
-
-                
-                if (enemy.TryGetComponent(out NavMeshAgent agent))
-                {
-                    if (agent.enabled)
-                    {
-                        agent.enabled = false; 
-                        _frozenAgents.Add(agent);
-                    }
-                }
+        //        if (enemy.enabled)
+        //        {
+        //            enemy.enabled = false;
+        //            _frozenAIs.Add(enemy);
+        //        }
 
                 
-                if (enemy.TryGetComponent(out Animator anim))
-                {
-                    anim.speed = 0f; 
-                    _frozenAnimators.Add(anim);
-                }
-            }
-        }
+        //        if (enemy.TryGetComponent(out NavMeshAgent agent))
+        //        {
+        //            if (agent.enabled)
+        //            {
+        //                agent.enabled = false; 
+        //                _frozenAgents.Add(agent);
+        //            }
+        //        }
+
+                
+        //        if (enemy.TryGetComponent(out Animator anim))
+        //        {
+        //            anim.speed = 0f; 
+        //            _frozenAnimators.Add(anim);
+        //        }
+        //    }
+        //}
 
         _mainCamera.transform.SetParent(null);
 
@@ -219,25 +220,25 @@ public class InspectableObject : MonoBehaviour, IInteractable
         _mainCamera.transform.localRotation = _originalCamRotation;
 
         
-        foreach (NavMeshAgent agent in _frozenAgents)
-        {
-            if (agent != null) agent.enabled = true;
-        }
-        _frozenAgents.Clear();
+        //foreach (NavMeshAgent agent in _frozenAgents)
+        //{
+        //    if (agent != null) agent.enabled = true;
+        //}
+        //_frozenAgents.Clear();
 
         
-        foreach (Animator anim in _frozenAnimators)
-        {
-            if (anim != null) anim.speed = 1f;
-        }
-        _frozenAnimators.Clear();
+        //foreach (Animator anim in _frozenAnimators)
+        //{
+        //    if (anim != null) anim.speed = 1f;
+        //}
+        //_frozenAnimators.Clear();
 
         
-        foreach (EnemyAI enemy in _frozenAIs)
-        {
-            if (enemy != null) enemy.enabled = true;
-        }
-        _frozenAIs.Clear();
+        //foreach (EnemyAI enemy in _frozenAIs)
+        //{
+        //    if (enemy != null) enemy.enabled = true;
+        //}
+        //_frozenAIs.Clear();
 
         if (_playerMovement != null) _playerMovement.enabled = true;
         if (_playerLook != null) _playerLook.enabled = true;

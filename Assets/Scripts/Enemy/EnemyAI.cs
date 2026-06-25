@@ -71,6 +71,8 @@ public class EnemyAI : MonoBehaviour
     private bool _playerInSafeZone = false;
     private bool _isStunned = false;
 
+    private bool _isFrozenByInspection = false;
+
     private float _fleeTimer = 0f;
     private float _timeSinceLastSeen = 0f;
     private Vector3 _lastKnownPosition;
@@ -109,7 +111,8 @@ public class EnemyAI : MonoBehaviour
 
     private void OnEnable()
     {
-
+        InspectableObject.OnInspectionStarted += HandleInspectionStarted;
+        InspectableObject.OnInspectionEnded += HandleInspectionEnded;
 
         NoiseManager.OnNoiseEmitted += HearNoise;
         _appearTimer = 0f;
@@ -122,7 +125,8 @@ public class EnemyAI : MonoBehaviour
 
     private void OnDisable()
     {
-
+        InspectableObject.OnInspectionStarted -= HandleInspectionStarted;
+        InspectableObject.OnInspectionEnded -= HandleInspectionEnded;
         NoiseManager.OnNoiseEmitted -= HearNoise;
     }
     private void OnDestroy()
@@ -143,6 +147,8 @@ public class EnemyAI : MonoBehaviour
     private void Update()
     {
         if (_currentState == AIState.Death) return;
+
+        if (_isFrozenByInspection) return;
 
         if (_invulnerabilityTimer > 0f)
         {
@@ -460,6 +466,22 @@ public class EnemyAI : MonoBehaviour
         {
             ChangeState(AIState.Patrol);
         }
+    }
+
+    private void HandleInspectionStarted()
+    {
+        _isFrozenByInspection = true;
+
+        if (_agent != null) _agent.isStopped = true;
+        if (_animator != null) _animator.speed = 0f;
+    }
+
+    private void HandleInspectionEnded()
+    {
+        _isFrozenByInspection = false;
+
+        if (_agent != null) _agent.isStopped = false;
+        if (_animator != null) _animator.speed = 1f;
     }
 
     #endregion
