@@ -12,6 +12,8 @@ public class BloodBath : MonoBehaviour
     [SerializeField] private float _zmax;
 
     [Header("Audio")]
+    [SerializeField] private float _volume = 1f;
+    [SerializeField] private float _maxDistance = 30f;
     [SerializeField] private GameObject _sourcePosition;
     [SerializeField] private AudioClip _clip;
 
@@ -69,7 +71,7 @@ public class BloodBath : MonoBehaviour
         if (gameEventType == _gameEventType)
         {
             bobbinOpened = true;
-            AudioManager.Instance.PlaySFXAtPosition(_clip, _sourcePosition.transform.position, 1f, Random.Range(0.85f, 1), 30f);
+            AudioManager.Instance.PlaySFXAtPosition(_clip, _sourcePosition.transform.position, _volume, Random.Range(0.85f, 1), _maxDistance);
         }
     }
 }
