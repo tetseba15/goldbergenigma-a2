@@ -12,6 +12,8 @@ public class PlayerPanicReaction : MonoBehaviour
     [Header("Visual & Camera Effects")]
     [SerializeField, Tooltip("A local URP Volume dedicated to panic effects")]
     private Volume _panicVolume;
+    [SerializeField, Tooltip("A local URP Volume dedicated to whispers effects")]
+    private Volume _whisperVolume;
     [SerializeField, Tooltip("Cinemachine Impulse Source to shake the camera")]
     private CinemachineImpulseSource _impulseSource;
 
@@ -47,6 +49,7 @@ public class PlayerPanicReaction : MonoBehaviour
     private AudioClip _heartbeatClip;
 
     private Coroutine _panicCoroutine;
+    private Coroutine _whisperCoroutine;
     private Coroutine _jumpscareAudioCoroutine;
     private Coroutine _fadeHeartbeatCoroutine;
 
@@ -56,16 +59,24 @@ public class PlayerPanicReaction : MonoBehaviour
 
     private void OnEnable()
     {
+        Whispering.OnWhispering += TriggerVisualDistortion;
         EnemyAI.OnEnemyRoaring += TriggerJumpscare;
         EnemyAI.OnChaseStateChanged += HandleChaseState;
     }
 
     private void OnDisable()
     {
+        Whispering.OnWhispering -= TriggerVisualDistortion;
         EnemyAI.OnEnemyRoaring -= TriggerJumpscare;
         EnemyAI.OnChaseStateChanged -= HandleChaseState;
     }
 
+    private void TriggerVisualDistortion(float distortionDuration)
+    {
+        if (_whisperCoroutine != null) StopCoroutine(_whisperCoroutine);
+
+        _whisperCoroutine = StartCoroutine(WhisperRoutine(distortionDuration));
+    }
 
     public void TriggerJumpscare(float roarDuration, float invulnerabilityDuration)
     {
@@ -210,7 +221,28 @@ public class PlayerPanicReaction : MonoBehaviour
     //    _heartbeatSource.volume = 1f; 
     //}
 
-    
+    private IEnumerator WhisperRoutine(float whisperDuration)
+    {
+        if (_whisperVolume != null)
+        {
+            while (_whisperVolume.weight < 1f)
+            {
+                _whisperVolume.weight = Mathf.MoveTowards(_whisperVolume.weight, 1f, Time.deltaTime * _visualFadeSpeed);
+                yield return null;
+            }
+        }
+
+        yield return new WaitForSeconds(whisperDuration);
+
+        if (_panicVolume != null)
+        {
+            while (_whisperVolume.weight > 0f)
+            {
+                _whisperVolume.weight = Mathf.MoveTowards(_whisperVolume.weight, 0f, Time.deltaTime * (_visualFadeSpeed / 2f)); // Fades out slower for effect
+                yield return null;
+            }
+        }
+    }
 
     private IEnumerator PanicRoutine(float stunDuration)
     {
