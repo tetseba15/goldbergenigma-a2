@@ -16,6 +16,8 @@ public class GameFlowManager : MonoBehaviour
 
     private bool _hasOfficeKey = false;
     private bool _hasCheckedCar = false;
+    private bool _hasUsedOuija = false;
+    private bool _hasBottle = false;
 
     private void Awake()
     {
@@ -25,6 +27,7 @@ public class GameFlowManager : MonoBehaviour
 
     private void OnEnable()
     {
+        OuijaBoard.OnOuijaUse += HandleItemCollected;
         PlayerInventory.OnItemCollected += HandleItemCollected;
         ObjectiveManager.OnObjectiveCompleted += HandleObjectiveCompleted;
     }
@@ -38,6 +41,8 @@ public class GameFlowManager : MonoBehaviour
     private void HandleItemCollected(PlayerInventory.ItemType item)
     {
         if (item == PlayerInventory.ItemType.OfficeKey) _hasOfficeKey = true;
+        if (item == PlayerInventory.ItemType.Bottle) _hasBottle = true;
+        if (item == PlayerInventory.ItemType.OuijaBoard) _hasUsedOuija = true;
 
         EvaluateProgression();
     }
@@ -64,15 +69,19 @@ public class GameFlowManager : MonoBehaviour
                 break;
 
             case Act.Act1_GroundFloor:
-                if (_hasOfficeKey)
+                if (_hasOfficeKey && _hasUsedOuija && _hasBottle)
                 {
                     AdvanceToAct(Act.Act2_UpperFloor);
                 }
                 break;
 
             case Act.Act2_UpperFloor:
+                if (ObjectiveManager.Instance.CompletedAllObjectives())
+                {
+                    AdvanceToAct(Act.Act3_Exterior);
+                }
                 // Act 3 condiciones
-                // if (_hasReadFinalNote) AdvanceToAct(Act.Act3_Exterior);
+                // if (_hasReadFinalNote) AdvanceToAct(Act.Act3_Exterior); Si tiene la cruz | Leyó la nota | Leyó el diario personal
                 break;
         }
     }
@@ -97,6 +106,8 @@ public class GameFlowManager : MonoBehaviour
                 break;
 
             case Act.Act2_UpperFloor:
+                ObjectiveManager.Instance.CompleteObjective(ObjectiveManager.ObjectiveId.MansionExploration);
+
                 ObjectiveManager.Instance.UpdateObjective(
                     ObjectiveManager.ObjectiveId.UpstairsExploration,
                     "Explorar la planta alta"

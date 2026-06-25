@@ -3,6 +3,11 @@ using UnityEngine;
 
 public class Block : MonoBehaviour
 {
+    [Header("Act progression")]
+    [SerializeField]
+    [Tooltip("Define en qué acto cambia su posición")]
+    private GameFlowManager.Act _actTrigger;
+
     [Header("Audio")]
     [SerializeField] private AudioClip _fallClip;
     [SerializeField] private float _clipDelay = 2f;
@@ -12,17 +17,17 @@ public class Block : MonoBehaviour
 
     private void OnEnable()
     {
-        OuijaBoard.OnInteract += ChangePosition;
+        GameFlowManager.OnActChanged += ChangePosition;
     }
 
     private void OnDisable()
     {
-        OuijaBoard.OnInteract -= ChangePosition;
+        GameFlowManager.OnActChanged -= ChangePosition;
     }
 
-    private void ChangePosition(PlayerInventory.ItemType item)
+    private void ChangePosition(GameFlowManager.Act currentAct)
     {
-        if (item.Equals(PlayerInventory.ItemType.OuijaBoard) && !positionChanged)
+        if (currentAct == _actTrigger && !positionChanged)
         {
             if (_fallClip != null)
             {

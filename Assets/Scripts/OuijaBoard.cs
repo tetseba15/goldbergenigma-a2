@@ -35,7 +35,7 @@ public class OuijaBoard : MonoBehaviour, IInteractable
     public bool HasUsedAct2Ouija { get; private set; } = false;
     public static OuijaBoard Instance { get; private set; }
 
-    public static event Action<PlayerInventory.ItemType> OnInteract;
+    public static event Action<PlayerInventory.ItemType> OnOuijaUse;
 
     private void Awake()
     {
@@ -79,7 +79,7 @@ public class OuijaBoard : MonoBehaviour, IInteractable
             DialogueManager.Instance.ShowDialogue(GetCurrentMessage());
 
         if (objectiveReporter != null) objectiveReporter.ReportObjective();
-        OnInteract?.Invoke(_itemType);
+        OnOuijaUse?.Invoke(_itemType);
     }
 
     public void ResetCooldown()

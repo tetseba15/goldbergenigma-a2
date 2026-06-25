@@ -13,7 +13,7 @@ public class ProgressHintManager : MonoBehaviour
     private void OnEnable()
     {
         ItemPickup.OnInteract += GiveHint;
-        OuijaBoard.OnInteract += InteractedWithOuija;
+        OuijaBoard.OnOuijaUse += InteractedWithOuija;
         UpstairsTrigger.OnTrigger += WentUpstairs;
     }
 

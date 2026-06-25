@@ -10,6 +10,8 @@ public class ObjectiveManager : MonoBehaviour
         MansionExploration,
         HolyWater,
         UpstairsExploration,
+        UmbertoOffice,
+        LivingCross,
         Chimney,
         Graveyard,
         Barbecue,
@@ -34,6 +36,7 @@ public class ObjectiveManager : MonoBehaviour
 
     private Dictionary<ObjectiveId, ObjectiveData> _activeObjectives = new Dictionary<ObjectiveId, ObjectiveData>();
     private bool _hasSeenDiaryTutorial = false;
+    private int _completedObjectivesCount;
 
     private void Awake()
     {
@@ -63,6 +66,7 @@ public class ObjectiveManager : MonoBehaviour
         if (_activeObjectives.ContainsKey(id) && !_activeObjectives[id].IsCompleted)
         {
             _activeObjectives[id].IsCompleted = true;
+            _completedObjectivesCount++;
 
             OnObjectiveCompleted?.Invoke(id);
 
@@ -75,7 +79,6 @@ public class ObjectiveManager : MonoBehaviour
     {
         if (_activeObjectives.ContainsKey(id))
         {
-
             OnObjectiveCompleted?.Invoke(id);
 
             _activeObjectives.Remove(id);
@@ -83,9 +86,15 @@ public class ObjectiveManager : MonoBehaviour
         }
     }
 
+    public bool CompletedAllObjectives()
+    {
+        return _completedObjectivesCount == _activeObjectives.Count;
+    }
+
     public void ClearAllObjectives()
     {
-        _activeObjectives.Clear();
+        _completedObjectivesCount = 0;
+        RemoveCompletedObjectives();
         RefreshObjectiveText();
     }
 
@@ -142,5 +151,18 @@ public class ObjectiveManager : MonoBehaviour
 
             _hasSeenDiaryTutorial = true;
         }
+    }
+
+    private void RemoveCompletedObjectives()
+    {
+        Dictionary<ObjectiveId, ObjectiveData> newObjectives = new Dictionary<ObjectiveId, ObjectiveData>();
+
+        foreach (KeyValuePair<ObjectiveId, ObjectiveData> objective in _activeObjectives)
+        {
+            if (!objective.Value.IsCompleted) newObjectives.Add(objective.Key, objective.Value);
+        }
+
+        _activeObjectives.Clear();
+        _activeObjectives = newObjectives;
     }
 }
