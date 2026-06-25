@@ -63,7 +63,7 @@ public class LightningController : MonoBehaviour
             yield return new WaitForSeconds(soundDelay);
 
             AudioClip clip = _thunderClips[Random.Range(0, _thunderClips.Length)];
-            AudioManager.Instance.PlaySFX(clip, Random.Range(0.3f, 0.5f));
+            AudioManager.Instance.PlaySFX(clip, Random.Range(0.3f, 0.4f));
         }
 
         StartNextStrike();
