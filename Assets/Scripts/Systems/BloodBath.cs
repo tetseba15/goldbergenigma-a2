@@ -12,7 +12,7 @@ public class BloodBath : MonoBehaviour
     [SerializeField] private float _zmax;
 
     [Header("Audio")]
-    [SerializeField] private AudioSource _audioSource;
+    [SerializeField] private GameObject _sourcePosition;
     [SerializeField] private AudioClip _clip;
 
     [Header("Game Event Type")]
@@ -38,11 +38,6 @@ public class BloodBath : MonoBehaviour
         {
             bloodPosition = _blood.transform.localPosition;
         }
-
-        if (_audioSource != null && _clip != null)
-        {
-            _audioSource.clip = _clip;
-        }
     }
 
     private void Update()
@@ -65,7 +60,7 @@ public class BloodBath : MonoBehaviour
         if (bloodPosition.z >= _zmax)
         {
             _bloodParticles.Stop();
-            _audioSource.Pause();
+            AudioManager.Instance.StopSFXAtPosition(_sourcePosition.transform.position);
         }
     }
 
@@ -74,7 +69,7 @@ public class BloodBath : MonoBehaviour
         if (gameEventType == _gameEventType)
         {
             bobbinOpened = true;
-            _audioSource.Play();
+            AudioManager.Instance.PlaySFXAtPosition(_clip, _sourcePosition.transform.position, 1f, Random.Range(0.85f, 1), 30f);
         }
     }
 }

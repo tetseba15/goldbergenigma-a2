@@ -2,15 +2,14 @@ using UnityEngine;
 
 public class AudioTrigger : MonoBehaviour
 {
-    [Header("Componentes")]
-    [SerializeField] private AudioSource _audioSource;
+    [Header("Audio")]
     [SerializeField] private AudioClip _soundToPlay;
 
-    [Header("Configuración")]
-    [Tooltip("Si está marcado, el sonido solo sonará la primera vez que entres.")]
+    [Header("Configuration")]
+    [Tooltip("Si está marcado, el sonido solo sonará la primera vez que entre al trigger.")]
     [SerializeField] private bool _playOnlyOnce = true;
 
-    [Tooltip("Escribe el Tag del objeto que activa el sonido (ej: Player)")]
+    [Tooltip("Tag del objeto que activa el sonido (ej: Player)")]
     [SerializeField] private string _targetTag = "Player";
 
     private bool _hasPlayed = false;
@@ -21,9 +20,9 @@ public class AudioTrigger : MonoBehaviour
            
         if (other.CompareTag(_targetTag))
         {
-            if (_audioSource != null && _soundToPlay != null)
+            if (_soundToPlay != null)
             {
-                _audioSource.PlayOneShot(_soundToPlay);
+                AudioManager.Instance.PlaySFXAtPosition(_soundToPlay, transform.position, 1f, Random.Range(0.90f, 1.10f));
                 _hasPlayed = true;
             }
         }

@@ -202,7 +202,7 @@ public class AudioManager : MonoBehaviour
     /// <summary>
     /// Reproduce un sonido posicional/3D (Puertas, pasos, enemigos, impactos)
     /// </summary>
-    public void PlaySFXAtPosition(AudioClip clip, Vector3 position, float volume = 1f, float pitch = 1f)
+    public void PlaySFXAtPosition(AudioClip clip, Vector3 position, float volume = 1f, float pitch = 1f, float maxDistance = 15f)
     {
         if (clip == null || _sfxPool.Count == 0) return;
 
@@ -212,10 +212,25 @@ public class AudioManager : MonoBehaviour
         source.clip = clip;
         source.volume = volume;
         source.pitch = pitch;
+        source.maxDistance = maxDistance;
 
         source.Play();
 
         _sfxPool.Enqueue(source);
+    }
+
+    public void StopSFXAtPosition(Vector3 position)
+    {
+        if (_sfxPool.Count == 0) return;
+
+        foreach (AudioSource source in _sfxPool)
+        {
+            if (source.transform.position == position && source.isPlaying)
+            {
+                source.Stop();
+            }
+        }
+        
     }
 
     public void SetChaseState(bool isChasing, float transitionTime = 2f)
