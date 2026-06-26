@@ -130,6 +130,8 @@ MonoBehaviour:
   _addObjective: 1
   _objectiveMessages:
   - "Investigar\xE9 el cementerio del patio"
-  _objectiveId: 1
+  _objectiveId: 7
+  _completeObjective: 1
+  _objectiveIdToComplete: 6
   _deleteObjective: 0
-  _objectiveIdRemove: 0
+  _objectiveIdToRemove: 0

@@ -30,7 +30,7 @@ public class ObjectiveReporter : MonoBehaviour
         {
             ObjectiveManager.Instance.UpdateObjective(_objectiveId, _objectiveMessages[_objectiveIndex]);
             _objectiveIndex++;
-            _ableToUpdate = false;
+            //_ableToUpdate = false;
         }
 
         if (_completeObjective && !_objectiveCompleted)
