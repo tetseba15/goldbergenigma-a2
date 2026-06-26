@@ -8,6 +8,8 @@ public class LightningController : MonoBehaviour
     [SerializeField] private AudioClip[] _thunderClips;
 
     [Header("Configuración del Relámpago")]
+    [SerializeField, Tooltip("Tiempo exacto para el PRIMER relámpago")]
+    private float _firstStrikeDelay = 3f; 
     [SerializeField] private float _minTimeBetweenStrikes = 5f;
     [SerializeField] private float _maxTimeBetweenStrikes = 15f;
     [SerializeField] private float _maxIntensity = 5f;
@@ -27,7 +29,7 @@ public class LightningController : MonoBehaviour
             _lightningLight.enabled = false;
         }
 
-        StartNextStrike();
+        _lightningRoutine = StartCoroutine(LightningRoutine(_firstStrikeDelay));
     }
 
     private void StartNextStrike()
@@ -65,6 +67,7 @@ public class LightningController : MonoBehaviour
             AudioClip clip = _thunderClips[Random.Range(0, _thunderClips.Length)];
             AudioManager.Instance.PlaySFX(clip, Random.Range(0.3f, 0.4f));
         }
+
 
         StartNextStrike();
     }
