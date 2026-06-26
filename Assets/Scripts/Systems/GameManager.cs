@@ -52,7 +52,7 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f;          
         AudioListener.pause = true;   
         isPaused = true;
-        if (menuPausaUI != null) menuPausaUI.SetActive(true);//Activa imagen pause
+        if (menuPausaUI != null) menuPausaUI.SetActive(true);
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -72,6 +72,11 @@ public class GameManager : MonoBehaviour
     private void OnEnable()
     {
         
+    }
+
+    public void LoadScene(int index)
+    {
+        SceneManager.LoadScene(index);
     }
 
     public void GameOver()

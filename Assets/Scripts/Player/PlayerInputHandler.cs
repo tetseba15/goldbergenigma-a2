@@ -9,6 +9,9 @@ public class PlayerInputHandler : MonoBehaviour
     public event System.Action OnCancelTriggered;
     public event System.Action OnInteractTriggered;
 
+    public event System.Action OnPauseTriggered;
+    public event System.Action OnResumeTriggered;
+
     public Vector2 MoveInput { get; private set; }
     public Vector2 LookInput { get; private set; }
 
@@ -75,6 +78,10 @@ public class PlayerInputHandler : MonoBehaviour
 
         _inputActions.Gameplay.InspectFlashlight.performed += ctx => IsInspectingFlashlight= true;
         _inputActions.Gameplay.InspectFlashlight.canceled += ctx => IsInspectingFlashlight = false;
+
+        _inputActions.Gameplay.Pause.performed += ctx => OnPauseTriggered?.Invoke();
+
+        _inputActions.UI.Cancel.performed += ctx => OnResumeTriggered?.Invoke();
     }
 
     private void OnEnable()
@@ -102,6 +109,18 @@ public class PlayerInputHandler : MonoBehaviour
         CancelInput = _inputActions.Gameplay.Cancel.WasPressedThisFrame();
 
         FlashlightInput = _inputActions.Gameplay.FlashlightToggle.WasPressedThisFrame();
+    }
+
+    public void EnableUIControls()
+    {
+        _inputActions.Gameplay.Disable();
+        _inputActions.UI.Enable();
+    }
+
+    public void EnableGameplayControls()
+    {
+        _inputActions.UI.Disable();
+        _inputActions.Gameplay.Enable();
     }
 
     public void ConsumeInteractInput()
