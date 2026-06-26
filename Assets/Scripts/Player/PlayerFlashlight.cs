@@ -49,6 +49,12 @@ public class PlayerFlashlight : MonoBehaviour
     private AudioClip _turnOffSound;
     [SerializeField, Tooltip("Sound for reloading batteries")]
     private AudioClip _reloadSFX;
+    [SerializeField, Tooltip("Low battery sound")]
+    private AudioClip _lowBatterySound;
+
+    [SerializeField] private float _warningInterval = 10f; 
+
+    private float _warningTimer = 0f;
 
 
     [Header("Inspection Animation")]
@@ -221,11 +227,25 @@ public class PlayerFlashlight : MonoBehaviour
         {
             if (_currentBattery <= _flickerThreshold)
             {
+                _warningTimer -= Time.deltaTime;
+
+                if (_warningTimer <= 0f)
+                {
+                    if (_lowBatterySound != null && AudioManager.Instance != null)
+                    {
+                        AudioManager.Instance.PlaySFXAtPosition(_lowBatterySound, transform.position, 0.4f); 
+                    }
+
+                    _warningTimer = _warningInterval;
+                }
+
                 float noise = Mathf.PerlinNoise(Time.time * 10f, 0f);
                 _lightComponent.intensity = Mathf.Lerp(0f, BaseIntensity, noise);
             }
             else
             {
+                _warningTimer = 0f;
+
                 _lightComponent.intensity = BaseIntensity;
             }
         }
@@ -329,4 +349,5 @@ public class PlayerFlashlight : MonoBehaviour
         }
 
     }
+
 }
