@@ -5,10 +5,11 @@ public class GenericEventsTrigger : MonoBehaviour
 {
     public enum GameEventType
     {
-        GhostAppearance,
-        BloodBath,
-        GhostlyWhispering,
-        Radio
+        GhostAppearance = 1,
+        BloodBath = 2,
+        GhostlyWhispering = 3,
+        Radio = 4,
+        CloseEntryDoor = 5,
     }
 
     [Header("Trigger Type")]

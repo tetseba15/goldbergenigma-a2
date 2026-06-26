@@ -184,7 +184,7 @@ public class EnemyAI : MonoBehaviour
         if (_currentState != AIState.Spotted && _currentState != AIState.FinalChase)
         {
             CheckSensors();
-            CheckFlashlight();
+            //CheckFlashlight();
         }
 
         switch (_currentState)
@@ -553,31 +553,31 @@ public class EnemyAI : MonoBehaviour
         StartCoroutine(EnrageRoutine());
     }
 
-    private void CheckFlashlight()
-    {
-        if (_invulnerabilityTimer > 0f || _isStunned) return;
+    //private void CheckFlashlight()
+    //{
+    //    if (_invulnerabilityTimer > 0f || _isStunned) return;
 
 
-        if (PlayerTarget.Instance.Flashlight == null || !PlayerTarget.Instance.Flashlight.IsOn()) return;
+    //    if (PlayerTarget.Instance.Flashlight == null || !PlayerTarget.Instance.Flashlight.IsOn()) return;
 
-        Transform target = PlayerTarget.Instance.PlayerTransform;
-        float sqrDistanceToPlayer = (transform.position - target.position).sqrMagnitude;
+    //    Transform target = PlayerTarget.Instance.PlayerTransform;
+    //    float sqrDistanceToPlayer = (transform.position - target.position).sqrMagnitude;
 
-        if (sqrDistanceToPlayer > (_data.flashlightRepelDistance * _data.flashlightRepelDistance)) return;
+    //    if (sqrDistanceToPlayer > (_data.flashlightRepelDistance * _data.flashlightRepelDistance)) return;
 
-        Vector3 directionToEnemy = (transform.position - target.position).normalized;
-        float angle = Vector3.Angle(target.forward, directionToEnemy);
+    //    Vector3 directionToEnemy = (transform.position - target.position).normalized;
+    //    float angle = Vector3.Angle(target.forward, directionToEnemy);
 
-        if (angle < 30f)
-        {
-            if (!_hasBeenBlindedByFlashlight)
-            {
-                _hasBeenBlindedByFlashlight = true;
+    //    if (angle < 30f)
+    //    {
+    //        if (!_hasBeenBlindedByFlashlight)
+    //        {
+    //            _hasBeenBlindedByFlashlight = true;
 
-                OnIlluminated();
-            }
-        }
-    }
+    //            OnIlluminated();
+    //        }
+    //    }
+    //}
 
 
     #endregion
@@ -621,12 +621,12 @@ public class EnemyAI : MonoBehaviour
 
         _invulnerabilityTimer = _invulnerabilityDuration;
 
-        if (_audioManager != null) _audioManager.PlayAttack();
+        if (_audioManager != null) _audioManager.PlayEnraged();
 
         // Inmune/flicker duration
-        OnEnemyRoaring?.Invoke(_spottedRoarDuration, _invulnerabilityDuration);
+        OnEnemyRoaring?.Invoke(_enragedRoarDuration, _invulnerabilityDuration);
 
-        yield return new WaitForSeconds(_spottedRoarDuration);
+        yield return new WaitForSeconds(_enragedRoarDuration);
 
         _agent.isStopped = false;
         ChangeState(AIState.Chase);

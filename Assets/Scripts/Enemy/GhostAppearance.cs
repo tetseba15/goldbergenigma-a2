@@ -49,10 +49,14 @@ public class GhostAppearance : MonoBehaviour
 
     public void Appear(GenericEventsTrigger.GameEventType gameEventType) // Called by generic trigger
     {
+        Debug.Log("Intente aparecer");
         if (_positionIndex >= _settedPositions.Count && gameEventType != _gameEventType) return;
 
         Appear(_settedPositions[_positionIndex].transform.position);
         _positionIndex++;
+
+        Debug.Log("aparecí");
+
     }
 
     public void Appear(Vector3 position)

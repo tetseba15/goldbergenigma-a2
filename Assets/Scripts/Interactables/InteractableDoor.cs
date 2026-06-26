@@ -109,6 +109,28 @@ public class InteractableDoor : MonoBehaviour, IInteractable
         }
     }
 
+    public void ForceSlamShutAndLock()
+    {
+        if (!_isOpen && _isLocked) return; 
+
+        _isOpen = false;
+
+        JointSpring spring = _hingeJoint.spring;
+        spring.targetPosition = 0f;
+        spring.spring = _sprintSpringForce * 1.5f; 
+        spring.damper = 1f; 
+        _hingeJoint.spring = spring;
+
+        if (_slamSound != null && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFXAtPosition(_slamSound, transform.position, 1.2f, Random.Range(0.85f, 0.95f), 20); 
+        }
+
+        //NoiseManager.EmitNoise(transform.position, _loudNoiseRadius);
+
+        ApplyNarrativeLock();
+    }
+
     private void OpenDoor(Vector3 interactorPosition, bool isSprinting)
     {
         _isOpen = true;
