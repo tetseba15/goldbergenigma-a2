@@ -29,6 +29,7 @@ public class GameFlowManager : MonoBehaviour
     private bool _hasCheckedCar = false;
     private bool _hasUsedOuija = false;
     private bool _hasBottle = false;
+    private bool _hasCross = false;
 
     private void Awake()
     {
@@ -60,6 +61,7 @@ public class GameFlowManager : MonoBehaviour
         // --- ÍTEMS DE ACTOS AVANZADOS ---
         if (item == PlayerInventory.ItemType.OfficeKey) _hasOfficeKey = true;
         if (item == PlayerInventory.ItemType.Bottle) _hasBottle = true;
+        if (item == PlayerInventory.ItemType.Cross) _hasCross = true;
         if (item == PlayerInventory.ItemType.OuijaBoard) _hasUsedOuija = true;
 
         EvaluateProgression();
@@ -94,7 +96,7 @@ public class GameFlowManager : MonoBehaviour
                 break;
 
             case Act.Act2_UpperFloor:
-                if (ObjectiveManager.Instance.CompletedAllObjectives())
+                if (_finalNoteRead && _hasCross && _personalDiaryRead)
                 {
                     AdvanceToAct(Act.Act3_Exterior);
                 }
@@ -134,6 +136,13 @@ public class GameFlowManager : MonoBehaviour
                 break;
 
             case Act.Act3_Exterior:
+                ObjectiveManager.Instance.CompleteObjective(ObjectiveManager.ObjectiveId.UpstairsExploration);
+
+                ObjectiveManager.Instance.UpdateObjective(
+                    ObjectiveManager.ObjectiveId.Graveyard,
+                    "Comunicarse con la niña"
+                );
+                OnChapterTitleRequested?.Invoke("ACTO III", "Recuerdos enterrados", null);
                 // Ejemplo para el futuro:
                 // ObjectiveManager.Instance.UpdateObjective(ObjectiveManager.ObjectiveId.Workshop, "Buscar la llave del quincho");
                 break;

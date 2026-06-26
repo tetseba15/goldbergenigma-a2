@@ -86,6 +86,5 @@ public class GhostAppearance : MonoBehaviour
         _meshRenderer.enabled = false;
 
         OuijaBoard ouija = FindObjectOfType<OuijaBoard>();
-        if (ouija != null) ouija.ResetCooldown();
     }
 }
