@@ -23,13 +23,12 @@ public class GameFlowManager : MonoBehaviour
     private bool _finalNoteRead = false;
     private bool _personalDiaryRead = false;
 
-
-
     private bool _hasOfficeKey = false;
     private bool _hasCheckedCar = false;
     private bool _hasUsedOuija = false;
     private bool _hasBottle = false;
     private bool _hasCross = false;
+    private bool _hasWorkshopKey = false;
 
     private void Awake()
     {
@@ -60,6 +59,7 @@ public class GameFlowManager : MonoBehaviour
 
         // --- ÍTEMS DE ACTOS AVANZADOS ---
         if (item == PlayerInventory.ItemType.OfficeKey) _hasOfficeKey = true;
+        if (item == PlayerInventory.ItemType.WorkshopKey) _hasWorkshopKey = true;
         if (item == PlayerInventory.ItemType.Bottle) _hasBottle = true;
         if (item == PlayerInventory.ItemType.Cross) _hasCross = true;
         if (item == PlayerInventory.ItemType.OuijaBoard) _hasUsedOuija = true;
@@ -100,6 +100,13 @@ public class GameFlowManager : MonoBehaviour
                 {
                     AdvanceToAct(Act.Act3_Exterior);
                 }
+                break;
+
+            case Act.Act3_Exterior:
+                if (_hasWorkshopKey)
+                {
+                    AdvanceToAct(Act.Epilogue);
+                }
                 // Act 3 condiciones
                 // if (_hasReadFinalNote) AdvanceToAct(Act.Act3_Exterior); Si tiene la cruz | Leyó la nota | Leyó el diario personal
                 break;
@@ -139,10 +146,18 @@ public class GameFlowManager : MonoBehaviour
                 ObjectiveManager.Instance.CompleteObjective(ObjectiveManager.ObjectiveId.UpstairsExploration);
 
                 ObjectiveManager.Instance.UpdateObjective(
-                    ObjectiveManager.ObjectiveId.Graveyard,
+                    ObjectiveManager.ObjectiveId.Chimney,
                     "Comunicarse con la niña"
                 );
                 OnChapterTitleRequested?.Invoke("ACTO III", "Recuerdos enterrados", null);
+                break;
+
+            case Act.Epilogue:
+                ObjectiveManager.Instance.UpdateObjective(
+                    ObjectiveManager.ObjectiveId.Workshop,
+                    "Quizás la niña pueda volver a guiarme"
+                );
+                OnChapterTitleRequested?.Invoke("ACTO FINAL", "El enfrentamiento", null);
                 // Ejemplo para el futuro:
                 // ObjectiveManager.Instance.UpdateObjective(ObjectiveManager.ObjectiveId.Workshop, "Buscar la llave del quincho");
                 break;

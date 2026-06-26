@@ -104,6 +104,8 @@ MonoBehaviour:
   _addObjective: 1
   _objectiveMessages:
   - Ahora puedo entrar al quincho
-  _objectiveId: 1
+  _objectiveId: 8
+  _completeObjective: 1
+  _objectiveIdToComplete: 7
   _deleteObjective: 0
-  _objectiveIdRemove: 0
+  _objectiveIdToRemove: 0

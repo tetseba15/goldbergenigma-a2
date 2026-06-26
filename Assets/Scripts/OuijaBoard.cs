@@ -62,8 +62,11 @@ public class OuijaBoard : MonoBehaviour, IInteractable
     {
         if (!_isOnCooldown)
         {
-            //if (_currentAct == 2)
-            //    HasUsedAct2Ouija = true;
+            if (objectiveReporter != null)
+            {
+                if (GameFlowManager.Instance.CurrentAct == GameFlowManager.Act.Act3_Exterior) objectiveReporter.ReportObjective();
+                if (GameFlowManager.Instance.CurrentAct == GameFlowManager.Act.Epilogue) objectiveReporter.ReportObjective(); Debug.Log("Epilogo reporter");
+            }
 
             if (_ghostAppearance != null)
             {
@@ -83,7 +86,6 @@ public class OuijaBoard : MonoBehaviour, IInteractable
             if (DialogueManager.Instance != null && _messageIndex < _actMessages.Count)
                 DialogueManager.Instance.ShowDialogue(_actMessages[_messageIndex]);
 
-            if (objectiveReporter != null) objectiveReporter.ReportObjective();
             OnOuijaUse?.Invoke(_itemType);
         }
         else
@@ -102,6 +104,8 @@ public class OuijaBoard : MonoBehaviour, IInteractable
 
     private void IncrementMessageIndex(GameFlowManager.Act currentAct)
     {
+        if (currentAct == GameFlowManager.Act.Act2_UpperFloor) return;
+
         _messageIndex++;
         _remindMessageIndex++;
 
@@ -113,7 +117,7 @@ public class OuijaBoard : MonoBehaviour, IInteractable
 
     private void IncrementMessageIndex(PlayerInventory playerInventory, PlayerInventory.ItemType itemType)
     {
-        if (itemType == PlayerInventory.ItemType.WorkshopKey || itemType == PlayerInventory.ItemType.QuinchoKey || itemType == PlayerInventory.ItemType.PatioKey)
+        if (itemType == PlayerInventory.ItemType.PatioKey)
         {
             _messageIndex++;
             _remindMessageIndex++;
