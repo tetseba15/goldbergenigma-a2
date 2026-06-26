@@ -13,6 +13,13 @@ public class GameFlowManager : MonoBehaviour
 
     public static event Action<Act> OnActChanged;
 
+    [Header("Condiciones de Introducción (Acto 0)")]
+    private bool _introHasFlashlight = false;
+    private bool _introHasKey = false;
+    private bool _introNoteRead = false;
+    private bool _introHasLighter = false;
+
+
 
     private bool _hasOfficeKey = false;
     private bool _hasCheckedCar = false;
@@ -34,6 +41,7 @@ public class GameFlowManager : MonoBehaviour
 
     private void OnDisable()
     {
+        OuijaBoard.OnOuijaUse -= HandleItemCollected;
         PlayerInventory.OnItemCollected -= HandleItemCollected;
         ObjectiveManager.OnObjectiveCompleted -= HandleObjectiveCompleted;
     }

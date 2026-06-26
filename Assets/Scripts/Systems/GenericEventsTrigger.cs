@@ -19,9 +19,13 @@ public class GenericEventsTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (_triggered) return;
+        if (other.CompareTag("Player"))
+        {
+            if (_triggered) return;
 
-        OnTriggerEvent?.Invoke(_triggerType);
-        _triggered = true;
+            OnTriggerEvent?.Invoke(_triggerType);
+            _triggered = true;
+        }
+        
     }
 }
