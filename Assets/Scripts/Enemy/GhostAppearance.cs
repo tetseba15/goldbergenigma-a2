@@ -22,7 +22,7 @@ public class GhostAppearance : MonoBehaviour
     [Header("Game event type")]
     [SerializeField] private GenericEventsTrigger.GameEventType _gameEventType;
 
-    private int _positionIndex;
+    private int _positionIndex = 0;
 
     private Coroutine _disappearCoroutine;
 
@@ -47,15 +47,20 @@ public class GhostAppearance : MonoBehaviour
         }
     }
 
-    public void Appear(GenericEventsTrigger.GameEventType gameEventType) // Called by generic trigger
+    //private void Update()
+    //{
+    //    Debug.Log("Estoy en " + transform.position);
+    //}
+
+    public void Appear(GenericEventsTrigger.GameEventType gameEventType) 
     {
-        Debug.Log("Intente aparecer");
-        if (_positionIndex >= _settedPositions.Count && gameEventType != _gameEventType) return;
+        //Debug.Log("Intente aparecer " + transform.position);
+        if (_positionIndex >= _settedPositions.Count || gameEventType != _gameEventType) return;
 
         Appear(_settedPositions[_positionIndex].transform.position);
         _positionIndex++;
 
-        Debug.Log("aparecí");
+        //Debug.Log("aparecí en " + transform.position);
 
     }
 
