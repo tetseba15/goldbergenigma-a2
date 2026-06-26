@@ -12,7 +12,7 @@ public class DialogueTrigger : MonoBehaviour
     {
         PlayerInventory inventory = other.GetComponent<PlayerInventory>();
         if (inventory == null) return;
-        if (_triggerOnAct != OuijaBoard.Instance.CurrentAct) return;
+        //if (_triggerOnAct != OuijaBoard.Instance.CurrentAct) return;
         if (_requiresItem && !inventory.HasItem(_requiredItem)) return;
 
         DialogueManager.Instance.ShowDialogue(_dialogue);

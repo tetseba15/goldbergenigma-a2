@@ -42,9 +42,10 @@ public class ItemPickup : MonoBehaviour, IInteractable
 
     public void Interact(GameObject interactor)
     {
+        OuijaBoard ouija = OuijaBoard.Instance;
+
         if (_requiresAct2Ouija)
         {
-            OuijaBoard ouija = OuijaBoard.Instance;
             if (ouija != null && !ouija.HasUsedAct2Ouija) return;
         }
 
@@ -78,16 +79,6 @@ public class ItemPickup : MonoBehaviour, IInteractable
                 {
                     waterController.RefillBottle();
                 }
-            }
-            if (_itemType == PlayerInventory.ItemType.WorkshopKey)
-            {
-                OuijaBoard.Instance.AdvanceToNextAct();
-                OuijaBoard.Instance.ResetCooldown();
-            }
-
-            if (_itemType == PlayerInventory.ItemType.PatioKey)
-            {
-                OuijaBoard.Instance.OnPatioKeyPickedUp();
             }
 
             if (objectiveReporter != null) objectiveReporter.ReportObjective();

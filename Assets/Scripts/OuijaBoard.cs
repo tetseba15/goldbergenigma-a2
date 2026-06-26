@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class OuijaBoard : MonoBehaviour, IInteractable
@@ -9,33 +10,37 @@ public class OuijaBoard : MonoBehaviour, IInteractable
     [SerializeField] private PlayerInventory.ItemType _itemType;
 
     [Header("Mensajes")]
-    [SerializeField] private string _act1Message = "Habitación. Arriba.";
-    [SerializeField] private string _act2Message = "Chimenea.";
-    [SerializeField] private string _act2TombMessage = "Mi tumba. Llave.";
-    [SerializeField] private string _act3Message = "Taller. cuadros";
-    //[SerializeField] private string _act3FinalMessage = "Fogón. Fuego. Enfrentamiento.";
+    [SerializeField] private List<string> _actMessages;
 
     [Header("Mensajes de recordatorio")]
-    [SerializeField] private string _act1Reminder = "La niña dijo que vaya a la habitación de arriba.";
-    [SerializeField] private string _act2Reminder = "La niña dijo que vaya a la chimenea.";
-    [SerializeField] private string _act3Reminder = "La niña dijo que vaya al taller de cuadros.";
-    //[SerializeField] private string _act3FinalReminder = "La niña dijo que vaya al fogón.";
+    [SerializeField] private List<string> _remindMessages;
 
     [Header("Referencias de escena")]
     [SerializeField] private GameObject _fireplaceLookAtDialogue;
 
-    private int _currentAct = 1;
+    // -1 porque en la introducción no se usa la Ouija
+    private int _messageIndex = -1;
+    private int _remindMessageIndex = -1;
+
     private bool _isOnCooldown = false;
-    private int _useCount = 0;
-    private bool _patioKeyPickedUp = false;
 
     private ObjectiveReporter objectiveReporter;
-
-    public int CurrentAct => _currentAct;
-    public bool HasUsedAct2Ouija { get; private set; } = false;
+    public bool HasUsedAct2Ouija { get; private set; } = false; // REVISAR
     public static OuijaBoard Instance { get; private set; }
 
     public static event Action<PlayerInventory.ItemType> OnOuijaUse;
+
+    private void OnEnable()
+    {
+        GameFlowManager.OnActChanged += IncrementMessageIndex;
+        ItemPickup.OnInteract += IncrementMessageIndex;
+    }
+
+    private void OnDisable()
+    {
+        GameFlowManager.OnActChanged -= IncrementMessageIndex;
+        ItemPickup.OnInteract -= IncrementMessageIndex;
+    }
 
     private void Awake()
     {
@@ -50,36 +55,44 @@ public class OuijaBoard : MonoBehaviour, IInteractable
 
     public string GetInteractPrompt(GameObject interactor)
     {
-        return _isOnCooldown ? string.Empty : "Presiona E para usar la ouija";
+        return "Presiona [E] para usar la ouija";
     }
 
     public void Interact(GameObject interactor)
     {
-        if (_isOnCooldown) return;
-        _useCount++;
-
-        if (_currentAct == 2)
-            HasUsedAct2Ouija = true;
-
-        if (_useCount == 1 && _ghostAppearance != null)
+        if (!_isOnCooldown)
         {
-            _isOnCooldown = true;
-            Vector3 spawnPos = interactor.transform.position + interactor.transform.forward * 3f;
-            spawnPos.y = interactor.transform.position.y;
+            //if (_currentAct == 2)
+            //    HasUsedAct2Ouija = true;
 
-            if (UnityEngine.AI.NavMesh.SamplePosition(spawnPos, out UnityEngine.AI.NavMeshHit hit, 3f, UnityEngine.AI.NavMesh.AllAreas))
+            if (_ghostAppearance != null)
             {
-                spawnPos = hit.position;
+                _isOnCooldown = true;
+
+                Vector3 spawnPos = interactor.transform.position + interactor.transform.forward * 3f;
+                spawnPos.y = interactor.transform.position.y;
+
+                if (UnityEngine.AI.NavMesh.SamplePosition(spawnPos, out UnityEngine.AI.NavMeshHit hit, 3f, UnityEngine.AI.NavMesh.AllAreas))
+                {
+                    spawnPos = hit.position;
+                }
+
+                _ghostAppearance.Appear(spawnPos);
             }
 
-            _ghostAppearance.Appear(spawnPos);
+            if (DialogueManager.Instance != null && _messageIndex < _actMessages.Count)
+                DialogueManager.Instance.ShowDialogue(_actMessages[_messageIndex]);
+
+            if (objectiveReporter != null) objectiveReporter.ReportObjective();
+            OnOuijaUse?.Invoke(_itemType);
         }
-
-        if (DialogueManager.Instance != null)
-            DialogueManager.Instance.ShowDialogue(GetCurrentMessage());
-
-        if (objectiveReporter != null) objectiveReporter.ReportObjective();
-        OnOuijaUse?.Invoke(_itemType);
+        else
+        {
+            if (DialogueManager.Instance != null && _messageIndex < _remindMessages.Count)
+            {
+                DialogueManager.Instance.ShowDialogue(_remindMessages[_remindMessageIndex]);
+            }
+        }
     }
 
     public void ResetCooldown()
@@ -87,50 +100,28 @@ public class OuijaBoard : MonoBehaviour, IInteractable
         _isOnCooldown = false;
     }
 
-    public void OnPatioKeyPickedUp()
+    private void IncrementMessageIndex(GameFlowManager.Act currentAct)
     {
-        _patioKeyPickedUp = true;
-        ResetCooldown();
+        _messageIndex++;
+        _remindMessageIndex++;
+
+        _isOnCooldown = false;
+
+        Debug.Log("Msj index" + _messageIndex);
+        Debug.Log("Remind msj" + _remindMessageIndex);
     }
 
-    public void OnWorkshopKeyPickedUp() 
-    { 
-
-    }
-
-
-    public void AdvanceToNextAct()
+    private void IncrementMessageIndex(PlayerInventory playerInventory, PlayerInventory.ItemType itemType)
     {
-        if (_currentAct < 4)
+        if (itemType == PlayerInventory.ItemType.WorkshopKey || itemType == PlayerInventory.ItemType.QuinchoKey || itemType == PlayerInventory.ItemType.PatioKey)
         {
-            _currentAct++;
-            _useCount = 0;
+            _messageIndex++;
+            _remindMessageIndex++;
 
-            if (_currentAct == 2 && _fireplaceLookAtDialogue != null)
-            {
-                _fireplaceLookAtDialogue.SetActive(true);
-            }
+            _isOnCooldown = false;
 
-            if (objectiveReporter != null) objectiveReporter.AllowUpdate();
-        }
-    }
-
-    private string GetCurrentMessage()
-    {
-        switch (_currentAct)
-        {
-            case 2:
-                if (_patioKeyPickedUp) return _act2TombMessage;
-                if (_useCount > 1) return _act2Reminder;
-                return _act2Message;
-            case 3:
-                if (_useCount > 1) return _act3Reminder;
-                return _act3Message;
-            //case 4:
-            //    if(_)
-            default:
-                if (_useCount > 1) return _act1Reminder;
-                return _act1Message;
+            Debug.Log("Msj index" + _messageIndex);
+            Debug.Log("Remind msj" + _remindMessageIndex);
         }
     }
 }
