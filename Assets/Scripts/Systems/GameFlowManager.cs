@@ -19,6 +19,10 @@ public class GameFlowManager : MonoBehaviour
     private bool _introNoteRead = false;
     private bool _introHasLighter = false;
 
+    [Header("Condiciones de Acto Final (Acto 3)")]
+    private bool _finalNoteRead = false;
+    private bool _personalDiaryRead = false;
+
 
 
     private bool _hasOfficeKey = false;
@@ -48,6 +52,12 @@ public class GameFlowManager : MonoBehaviour
 
     private void HandleItemCollected(PlayerInventory.ItemType item)
     {
+        // --- ÍTEMS DEL ACTO 0 (INTRO) ---
+        if (item == PlayerInventory.ItemType.Flashlight) _introHasFlashlight = true;
+        if (item == PlayerInventory.ItemType.Lighter) _introHasLighter = true;
+        if (item == PlayerInventory.ItemType.MansionKey) _introHasKey = true; 
+
+        // --- ÍTEMS DE ACTOS AVANZADOS ---
         if (item == PlayerInventory.ItemType.OfficeKey) _hasOfficeKey = true;
         if (item == PlayerInventory.ItemType.Bottle) _hasBottle = true;
         if (item == PlayerInventory.ItemType.OuijaBoard) _hasUsedOuija = true;
@@ -70,7 +80,7 @@ public class GameFlowManager : MonoBehaviour
         switch (CurrentAct)
         {
             case Act.Introduction:
-                if (_hasCheckedCar)
+                if (_introHasFlashlight && _introHasKey && _introNoteRead && _introHasLighter)
                 {
                     AdvanceToAct(Act.Act1_GroundFloor);
                 }
@@ -133,5 +143,23 @@ public class GameFlowManager : MonoBehaviour
         OnActChanged?.Invoke(CurrentAct);
 
         Debug.Log($"<color=cyan><b>GAME FLOW: Avanzando al {newAct} y asignando misión inicial.</b></color>");
+    }
+
+    public void NotifyIntroNoteRead()
+    {
+        _introNoteRead = true;
+        EvaluateProgression();
+    }
+
+    public void NotifyFinalNoteRead()
+    {
+        _finalNoteRead = true;
+        EvaluateProgression();
+    }
+
+    public void NotifyPersonalDiaryRead()
+    {
+        _personalDiaryRead = true;
+        EvaluateProgression();
     }
 }
