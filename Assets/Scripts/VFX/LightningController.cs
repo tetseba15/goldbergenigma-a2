@@ -6,20 +6,22 @@ public class LightningController : MonoBehaviour
     [Header("Referencias")]
     [SerializeField] private Light _lightningLight;
     [SerializeField] private AudioClip[] _thunderClips;
+    [SerializeField, Tooltip("Arrastra aquí el GameObject o sistema de partículas de la lluvia")]
+    private GameObject _rainObject; 
 
     [Header("Configuración del Relámpago")]
     [SerializeField, Tooltip("Tiempo exacto para el PRIMER relámpago")]
-    private float _firstStrikeDelay = 3f; 
+    private float _firstStrikeDelay = 3f;
     [SerializeField] private float _minTimeBetweenStrikes = 5f;
     [SerializeField] private float _maxTimeBetweenStrikes = 15f;
     [SerializeField] private float _maxIntensity = 5f;
     [SerializeField] private float _baseIntensity = 0f;
 
     [Header("Retraso del Sonido")]
-    [SerializeField, Tooltip("Velocidad a la que viaja el sonido para simular distancia")]
-    private float _soundDelayMultiplier = 0.5f;
+    [SerializeField] private float _soundDelayMultiplier = 0.5f;
 
     private Coroutine _lightningRoutine;
+    private bool _isStormActive = true; 
 
     private void Start()
     {
@@ -34,6 +36,8 @@ public class LightningController : MonoBehaviour
 
     private void StartNextStrike()
     {
+        if (!_isStormActive) return;
+
         float waitTime = Random.Range(_minTimeBetweenStrikes, _maxTimeBetweenStrikes);
         _lightningRoutine = StartCoroutine(LightningRoutine(waitTime));
     }
@@ -68,7 +72,27 @@ public class LightningController : MonoBehaviour
             AudioManager.Instance.PlaySFX(clip, Random.Range(0.3f, 0.4f));
         }
 
-
         StartNextStrike();
+    }
+
+    public void StopStorm()
+    {
+        _isStormActive = false;
+
+        if (_lightningRoutine != null)
+        {
+            StopCoroutine(_lightningRoutine);
+        }
+
+        if (_lightningLight != null)
+        {
+            _lightningLight.enabled = false;
+            _lightningLight.intensity = _baseIntensity;
+        }
+
+        if (_rainObject != null)
+        {
+            _rainObject.SetActive(false);
+        }
     }
 }

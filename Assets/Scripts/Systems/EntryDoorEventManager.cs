@@ -2,8 +2,9 @@ using UnityEngine;
 
 public class EntryDoorEventManager : MonoBehaviour
 {
-    [Header("Puerta a Controlar")]
+    [Header("Referencias")]
     [SerializeField] private InteractableDoor _entryDoor;
+    [SerializeField] private LightningController _lightningController; // <--- Nueva referencia
 
     private void OnEnable()
     {
@@ -22,6 +23,11 @@ public class EntryDoorEventManager : MonoBehaviour
             if (_entryDoor != null)
             {
                 _entryDoor.ForceSlamShutAndLock();
+            }
+
+            if (_lightningController != null)
+            {
+                _lightningController.StopStorm();
             }
         }
     }
