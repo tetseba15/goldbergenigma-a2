@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class HudItem : MonoBehaviour
 {
@@ -11,11 +10,6 @@ public class HudItem : MonoBehaviour
     {
         canvasGroup = GetComponent<CanvasGroup>();
         canvasGroup.alpha = 0f;
-    }
-
-    private void Start()
-    {
-        Debug.Log("Bottle alpha: " + canvasGroup.alpha);
     }
 
     private void OnEnable()

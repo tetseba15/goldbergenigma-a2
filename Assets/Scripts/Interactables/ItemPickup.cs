@@ -1,7 +1,5 @@
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class ItemPickup : MonoBehaviour, IInteractable
 {
@@ -32,8 +30,6 @@ public class ItemPickup : MonoBehaviour, IInteractable
 
     public void Interact(GameObject interactor)
     {
-        OuijaBoard ouija = OuijaBoard.Instance;
-
         PlayerInventory inventory = interactor.GetComponent<PlayerInventory>();
         if (inventory != null)
         {
