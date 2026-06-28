@@ -25,7 +25,6 @@ public class OuijaBoard : MonoBehaviour, IInteractable
     private bool _isOnCooldown = false;
 
     private ObjectiveReporter objectiveReporter;
-    public bool HasUsedAct2Ouija { get; private set; } = false; // REVISAR
     public static OuijaBoard Instance { get; private set; }
 
     public static event Action<PlayerInventory.ItemType> OnOuijaUse;
