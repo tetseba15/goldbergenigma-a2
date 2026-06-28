@@ -9,10 +9,6 @@ public class ItemPickup : MonoBehaviour, IInteractable
     [SerializeField] private string _promptText = "Recoger objeto";
     [SerializeField] private AudioClip _pickUpClip;
 
-    [Header("Requiere Ouija")]
-    [SerializeField] private bool _requiresOuijaAct = false;
-    [SerializeField] private bool _requiresAct2Ouija = false;
-
     [Header("Dialogo al recoger")]
     [SerializeField] private bool _hasPickupDialogue = false;
     [SerializeField, TextArea(2, 5)] private string _pickupDialogue;
@@ -31,23 +27,12 @@ public class ItemPickup : MonoBehaviour, IInteractable
 
     public string GetInteractPrompt(GameObject interactor)
     {
-        if (_requiresAct2Ouija)
-        {
-            OuijaBoard ouija = OuijaBoard.Instance;
-            if (ouija != null && !ouija.HasUsedAct2Ouija)
-                return string.Empty;
-        }
         return _promptText;
     }
 
     public void Interact(GameObject interactor)
     {
         OuijaBoard ouija = OuijaBoard.Instance;
-
-        if (_requiresAct2Ouija)
-        {
-            if (ouija != null && !ouija.HasUsedAct2Ouija) return;
-        }
 
         PlayerInventory inventory = interactor.GetComponent<PlayerInventory>();
         if (inventory != null)
