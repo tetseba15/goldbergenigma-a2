@@ -38,14 +38,14 @@ public class GameFlowManager : MonoBehaviour
 
     private void OnEnable()
     {
-        OuijaBoard.OnOuijaUse += HandleItemCollected;
+        OuijaBoard.OnOuijaUse += HandleOuijaUse;
         PlayerInventory.OnItemCollected += HandleItemCollected;
         ObjectiveManager.OnObjectiveCompleted += HandleObjectiveCompleted;
     }
 
     private void OnDisable()
     {
-        OuijaBoard.OnOuijaUse -= HandleItemCollected;
+        OuijaBoard.OnOuijaUse -= HandleOuijaUse;
         PlayerInventory.OnItemCollected -= HandleItemCollected;
         ObjectiveManager.OnObjectiveCompleted -= HandleObjectiveCompleted;
     }
@@ -62,9 +62,13 @@ public class GameFlowManager : MonoBehaviour
         if (item == PlayerInventory.ItemType.WorkshopKey) _hasWorkshopKey = true;
         if (item == PlayerInventory.ItemType.Bottle) _hasBottle = true;
         if (item == PlayerInventory.ItemType.Cross) _hasCross = true;
-        if (item == PlayerInventory.ItemType.OuijaBoard) _hasUsedOuija = true;
 
         EvaluateProgression();
+    }
+
+    private void HandleOuijaUse(OuijaBoard.OuijaInfo ouijaInfo)
+    {
+        if (ouijaInfo.ItemType == PlayerInventory.ItemType.OuijaBoard) _hasUsedOuija = true;
     }
 
     private void HandleObjectiveCompleted(ObjectiveManager.ObjectiveId objective)

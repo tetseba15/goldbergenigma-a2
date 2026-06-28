@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class OuijaBoard : MonoBehaviour, IInteractable
 {
-    [SerializeField] private GhostAppearance _ghostAppearance;
-
     [Header("Item Type")]
     [SerializeField] private PlayerInventory.ItemType _itemType;
 
@@ -15,8 +13,11 @@ public class OuijaBoard : MonoBehaviour, IInteractable
     [Header("Mensajes de recordatorio")]
     [SerializeField] private List<string> _remindMessages;
 
-    [Header("Referencias de escena")]
-    [SerializeField] private GameObject _fireplaceLookAtDialogue;
+    public class OuijaInfo
+    {
+        public PlayerInventory.ItemType ItemType;
+        public Vector3 Position;
+    }
 
     // -1 porque en la introducción no se usa la Ouija
     private int _messageIndex = -1;
@@ -27,7 +28,7 @@ public class OuijaBoard : MonoBehaviour, IInteractable
     private ObjectiveReporter objectiveReporter;
     public static OuijaBoard Instance { get; private set; }
 
-    public static event Action<PlayerInventory.ItemType> OnOuijaUse;
+    public static event Action<OuijaInfo> OnOuijaUse;
 
     private void OnEnable()
     {
@@ -67,25 +68,24 @@ public class OuijaBoard : MonoBehaviour, IInteractable
                 if (GameFlowManager.Instance.CurrentAct == GameFlowManager.Act.Epilogue) objectiveReporter.ReportObjective(); Debug.Log("Epilogo reporter");
             }
 
-            if (_ghostAppearance != null)
+            _isOnCooldown = true;
+
+            Vector3 spawnPos = interactor.transform.position + interactor.transform.forward * 3f;
+            spawnPos.y = interactor.transform.position.y;
+
+            if (UnityEngine.AI.NavMesh.SamplePosition(spawnPos, out UnityEngine.AI.NavMeshHit hit, 3f, UnityEngine.AI.NavMesh.AllAreas))
             {
-                _isOnCooldown = true;
-
-                Vector3 spawnPos = interactor.transform.position + interactor.transform.forward * 3f;
-                spawnPos.y = interactor.transform.position.y;
-
-                if (UnityEngine.AI.NavMesh.SamplePosition(spawnPos, out UnityEngine.AI.NavMeshHit hit, 3f, UnityEngine.AI.NavMesh.AllAreas))
-                {
-                    spawnPos = hit.position;
-                }
-
-                _ghostAppearance.Appear(spawnPos);
+                spawnPos = hit.position;
             }
 
             if (DialogueManager.Instance != null && _messageIndex < _actMessages.Count)
                 DialogueManager.Instance.ShowDialogue(_actMessages[_messageIndex]);
 
-            OnOuijaUse?.Invoke(_itemType);
+            OnOuijaUse?.Invoke(new OuijaInfo
+            {
+                ItemType = _itemType,
+                Position = spawnPos
+            });
         }
         else
         {

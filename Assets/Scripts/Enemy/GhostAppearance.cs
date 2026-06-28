@@ -1,6 +1,6 @@
-using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class GhostAppearance : MonoBehaviour
 {
@@ -29,6 +29,7 @@ public class GhostAppearance : MonoBehaviour
     private void OnEnable()
     {
         GenericEventsTrigger.OnTriggerEvent += Appear;
+        OuijaBoard.OnOuijaUse += Appear;
     }
 
     private void OnDisable()
@@ -47,24 +48,20 @@ public class GhostAppearance : MonoBehaviour
         }
     }
 
-    //private void Update()
-    //{
-    //    Debug.Log("Estoy en " + transform.position);
-    //}
-
-    public void Appear(GenericEventsTrigger.GameEventType gameEventType) 
+    private void Appear(GenericEventsTrigger.GameEventType gameEventType)
     {
-        //Debug.Log("Intente aparecer " + transform.position);
         if (_positionIndex >= _settedPositions.Count || gameEventType != _gameEventType) return;
 
-        Appear(_settedPositions[_positionIndex].transform.position);
+        AppearByPosition(_settedPositions[_positionIndex].transform.position);
         _positionIndex++;
-
-        //Debug.Log("aparecí en " + transform.position);
-
     }
 
-    public void Appear(Vector3 position)
+    private void Appear(OuijaBoard.OuijaInfo ouijaInfo)
+    {
+        AppearByPosition(ouijaInfo.Position);
+    }
+
+    private void AppearByPosition(Vector3 position)
     {
         if (_ghostModel == null) return;
         if (_disappearCoroutine != null)

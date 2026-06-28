@@ -37,9 +37,9 @@ public class ProgressHintManager : MonoBehaviour
         }
     }
 
-    private void InteractedWithOuija(PlayerInventory.ItemType item)
+    private void InteractedWithOuija(OuijaBoard.OuijaInfo ouijaInfo)
     {
-        if (item.Equals(PlayerInventory.ItemType.OuijaBoard))
+        if (ouijaInfo.ItemType.Equals(PlayerInventory.ItemType.OuijaBoard))
         {
             interactedWithOuija = true;
         }
