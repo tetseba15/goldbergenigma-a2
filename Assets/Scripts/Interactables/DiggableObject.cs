@@ -16,6 +16,10 @@ public class DiggableObject : MonoBehaviour, IInteractable
     [SerializeField, Tooltip("Diálogo a activar (Dejar vacío si es la tumba)")]
     private GameObject _dialogueToEnable;
 
+    [Header("Posición offset")]
+    [SerializeField] private Vector3 _keyPositionOffset;
+    [SerializeField] private Vector3 _notePositionOffset;
+
     [Header("Audio")]
     [SerializeField] private AudioClip _shovelSound;
     [SerializeField] private AudioClip _keySpawnSound;
@@ -69,12 +73,12 @@ public class DiggableObject : MonoBehaviour, IInteractable
 
         if (_notePrefab != null)
         {
-            Instantiate(_notePrefab, transform.position + new Vector3(0f, 0.1f, 0f), Quaternion.identity);
+            Instantiate(_notePrefab, transform.position + _notePositionOffset, Quaternion.identity);
         }
 
         if (_keyPrefab != null)
         {
-            Instantiate(_keyPrefab, transform.position + new Vector3(0f, 0.3f, 0f), Quaternion.identity);
+            Instantiate(_keyPrefab, transform.position + _keyPositionOffset, Quaternion.identity);
             if (_keySpawnSound != null && AudioManager.Instance != null)
             {
                 AudioManager.Instance.PlaySFXAtPosition(_keySpawnSound, transform.position, 1f, 1f);
