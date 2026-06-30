@@ -159,8 +159,8 @@ TextureImporter:
   assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
-  productId: 351846
-  packageName: Rain Particles
+  productId: 351840
+  packageName: Fog Particles
   packageVersion: 1.0.0
-  assetPath: Assets/Rain Particles/Textures/Snow.png
-  uploadId: 849958
+  assetPath: Assets/DownloadedAssets/Rain Particles/Textures/Snow.png
+  uploadId: 856314
