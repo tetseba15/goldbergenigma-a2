@@ -35,6 +35,7 @@ public class GhostAppearance : MonoBehaviour
     private void OnDisable()
     {
         GenericEventsTrigger.OnTriggerEvent -= Appear;
+        OuijaBoard.OnOuijaUse -= Appear;
     }
 
     private void Awake()
@@ -75,7 +76,6 @@ public class GhostAppearance : MonoBehaviour
         if (directionToCamera != Vector3.zero)
             _ghostModel.transform.rotation = Quaternion.LookRotation(directionToCamera);
 
-        //_ghostModel.SetActive(true);
         _meshRenderer.enabled = true;
         EnemyAI.TriggerRoar(_roarDuration, _roarDuration);
         _disappearCoroutine = StartCoroutine(DisappearAfterDelay());
@@ -84,9 +84,6 @@ public class GhostAppearance : MonoBehaviour
     private IEnumerator DisappearAfterDelay()
     {
         yield return new WaitForSeconds(_appearDuration);
-        //_ghostModel.SetActive(false);
         _meshRenderer.enabled = false;
-
-        OuijaBoard ouija = FindObjectOfType<OuijaBoard>();
     }
 }

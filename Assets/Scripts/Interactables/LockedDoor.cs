@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
 public class LockedDoor : MonoBehaviour, IInteractable
 {
@@ -28,6 +29,8 @@ public class LockedDoor : MonoBehaviour, IInteractable
 
     private Animator _animator;
     private bool _isAnimating = false;
+
+    public static Action OnOpenDoor;
 
     private void Awake()
     {
@@ -62,6 +65,7 @@ public class LockedDoor : MonoBehaviour, IInteractable
         if (_isUnlocked)
         {
             StartCoroutine(DoorAnimationRoutine());
+            OnOpenDoor?.Invoke();
             return;
         }
 
@@ -96,7 +100,7 @@ public class LockedDoor : MonoBehaviour, IInteractable
             // REPRODUCIR SONIDO AL ABRIR
             if (_openDoorSound != null)
             {
-                AudioManager.Instance.PlaySFXAtPosition(_openDoorSound, transform.position, 1f, Random.Range(0.95f, 1.05f));
+                AudioManager.Instance.PlaySFXAtPosition(_openDoorSound, transform.position, 1f, UnityEngine.Random.Range(0.95f, 1.05f));
             }
 
         }
@@ -107,7 +111,7 @@ public class LockedDoor : MonoBehaviour, IInteractable
             // REPRODUCIR SONIDO AL CERRAR
             if (_closeDoorSound != null)
             {
-                AudioManager.Instance.PlaySFXAtPosition(_closeDoorSound, transform.position, 1f, Random.Range(0.95f, 1.05f));
+                AudioManager.Instance.PlaySFXAtPosition(_closeDoorSound, transform.position, 1f, UnityEngine.Random.Range(0.95f, 1.05f));
 
             }
 
