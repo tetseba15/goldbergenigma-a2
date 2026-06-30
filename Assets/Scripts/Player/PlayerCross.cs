@@ -45,6 +45,21 @@ public class CrossController : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        InteractableDoor.OnUnlocked += UseCross;
+    }
+
+    private void OnDisable()
+    {
+        InteractableDoor.OnUnlocked -= UseCross;
+    }
+
+    private void UseCross(PlayerInventory.ItemType itemType)
+    {
+        if (itemType == PlayerInventory.ItemType.Cross) StartCoroutine(UseCrossRoutine());
+    }
+
     private IEnumerator UseCrossRoutine()
     {
         _isUsing = true;

@@ -4,6 +4,7 @@ using UnityEngine;
 public class InteractableDoor : MonoBehaviour, IInteractable
 {
     public event System.Action OnNarrativeLockHit;
+    public static System.Action<PlayerInventory.ItemType> OnUnlocked;
 
     [Header("References")]
     [SerializeField] private Rigidbody _doorRigidbody;
@@ -194,6 +195,8 @@ public class InteractableDoor : MonoBehaviour, IInteractable
             _isLocked = false;
             _hingeJoint.limits = _originalLimits;
             AudioManager.Instance.PlaySFXAtPosition(_unlockSound, transform.position, 1f, 1f);
+
+            OnUnlocked?.Invoke(_requiredKey);
         }
         else
         {
