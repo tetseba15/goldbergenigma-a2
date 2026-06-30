@@ -28,6 +28,8 @@ public class ObjectiveManager : MonoBehaviour
 
     public static ObjectiveManager Instance { get; private set; }
 
+    [SerializeField] private AudioClip _noteClip;
+
     //Events
     public static event Action<string> OnObjectiveUpdated;
 
@@ -138,6 +140,7 @@ public class ObjectiveManager : MonoBehaviour
             formattedText = "Nada por ahora...";
         }
 
+        if (_noteClip != null) AudioManager.Instance.PlaySFX(_noteClip);
         OnObjectiveUpdated?.Invoke(formattedText);
     }
 
