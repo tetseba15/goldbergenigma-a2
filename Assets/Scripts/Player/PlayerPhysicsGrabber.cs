@@ -67,14 +67,14 @@ public class PlayerPhysicsGrabber : MonoBehaviour
             _currentGrabbedObject = _hoveredObject;
             _currentGrabbedObject.OnGrabStart(gameObject);
 
-            // Opcional: Ocultar el prompt de texto mientras arrastramos
+            // Hide prompt: WILL BE UPDATED TO AN ICON
             if (UIManager.Instance != null) UIManager.Instance.HideInteractPrompt();
         }
 
         // hold grab
         else if (_inputHandler.IsPhysicsGrabbing && _currentGrabbedObject != null)
         {
-            _currentGrabbedObject.OnGrabUpdate(_inputHandler.LookInput);
+            _currentGrabbedObject.OnGrabUpdate(_inputHandler.RawLookInput);
         }
 
         // release

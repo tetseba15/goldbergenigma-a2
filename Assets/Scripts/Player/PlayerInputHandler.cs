@@ -14,6 +14,7 @@ public class PlayerInputHandler : MonoBehaviour
 
     public Vector2 MoveInput { get; private set; }
     public Vector2 LookInput { get; private set; }
+    public Vector2 RawLookInput { get; private set; }
 
     public bool IsGamepad { get; private set; }
 
@@ -104,13 +105,20 @@ public class PlayerInputHandler : MonoBehaviour
 
         var lookAction = _inputActions.Gameplay.Look;
 
+        RawLookInput = lookAction.ReadValue<Vector2>();
+
+        if (lookAction.activeControl != null)
+        {
+            IsGamepad = lookAction.activeControl.device is Gamepad;
+        }
+
         if (IsPhysicsGrabbing)
         {
-            LookInput = Vector2.zero;
+            LookInput = Vector2.zero; 
         }
         else
         {
-            LookInput = lookAction.ReadValue<Vector2>();
+            LookInput = RawLookInput; 
         }
 
         if (lookAction.activeControl != null)
