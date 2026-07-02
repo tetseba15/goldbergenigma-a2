@@ -20,6 +20,7 @@ public class PlayerInputHandler : MonoBehaviour
     public bool IsSprinting { get; private set; }
     public bool IsCrouching { get; private set; }
     public bool IsInteracting { get; private set; }
+    public bool IsPhysicsGrabbing { get; private set; }
     public bool IsInspectingFlashlight { get; private set; }
     public bool CancelInput { get; private set; }
     public bool FlashlightInput { get; private set; }
@@ -71,6 +72,10 @@ public class PlayerInputHandler : MonoBehaviour
             OnInteractTriggered?.Invoke(); 
         };
 
+        _inputActions.Gameplay.Pause.performed += ctx => OnPauseTriggered?.Invoke();
+
+        _inputActions.UI.Cancel.performed += ctx => OnResumeTriggered?.Invoke();
+
         _inputActions.Gameplay.Interact.canceled += ctx => IsInteracting = false;
 
         _inputActions.Gameplay.Crouch.performed += ctx => IsCrouching = true;
@@ -79,9 +84,8 @@ public class PlayerInputHandler : MonoBehaviour
         _inputActions.Gameplay.InspectFlashlight.performed += ctx => IsInspectingFlashlight= true;
         _inputActions.Gameplay.InspectFlashlight.canceled += ctx => IsInspectingFlashlight = false;
 
-        _inputActions.Gameplay.Pause.performed += ctx => OnPauseTriggered?.Invoke();
-
-        _inputActions.UI.Cancel.performed += ctx => OnResumeTriggered?.Invoke();
+        _inputActions.Gameplay.PhysicsGrab.performed += ctx => IsPhysicsGrabbing = true;
+        _inputActions.Gameplay.PhysicsGrab.canceled += ctx => IsPhysicsGrabbing = false;
     }
 
     private void OnEnable()
@@ -99,9 +103,17 @@ public class PlayerInputHandler : MonoBehaviour
         MoveInput = _inputActions.Gameplay.Move.ReadValue<Vector2>();
 
         var lookAction = _inputActions.Gameplay.Look;
-        LookInput = lookAction.ReadValue<Vector2>();
 
-        if(lookAction.activeControl != null)
+        if (IsPhysicsGrabbing)
+        {
+            LookInput = Vector2.zero;
+        }
+        else
+        {
+            LookInput = lookAction.ReadValue<Vector2>();
+        }
+
+        if (lookAction.activeControl != null)
         {
             IsGamepad = lookAction.activeControl.device is Gamepad;
         }

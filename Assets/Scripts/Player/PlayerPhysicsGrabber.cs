@@ -1,47 +1,87 @@
 using UnityEngine;
 
+[RequireComponent(typeof(PlayerInputHandler))]
 public class PlayerPhysicsGrabber : MonoBehaviour
 {
     [Header("Referencias")]
-    [SerializeField] private PlayerInputHandler _inputHandler;
     [SerializeField] private Camera _mainCamera;
 
     [Header("Configuración")]
     [SerializeField] private float _reachDistance = 2.5f;
-    [SerializeField] private LayerMask _interactableLayer;
+    [SerializeField] private LayerMask _interactableMask;
 
+    private PlayerInputHandler _inputHandler;
     private IPhysicsInteractable _currentGrabbedObject;
+    private IPhysicsInteractable _hoveredObject; 
+    private string _lastPromptMessage = string.Empty;
+
+    private void Awake()
+    {
+        _inputHandler = GetComponent<PlayerInputHandler>();
+    }
 
     private void Update()
     {
-        if (_inputHandler.IsInteracting && _currentGrabbedObject == null)
+        HandleHover();
+
+        HandleGrabbing();
+    }
+
+    private void HandleHover()
+    {
+        if (_currentGrabbedObject != null) return;
+
+        Ray ray = new Ray(_mainCamera.transform.position, _mainCamera.transform.forward);
+
+        if (Physics.Raycast(ray, out RaycastHit hitInfo, _reachDistance, _interactableMask))
         {
-            TryGrabObject();
+            IPhysicsInteractable interactable = hitInfo.collider.GetComponentInParent<IPhysicsInteractable>();
+
+            if (interactable != null)
+            {
+                _hoveredObject = interactable;
+                string currentPrompt = interactable.GetInteractPrompt(gameObject);
+
+                if (_lastPromptMessage != currentPrompt && UIManager.Instance != null)
+                {
+                    UIManager.Instance.ShowInteractPrompt(currentPrompt); 
+                    _lastPromptMessage = currentPrompt;
+                }
+                return;
+            }
         }
 
-        else if (_inputHandler.IsInteracting && _currentGrabbedObject != null)
+        if (_hoveredObject != null)
+        {
+            _hoveredObject = null;
+            _lastPromptMessage = string.Empty;
+            if (UIManager.Instance != null) UIManager.Instance.HideInteractPrompt();
+        }
+    }
+
+    private void HandleGrabbing()
+    {
+        // Start grab
+        if (_inputHandler.IsPhysicsGrabbing && _currentGrabbedObject == null && _hoveredObject != null)
+        {
+            _currentGrabbedObject = _hoveredObject;
+            _currentGrabbedObject.OnGrabStart(gameObject);
+
+            // Opcional: Ocultar el prompt de texto mientras arrastramos
+            if (UIManager.Instance != null) UIManager.Instance.HideInteractPrompt();
+        }
+
+        // hold grab
+        else if (_inputHandler.IsPhysicsGrabbing && _currentGrabbedObject != null)
         {
             _currentGrabbedObject.OnGrabUpdate(_inputHandler.LookInput);
         }
 
-        else if (!_inputHandler.IsInteracting && _currentGrabbedObject != null)
+        // release
+        else if (!_inputHandler.IsPhysicsGrabbing && _currentGrabbedObject != null)
         {
             _currentGrabbedObject.OnGrabEnd();
             _currentGrabbedObject = null;
-        }
-    }
-
-    private void TryGrabObject()
-    {
-        Ray ray = _mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        if (Physics.Raycast(ray, out RaycastHit hit, _reachDistance, _interactableLayer))
-        {
-            IPhysicsInteractable interactable = hit.collider.GetComponent<IPhysicsInteractable>();
-            if (interactable != null)
-            {
-                _currentGrabbedObject = interactable;
-                _currentGrabbedObject.OnGrabStart(gameObject);
-            }
         }
     }
 }

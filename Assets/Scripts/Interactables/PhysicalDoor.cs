@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody), typeof(HingeJoint))]
+
 public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
 {
     [Header("Referencias Físicas")]
