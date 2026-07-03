@@ -59,7 +59,7 @@ public class BloodBath : MonoBehaviour
             _blood.transform.localPosition = bloodPosition;
         }
 
-        if (bloodPosition.z >= _zmax)
+        if (bloodPosition.z >= _zmax && !_bloodParticles.isStopped)
         {
             _bloodParticles.Stop();
             AudioManager.Instance.StopSFXAtPosition(_sourcePosition.transform.position);
