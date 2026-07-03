@@ -29,10 +29,11 @@ public class LookAtDialogue : MonoBehaviour
         if (cam == null) return;
 
         directionToPlayer = (cam.transform.position - transform.position).normalized;
-        float distance = Vector3.Distance(cam.transform.position, transform.position);
-        //float angle = Vector3.Angle(cam.transform.forward, directionToPlayer);
+        float angle = Vector3.Angle(cam.transform.forward, transform.position - cam.transform.position);
 
-        if (Physics.Raycast(transform.position, directionToPlayer, out hit, _detectionDistance, LayerMask.GetMask("Player", "Obstacle")) && hit.collider.CompareTag("Player"))
+        if (gameObject.name == "Monalisa") Debug.Log("Angulo: " + angle);
+
+        if (Physics.Raycast(transform.position, directionToPlayer, out hit, _detectionDistance, LayerMask.GetMask("Player", "Obstacle")) && hit.collider.CompareTag("Player") && angle <= _detectionAngle)
         {
             _triggered = true;
             DialogueManager.Instance.ShowDialogue(_dialogue, _pensamientoVozClip);
