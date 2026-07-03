@@ -29,7 +29,7 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
         if (_doorRb == null) _doorRb = GetComponent<Rigidbody>();
         if (_hingeJoint == null) _hingeJoint = GetComponent<HingeJoint>();
 
-        // Hacemos que la puerta sea ligeramente pesada para que no vuele con el mouse
+        
         _doorRb.linearDamping = 2f;
         _doorRb.angularDamping = 5f;
     }
@@ -72,18 +72,30 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
 
     // --- Sprint logic ---
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider other)
     {
-        if (collision.gameObject.CompareTag("Player") && !_isLocked)
+        if (other.CompareTag("Player") && !_isLocked)
         {
-            PlayerInputHandler playerInput = collision.gameObject.GetComponent<PlayerInputHandler>();
+            Debug.Log("Choque con el player");
+
+            PlayerInputHandler playerInput = other.GetComponent<PlayerInputHandler>();
 
             if (playerInput != null && playerInput.IsSprinting)
             {
-                Vector3 pushDir = collision.contacts[0].normal * -1f;
-                _doorRb.AddForceAtPosition(pushDir * _sprintBustForce, collision.contacts[0].point, ForceMode.Impulse);
+                Vector3 pushDir = other.transform.forward;
+                pushDir.y = 0f;
+                pushDir.Normalize();
 
-                AudioManager.Instance.PlaySFXAtPosition(_slamSound, transform.position, .45f);
+                _doorRb.AddForce(pushDir * _sprintBustForce, ForceMode.Impulse);
+
+                Debug.Log("Aplique fuerza");
+
+
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlaySFXAtPosition(_slamSound, transform.position, 1.2f, Random.Range(0.9f, 1.1f));
+                    NoiseManager.EmitNoise(transform.position, 15f); 
+                }
             }
         }
     }
