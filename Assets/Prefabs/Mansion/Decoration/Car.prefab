@@ -1858,7 +1858,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3191413775230500741}
   - component: {fileID: 2054384692934546338}
-  - component: {fileID: 2559532192814043605}
   - component: {fileID: 7948646098732162539}
   m_Layer: 7
   m_Name: Radio
@@ -1988,20 +1987,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &2559532192814043605
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7080126310720880354}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c709046214ef90439553a556c7fec87, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SoundsCar
-  audioSourceRadio: {fileID: 2054384692934546338}
-  radioClip: {fileID: 8300000, guid: 987fdd382b6df554f88a5dd3fcb0deaf, type: 3}
 --- !u!65 &7948646098732162539
 BoxCollider:
   m_ObjectHideFlags: 0

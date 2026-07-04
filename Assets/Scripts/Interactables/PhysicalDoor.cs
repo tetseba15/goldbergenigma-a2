@@ -15,6 +15,11 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
 
     [Header("Configuración de Sprint (Bust Open)")]
     [SerializeField] private float _sprintBustForce = 150f;
+    [SerializeField, Tooltip("Solo se puede patear si la puerta está abierta menos de estos grados")]
+    private float _maxBustAngle = 35f; 
+
+    private float _lastBustTime = 0f;
+    private float _bustCooldown = 1f;
 
     [Header("Audio")]
     [SerializeField] private AudioClip _lockedRattleSound;
@@ -75,12 +80,14 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
 
     public void TryBustOpen(Collider other)
     {
-        // Si entra el jugador y la puerta no tiene llave
+        if (Time.time < _lastBustTime + _bustCooldown) return;
+
+        if (Mathf.Abs(_hingeJoint.angle) > _maxBustAngle) return;
+
         if (other.CompareTag("Player") && !_isLocked)
         {
             PlayerInputHandler playerInput = other.GetComponent<PlayerInputHandler>();
 
-            // Verificamos si viene corriendo
             if (playerInput != null && playerInput.IsSprinting)
             {
                 Vector3 pushDir = other.transform.forward;
@@ -88,6 +95,8 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
                 pushDir.Normalize();
 
                 _doorRb.AddForce(pushDir * _sprintBustForce, ForceMode.Impulse);
+
+                _lastBustTime = Time.time;
 
                 if (AudioManager.Instance != null)
                 {
