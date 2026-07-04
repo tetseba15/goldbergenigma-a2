@@ -54,6 +54,8 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
 
     private AudioSource _borrowedCreakSource;
 
+    private float _savedAudioTime = 0f;
+
     // --- TIMERS ---
     private float _lastBustTime = 0f;
     private float _bustCooldown = 1f;
@@ -154,9 +156,10 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
     {
         if (_isLocked) return;
 
-        float currentSpeed = Mathf.Abs(_hingeJoint.velocity);
+        float currentVelocity = _hingeJoint.velocity;
+        float absSpeed = Mathf.Abs(currentVelocity);
 
-        if (currentSpeed > 1f)
+        if (absSpeed > 1f)
         {
             if (_borrowedCreakSource == null)
             {
@@ -167,34 +170,56 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
                     _borrowedCreakSource.transform.position = transform.position;
                     _borrowedCreakSource.transform.SetParent(transform);
                     _borrowedCreakSource.clip = _creakSound;
+
                     _borrowedCreakSource.loop = true;
                     _borrowedCreakSource.spatialBlend = 1f;
-                    _borrowedCreakSource.volume = 0f;
+                    _borrowedCreakSource.volume = 0f; 
+
+                    _borrowedCreakSource.time = _savedAudioTime;
+
                     _borrowedCreakSource.Play();
                 }
             }
 
             if (_borrowedCreakSource != null)
             {
-                float speedPercent = Mathf.Clamp01(currentSpeed / _speedForMaxVolume);
+                float speedPercent = Mathf.Clamp01(absSpeed / _speedForMaxVolume);
 
                 float targetVolume = speedPercent > 0.05f ? speedPercent : 0f;
                 _borrowedCreakSource.volume = Mathf.Lerp(_borrowedCreakSource.volume, targetVolume, Time.deltaTime * 15f);
 
                 float targetPitch = Mathf.Lerp(_minPitch, _maxPitch, speedPercent);
-                _borrowedCreakSource.pitch = Mathf.Lerp(_borrowedCreakSource.pitch, targetPitch, Time.deltaTime * 5f);
+
+                
+                if (currentVelocity < 0)
+                {
+                    targetPitch *= -1f;
+                }
+
+                _borrowedCreakSource.pitch = Mathf.Lerp(_borrowedCreakSource.pitch, targetPitch, Time.deltaTime * 10f);
             }
         }
         else
         {
-            ReturnCreakSourceIfNeeded();
+            if (_borrowedCreakSource != null)
+            {
+                _borrowedCreakSource.volume = Mathf.Lerp(_borrowedCreakSource.volume, 0f, Time.deltaTime * 15f);
+
+                if (_borrowedCreakSource.volume <= 0.01f)
+                {
+                    ReturnCreakSourceIfNeeded();
+                }
+            }
         }
     }
+
 
     private void ReturnCreakSourceIfNeeded()
     {
         if (_borrowedCreakSource != null)
         {
+            _savedAudioTime = _borrowedCreakSource.time;
+
             AudioManager.Instance.ReturnAudioSource(_borrowedCreakSource);
             _borrowedCreakSource = null;
         }
