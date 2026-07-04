@@ -1,87 +1,117 @@
 using UnityEngine;
-using UnityEngine.UIElements;
-
 
 public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
 {
+    // --- EVENTS ---
+    public event System.Action OnNarrativeLockHit;
+    public static event System.Action<PlayerInventory.ItemType> OnUnlocked;
+
     [Header("Referencias Físicas")]
     [SerializeField] private Rigidbody _doorRb;
     [SerializeField] private HingeJoint _hingeJoint;
 
+    private JointLimits _originalLimits;
+
     [Header("Configuración de Arrastre")]
-    [SerializeField, Tooltip("Qué tan sensible es la puerta al mover el mouse")]
-    private float _dragSensitivity = 50f;
-    [SerializeField] private string _promptText = "Mantener presionado para arrastrar";
+    [SerializeField, Tooltip("Sensibilidad al mover el mouse")]
+    private float _dragSensitivity = 1f;
+    [SerializeField] private string _dragPromptText = "Arrastrar puerta";
 
-    [Header("Configuración de Sprint (Bust Open)")]
+    [Header("Configuración de Sprint y Eventos")]
     [SerializeField] private float _sprintBustForce = 150f;
-    [SerializeField, Tooltip("Solo se puede patear si la puerta está abierta menos de estos grados")]
-    private float _maxBustAngle = 35f; 
+    [SerializeField] private float _maxBustAngle = 35f;
+    [SerializeField, Tooltip("Fuerza del resorte usada EXCLUSIVAMENTE para el portazo cinemático")]
+    private float _slamSpringForce = 50f;
 
-    private float _lastBustTime = 0f;
-    private float _bustCooldown = 1f;
+    [Header("Sistema de Llaves")]
+    [SerializeField] private bool _isLocked = false;
+    [SerializeField] private PlayerInventory.ItemType _requiredKey;
+    private bool _permanentlyLocked = false;
 
-    [Header("Audio")]
+    [Header("Textos de Interacción")]
+    [SerializeField] private string _lockedMessage = "Está cerrada con llave.";
+    [SerializeField] private string _unlockPromptMessage = "Desbloquear puerta";
+
+    [Header("Audio y Ruido")]
     [SerializeField] private AudioClip _lockedRattleSound;
     [SerializeField] private AudioClip _unlockSound;
     [SerializeField] private AudioClip _slamSound;
     [SerializeField] private AudioClip _creakSound;
+    [SerializeField] private float _loudNoiseRadius = 15f;
+    [SerializeField] private float _creakNoiseRadius = 2f;
 
-    // Variables para la lógica de llaves que puedes copiar después de tu puerta original
-    private bool _isLocked = false;
+    // --- TIMERS ---
+    private float _lastBustTime = 0f;
+    private float _bustCooldown = 1f;
+    private float _lastRattleTime = 0f;
+    private float _rattleCooldown = 1f;
 
     private void Awake()
     {
         if (_doorRb == null) _doorRb = GetComponent<Rigidbody>();
         if (_hingeJoint == null) _hingeJoint = GetComponent<HingeJoint>();
 
-        
-        _doorRb.linearDamping = 2f;
+        _doorRb.linearDamping= 2f;
         _doorRb.angularDamping = 5f;
+
+        _originalLimits = _hingeJoint.limits;
+
+        if (_isLocked) LockDoorPhysically();
     }
 
-    // --- IPhysicsInteractable Implementation ---
+    // ==========================================
+    // INTERFACE
+    // ==========================================
 
     public string GetInteractPrompt(GameObject interactor)
     {
-        return _isLocked ? "Cerrado con llave" : _promptText;
+        if (_isLocked)
+        {
+            if (_permanentlyLocked) return _lockedMessage;
+
+            PlayerInventory inventory = interactor.GetComponent<PlayerInventory>();
+            return (inventory != null && inventory.HasItem(_requiredKey)) ? _unlockPromptMessage : _lockedMessage;
+        }
+        return _dragPromptText;
     }
 
     public void OnGrabStart(GameObject interactor)
     {
         if (_isLocked)
         {
-            // Reproducir sonido de manija trabada
+            HandleLockedInteraction(interactor);
             return;
         }
 
-        // Opcional: Detener temporalmente el HingeJoint Spring si quieres que sea libre
         _hingeJoint.useSpring = false;
+
+        if (_creakSound != null && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFXAtPosition(_creakSound, transform.position, 1f, Random.Range(0.95f, 1.05f));
+            NoiseManager.EmitNoise(transform.position, _creakNoiseRadius);
+        }
     }
 
     public void OnGrabUpdate(Vector2 mouseDelta)
     {
         if (_isLocked) return;
 
-        // Convertimos el movimiento horizontal (o vertical) del ratón en fuerza de rotación.
-        // Eje Y (Vector3.up) es la bisagra de la puerta. Multiplicamos por la sensibilidad.
         float appliedForce = mouseDelta.x * _dragSensitivity;
-
         _doorRb.AddRelativeTorque(Vector3.up * appliedForce, ForceMode.Force);
     }
 
     public void OnGrabEnd()
     {
-        // Al soltarla, puedes volver a activar el resorte suave para que se cierre sola 
-        // o dejarla completamente suelta (useSpring = false)
+        // La puerta queda suelta (física pura) al soltar el clic
     }
 
-    // --- Sprint logic ---
+    // ==========================================
+    // Bust Open Relay
+    // ==========================================
 
     public void TryBustOpen(Collider other)
     {
         if (Time.time < _lastBustTime + _bustCooldown) return;
-
         if (Mathf.Abs(_hingeJoint.angle) > _maxBustAngle) return;
 
         if (other.CompareTag("Player") && !_isLocked)
@@ -95,16 +125,107 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
                 pushDir.Normalize();
 
                 _doorRb.AddForce(pushDir * _sprintBustForce, ForceMode.Impulse);
-
                 _lastBustTime = Time.time;
 
-                if (AudioManager.Instance != null)
+                if (_slamSound != null && AudioManager.Instance != null)
                 {
-                    AudioManager.Instance.PlaySFXAtPosition(_slamSound, transform.position, 0.9f, Random.Range(0.9f, 1.1f));
-                    NoiseManager.EmitNoise(transform.position, 15f);
+                    AudioManager.Instance.PlaySFXAtPosition(_slamSound, transform.position, 1f, Random.Range(0.9f, 1.1f));
+                    NoiseManager.EmitNoise(transform.position, _loudNoiseRadius);
                 }
             }
         }
     }
-}
 
+    // ==========================================
+    // KEYS
+    // ==========================================
+
+    private void HandleLockedInteraction(GameObject interactor)
+    {
+        if (_permanentlyLocked)
+        {
+            RattleLockedDoor();
+            OnNarrativeLockHit?.Invoke();
+            return;
+        }
+
+        PlayerInventory inventory = interactor.GetComponent<PlayerInventory>();
+        if (inventory != null && inventory.HasItem(_requiredKey))
+        {
+            _isLocked = false;
+            _hingeJoint.limits = _originalLimits;
+
+            if (_unlockSound != null && AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySFXAtPosition(_unlockSound, transform.position, 1f, 1f);
+            }
+
+            OnUnlocked?.Invoke(_requiredKey);
+        }
+        else
+        {
+            RattleLockedDoor();
+        }
+    }
+
+    private void RattleLockedDoor()
+    {
+        if (Time.time >= _lastRattleTime + _rattleCooldown)
+        {
+            if (_lockedRattleSound != null && AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySFXAtPosition(_lockedRattleSound, transform.position, 1f, Random.Range(0.95f, 1.05f));
+            }
+
+            _doorRb.AddRelativeTorque(Vector3.up * 5f, ForceMode.Impulse);
+            _lastRattleTime = Time.time;
+        }
+    }
+
+    private void LockDoorPhysically()
+    {
+        JointLimits lockedLimits = _hingeJoint.limits;
+        lockedLimits.min = -1f;
+        lockedLimits.max = 1f; 
+        _hingeJoint.limits = lockedLimits;
+    }
+
+    // ==========================================
+    // NARRATIVE
+    // ==========================================
+
+    public void ApplyNarrativeLock()
+    {
+        _permanentlyLocked = true;
+        _isLocked = true; 
+        LockDoorPhysically();
+    }
+
+    public void RemoveNarrativeLock()
+    {
+        _permanentlyLocked = false;
+        //_isLocked = false; 
+        _hingeJoint.limits = _originalLimits;
+    }
+
+    /// <summary>
+    /// Usado por el EntryDoorEventManager para el portazo asustadizo.
+    /// </summary>
+    public void ForceSlamShutAndLock()
+    {
+        _hingeJoint.useSpring = true;
+
+        JointSpring spring = _hingeJoint.spring;
+        spring.targetPosition = 0f;
+        spring.spring = _slamSpringForce * 1.5f;
+        spring.damper = 1f;
+        _hingeJoint.spring = spring;
+
+        if (_slamSound != null && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFXAtPosition(_slamSound, transform.position, 1.2f, Random.Range(0.85f, 0.95f), 20);
+        }
+
+        ApplyNarrativeLock();
+    }
+}
