@@ -258,8 +258,8 @@ public class AudioManager : MonoBehaviour
         source.loop = false;
         source.volume = 1f;
         source.pitch = 1f;
-        source.transform.SetParent(this.transform); 
-        source.gameObject.SetActive(false);
+        //source.transform.SetParent(this.transform); 
+        //source.gameObject.SetActive(false);
 
         _sfxPool.Enqueue(source);
     }

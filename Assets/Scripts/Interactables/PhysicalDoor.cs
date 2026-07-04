@@ -208,7 +208,7 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
         {
             if (_closeSound != null && AudioManager.Instance != null)
             {
-                AudioManager.Instance.PlaySFXAtPosition(_closeSound, transform.position, 1f, Random.Range(0.95f, 1.05f));
+                AudioManager.Instance.PlaySFXAtPosition(_closeSound, transform.position, 0.5f, Random.Range(0.95f, 1.05f));
             }
         }
 
