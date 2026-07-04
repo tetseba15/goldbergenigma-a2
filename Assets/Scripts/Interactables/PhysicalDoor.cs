@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
 
 public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
@@ -72,14 +73,14 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
 
     // --- Sprint logic ---
 
-    private void OnTriggerEnter(Collider other)
+    public void TryBustOpen(Collider other)
     {
+        // Si entra el jugador y la puerta no tiene llave
         if (other.CompareTag("Player") && !_isLocked)
         {
-            Debug.Log("Choque con el player");
-
             PlayerInputHandler playerInput = other.GetComponent<PlayerInputHandler>();
 
+            // Verificamos si viene corriendo
             if (playerInput != null && playerInput.IsSprinting)
             {
                 Vector3 pushDir = other.transform.forward;
@@ -88,15 +89,13 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
 
                 _doorRb.AddForce(pushDir * _sprintBustForce, ForceMode.Impulse);
 
-                Debug.Log("Aplique fuerza");
-
-
                 if (AudioManager.Instance != null)
                 {
-                    AudioManager.Instance.PlaySFXAtPosition(_slamSound, transform.position, 1.2f, Random.Range(0.9f, 1.1f));
-                    NoiseManager.EmitNoise(transform.position, 15f); 
+                    AudioManager.Instance.PlaySFXAtPosition(_slamSound, transform.position, 0.9f, Random.Range(0.9f, 1.1f));
+                    NoiseManager.EmitNoise(transform.position, 15f);
                 }
             }
         }
     }
 }
+
