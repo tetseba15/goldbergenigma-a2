@@ -12,6 +12,7 @@ public class GenericEventsTrigger : MonoBehaviour
         CloseEntryDoor = 5,
         Piano = 6,
         GhostLook = 7,
+        DiningRoomVisions = 8,
     }
 
     [Header("Trigger Type")]
