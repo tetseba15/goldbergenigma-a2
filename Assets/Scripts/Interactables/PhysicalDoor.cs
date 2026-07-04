@@ -14,7 +14,11 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
 
     [Header("Configuración de Arrastre")]
     [SerializeField, Tooltip("Sensibilidad al mover el mouse")]
-    private float _dragSensitivity = 1f;
+    private float _dragSensitivity = 50f;
+    [SerializeField, Tooltip("Límite de lectura del ratón para evitar fuerzas extremas por DPI altos")]
+    private float _maxMouseDelta = 5f;
+    [SerializeField, Tooltip("Límite absoluto de velocidad física de giro (Rad/s)")]
+    private float _maxRotationSpeed = 3f; 
     [SerializeField] private string _dragPromptText = "Arrastrar puerta";
 
     [Header("Configuración de Sprint y Eventos")]
@@ -74,6 +78,8 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
 
         _doorRb.linearDamping= 2f;
         _doorRb.angularDamping = 5f;
+
+        _doorRb.maxAngularVelocity = _maxRotationSpeed;
 
         _originalLimits = _hingeJoint.limits;
 
@@ -139,7 +145,10 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
     {
         if (_isLocked) return;
 
-        float appliedForce = mouseDelta.x * _dragSensitivity;
+        float clampedDeltaX = Mathf.Clamp(mouseDelta.x, -_maxMouseDelta, _maxMouseDelta);
+
+        float appliedForce = clampedDeltaX * _dragSensitivity;
+        
         _doorRb.AddRelativeTorque(Vector3.up * appliedForce, ForceMode.Force);
     }
 
