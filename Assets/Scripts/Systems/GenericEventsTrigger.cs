@@ -10,6 +10,8 @@ public class GenericEventsTrigger : MonoBehaviour
         GhostlyWhispering = 3,
         Radio = 4,
         CloseEntryDoor = 5,
+        Piano = 6,
+        GhostLook = 7,
     }
 
     [Header("Trigger Type")]
