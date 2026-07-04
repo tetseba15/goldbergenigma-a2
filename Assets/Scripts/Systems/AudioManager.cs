@@ -235,6 +235,35 @@ public class AudioManager : MonoBehaviour
         
     }
 
+    /// <summary>
+    /// Borrows an AudioSource from the pool for continuous looping sounds.
+    /// The caller is responsible for returning it using ReturnAudioSource().
+    /// </summary>
+    public AudioSource BorrowAudioSource()
+    {
+        if (_sfxPool.Count == 0) return null;
+        
+        return _sfxPool.Dequeue();
+    }
+
+    /// <summary>
+    /// Returns a borrowed AudioSource back to the pool and resets its state.
+    /// </summary>
+    public void ReturnAudioSource(AudioSource source)
+    {
+        if (source == null) return;
+
+        source.Stop();
+        source.clip = null;
+        source.loop = false;
+        source.volume = 1f;
+        source.pitch = 1f;
+        source.transform.SetParent(this.transform); 
+        source.gameObject.SetActive(false);
+
+        _sfxPool.Enqueue(source);
+    }
+
     public void SetChaseState(bool isChasing, float transitionTime = 2f)
     {
         _isCurrentlyChasing = isChasing;

@@ -37,14 +37,33 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
     [SerializeField] private AudioClip _unlockSound;
     [SerializeField] private AudioClip _slamSound;
     [SerializeField] private AudioClip _creakSound;
+    [SerializeField] private AudioClip _closeSound;
     [SerializeField] private float _loudNoiseRadius = 15f;
     [SerializeField] private float _creakNoiseRadius = 2f;
+
+    [Header("Audio Continuo (Motor de Crujido)")]
+    //[SerializeField, Tooltip("AudioSource adjunto a la puerta física")]
+    //private AudioSource _creakAudioSource;
+
+    [SerializeField, Tooltip("Pitch minimo (lento)")] private float _minPitch = 0.8f;
+    [SerializeField, Tooltip("Pitch maximo (rapido)")] private float _maxPitch = 1.3f;
+    [SerializeField, Tooltip("Velocidad de bisagra necesaria para el maximo ruido")]
+    private float _speedForMaxVolume = 100f;
+
+    private bool _wasClosed = true;
+
+    private AudioSource _borrowedCreakSource;
 
     // --- TIMERS ---
     private float _lastBustTime = 0f;
     private float _bustCooldown = 1f;
     private float _lastRattleTime = 0f;
     private float _rattleCooldown = 1f;
+
+    private void OnDisable()
+    {
+        ReturnCreakSourceIfNeeded();
+    }
 
     private void Awake()
     {
@@ -57,6 +76,28 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
         _originalLimits = _hingeJoint.limits;
 
         if (_isLocked) LockDoorPhysically();
+
+        //if (_creakAudioSource != null && _creakSound != null)
+        //{
+        //    _creakAudioSource.clip = _creakSound;
+        //    _creakAudioSource.loop = true;
+        //    _creakAudioSource.volume = 0f;
+        //    _creakAudioSource.spatialBlend = 1f; 
+        //    _creakAudioSource.Play();
+        //}
+    }
+
+    private void Update()
+    {
+        if (_doorRb.IsSleeping())
+        {
+            ReturnCreakSourceIfNeeded();
+            CheckIfClosed();
+            return;
+        }
+
+        HandleContinuousCreak();
+        CheckIfClosed();
     }
 
     // ==========================================
@@ -87,7 +128,7 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
 
         if (_creakSound != null && AudioManager.Instance != null)
         {
-            AudioManager.Instance.PlaySFXAtPosition(_creakSound, transform.position, 1f, Random.Range(0.95f, 1.05f));
+            //AudioManager.Instance.PlaySFXAtPosition(_creakSound, transform.position, 1f, Random.Range(0.95f, 1.05f));
             NoiseManager.EmitNoise(transform.position, _creakNoiseRadius);
         }
     }
@@ -103,6 +144,75 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
     public void OnGrabEnd()
     {
         // La puerta queda suelta (física pura) al soltar el clic
+    }
+
+    // ==========================================
+    // Audio
+    // ==========================================
+
+    private void HandleContinuousCreak()
+    {
+        if (_isLocked) return;
+
+        float currentSpeed = Mathf.Abs(_hingeJoint.velocity);
+
+        if (currentSpeed > 1f)
+        {
+            if (_borrowedCreakSource == null)
+            {
+                _borrowedCreakSource = AudioManager.Instance.BorrowAudioSource();
+
+                if (_borrowedCreakSource != null)
+                {
+                    _borrowedCreakSource.transform.position = transform.position;
+                    _borrowedCreakSource.transform.SetParent(transform);
+                    _borrowedCreakSource.clip = _creakSound;
+                    _borrowedCreakSource.loop = true;
+                    _borrowedCreakSource.spatialBlend = 1f;
+                    _borrowedCreakSource.volume = 0f;
+                    _borrowedCreakSource.Play();
+                }
+            }
+
+            if (_borrowedCreakSource != null)
+            {
+                float speedPercent = Mathf.Clamp01(currentSpeed / _speedForMaxVolume);
+
+                float targetVolume = speedPercent > 0.05f ? speedPercent : 0f;
+                _borrowedCreakSource.volume = Mathf.Lerp(_borrowedCreakSource.volume, targetVolume, Time.deltaTime * 15f);
+
+                float targetPitch = Mathf.Lerp(_minPitch, _maxPitch, speedPercent);
+                _borrowedCreakSource.pitch = Mathf.Lerp(_borrowedCreakSource.pitch, targetPitch, Time.deltaTime * 5f);
+            }
+        }
+        else
+        {
+            ReturnCreakSourceIfNeeded();
+        }
+    }
+
+    private void ReturnCreakSourceIfNeeded()
+    {
+        if (_borrowedCreakSource != null)
+        {
+            AudioManager.Instance.ReturnAudioSource(_borrowedCreakSource);
+            _borrowedCreakSource = null;
+        }
+    }
+
+    private void CheckIfClosed()
+    {
+        bool isCurrentlyClosed = Mathf.Abs(_hingeJoint.angle) < 1.5f;
+
+        if (isCurrentlyClosed && !_wasClosed)
+        {
+            if (_closeSound != null && AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySFXAtPosition(_closeSound, transform.position, 1f, Random.Range(0.95f, 1.05f));
+            }
+        }
+
+        _wasClosed = isCurrentlyClosed;
     }
 
     // ==========================================
