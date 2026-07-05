@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -11,6 +12,10 @@ public class PlayerDamage : MonoBehaviour
     [Header("Health Settings")]
     [SerializeField] private int _maxHits = 3;
     [SerializeField] private float _healthRestoreCooldown = 3.5f;
+
+    [Header("Damage SFX")]
+    [SerializeField] private List<AudioClip> _gruntClips;
+    [SerializeField] private AudioClip _reliefClip;
 
     private float _percentageIncrement;
     private float _actualWeightTarget;
@@ -26,7 +31,6 @@ public class PlayerDamage : MonoBehaviour
     private void Awake()
     {
         _percentageIncrement = 1f / _maxHits;
-        Debug.Log("Increment: " + _percentageIncrement);
     }
 
     private void Update()
@@ -38,6 +42,8 @@ public class PlayerDamage : MonoBehaviour
             {
                 _successiveHits = 0;
                 _actualWeightTarget = 0;
+
+                if (_reliefClip != null) AudioManager.Instance.PlaySFX(_reliefClip);
 
                 if (_increaseVolumeCoroutine != null) StopCoroutine( _increaseVolumeCoroutine);
                 _restoreVolumeCoroutine = StartCoroutine(RestoreVolume());
@@ -59,10 +65,14 @@ public class PlayerDamage : MonoBehaviour
 
     private void GetHit()
     {
+        if (_gruntClips.Count > 0)
+        {
+            AudioManager.Instance.PlaySFX(_gruntClips[Random.Range(0, _gruntClips.Count)]);
+        }
+
         _successiveHits++;
         _timeWithNoHit = 0;
         _actualWeightTarget = Mathf.Min(_actualWeightTarget + _percentageIncrement, 1f);
-        Debug.Log("Hit: " + _successiveHits);
 
         if (_increaseVolumeCoroutine != null) StopCoroutine(_increaseVolumeCoroutine);
         if (_restoreVolumeCoroutine != null) StopCoroutine(_restoreVolumeCoroutine);
@@ -72,8 +82,6 @@ public class PlayerDamage : MonoBehaviour
 
     private IEnumerator IncreaseVolumeEffect()
     {
-        Debug.Log("Weight target: " + _actualWeightTarget);
-
         if (_damagedVolume != null)
         {
             while (_damagedVolume.weight < _actualWeightTarget)
