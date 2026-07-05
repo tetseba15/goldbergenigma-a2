@@ -6,14 +6,29 @@ public class PlayerPhysicsGrabber : MonoBehaviour
     [Header("Referencias")]
     [SerializeField] private Camera _mainCamera;
 
-    [Header("Configuración")]
-    [SerializeField] private float _reachDistance = 2.5f;
+    [Header("Configuración de Agarre Base")]
+    [SerializeField, Tooltip("Distancia máxima para iniciar el agarre")]
+    private float _reachDistance = 2.5f;
     [SerializeField] private LayerMask _interactableMask;
 
+    [Header("Seguros (Rompe-Agarre Corregidos)")]
+    [SerializeField, Tooltip("Distancia máxima antes de que el brazo virtual se estire demasiado y suelte")]
+    private float _breakDistance = 6.0f; 
+
+    [SerializeField, Tooltip("Ángulo máximo de visión lateral antes de soltar (Permite mirar de reojo de forma muy cómoda)")]
+    private float _breakAngle = 80f; 
+
     private PlayerInputHandler _inputHandler;
+
     private IPhysicsInteractable _currentGrabbedObject;
-    private IPhysicsInteractable _hoveredObject; 
+    private IPhysicsInteractable _hoveredObject;
+
+    private Transform _grabbedTransform;
+    private Transform _hoveredTransform;
+    private Vector3 _exactHitPoint;
+
     private string _lastPromptMessage = string.Empty;
+    private bool _requireNewClick = false;
 
     private void Awake()
     {
@@ -22,8 +37,12 @@ public class PlayerPhysicsGrabber : MonoBehaviour
 
     private void Update()
     {
-        HandleHover();
+        if (!_inputHandler.IsPhysicsGrabbing)
+        {
+            _requireNewClick = false;
+        }
 
+        HandleHover();
         HandleGrabbing();
     }
 
@@ -40,11 +59,14 @@ public class PlayerPhysicsGrabber : MonoBehaviour
             if (interactable != null)
             {
                 _hoveredObject = interactable;
+                _hoveredTransform = hitInfo.collider.transform;
+                _exactHitPoint = hitInfo.point;
+
                 string currentPrompt = interactable.GetInteractPrompt(gameObject);
 
                 if (_lastPromptMessage != currentPrompt && UIManager.Instance != null)
                 {
-                    UIManager.Instance.ShowInteractPrompt(currentPrompt); 
+                    UIManager.Instance.ShowInteractPrompt(currentPrompt);
                     _lastPromptMessage = currentPrompt;
                 }
                 return;
@@ -54,6 +76,7 @@ public class PlayerPhysicsGrabber : MonoBehaviour
         if (_hoveredObject != null)
         {
             _hoveredObject = null;
+            _hoveredTransform = null;
             _lastPromptMessage = string.Empty;
             if (UIManager.Instance != null) UIManager.Instance.HideInteractPrompt();
         }
@@ -61,27 +84,62 @@ public class PlayerPhysicsGrabber : MonoBehaviour
 
     private void HandleGrabbing()
     {
-        // Start grab
-        if (_inputHandler.IsPhysicsGrabbing && _currentGrabbedObject == null && _hoveredObject != null)
+        // Grab
+        if (_inputHandler.IsPhysicsGrabbing && !_requireNewClick && _currentGrabbedObject == null && _hoveredObject != null)
         {
             _currentGrabbedObject = _hoveredObject;
-            _currentGrabbedObject.OnGrabStart(gameObject);
-
-            // Hide prompt: WILL BE UPDATED TO AN ICON
+            _grabbedTransform = _hoveredTransform;
+            
+            _currentGrabbedObject.OnGrabStart(gameObject, _exactHitPoint); 
+            
             if (UIManager.Instance != null) UIManager.Instance.HideInteractPrompt();
         }
 
-        // hold grab
+        // Hold
         else if (_inputHandler.IsPhysicsGrabbing && _currentGrabbedObject != null)
         {
+            if (ShouldBreakGrab())
+            {
+                ForceRelease();
+                return;
+            }
+
             _currentGrabbedObject.OnGrabUpdate(_inputHandler.RawLookInput);
         }
 
-        // release
+        // Release
         else if (!_inputHandler.IsPhysicsGrabbing && _currentGrabbedObject != null)
+        {
+            ForceRelease();
+        }
+    }
+
+    private bool ShouldBreakGrab()
+    {
+        if (_grabbedTransform == null) return true;
+
+        float distance = Vector3.Distance(_mainCamera.transform.position, _grabbedTransform.position);
+
+        Vector3 directionToObject = (_grabbedTransform.position - _mainCamera.transform.position).normalized;
+
+        float angle = Vector3.Angle(_mainCamera.transform.forward, directionToObject);
+
+        if (distance < 3f)
+        {
+            angle = 0f;
+        }
+
+        return distance > _breakDistance || angle > _breakAngle;
+    }
+
+    private void ForceRelease()
+    {
+        if (_currentGrabbedObject != null)
         {
             _currentGrabbedObject.OnGrabEnd();
             _currentGrabbedObject = null;
+            _grabbedTransform = null;
+            _requireNewClick = true;
         }
     }
 }

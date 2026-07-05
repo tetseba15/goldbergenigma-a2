@@ -12,6 +12,10 @@ public class PlayerInputHandler : MonoBehaviour
     public event System.Action OnPauseTriggered;
     public event System.Action OnResumeTriggered;
 
+    [Header("Configuración de Interacción Física")]
+    [SerializeField, Range(0f, 1f), Tooltip("Qué tan rápido se mueve la cámara al arrastrar un objeto (0 = bloqueada, 1 = normal)")]
+    private float _grabLookSensitivity = 0.15f;
+
     public Vector2 MoveInput { get; private set; }
     public Vector2 LookInput { get; private set; }
     public Vector2 RawLookInput { get; private set; }
@@ -62,7 +66,9 @@ public class PlayerInputHandler : MonoBehaviour
 
         _inputActions.UI.Cancel.performed += ctx => OnCancelTriggered?.Invoke();
 
-        //Suscribe events for one or mantain pressed buttons
+        //---------------------------------------------------
+        // Suscribe events for one or mantain pressed buttons
+        //---------------------------------------------------
 
         _inputActions.Gameplay.Sprint.performed += ctx => IsSprinting = true;
         _inputActions.Gameplay.Sprint.canceled += ctx => IsSprinting = false;
@@ -105,16 +111,16 @@ public class PlayerInputHandler : MonoBehaviour
 
         var lookAction = _inputActions.Gameplay.Look;
 
-        RawLookInput = lookAction.ReadValue<Vector2>();
+        RawLookInput = lookAction.ReadValue<Vector2>(); 
 
-        if (lookAction.activeControl != null)
+        if(lookAction.activeControl != null)
         {
             IsGamepad = lookAction.activeControl.device is Gamepad;
         }
 
         if (IsPhysicsGrabbing)
         {
-            LookInput = Vector2.zero; 
+            LookInput = RawLookInput * _grabLookSensitivity; 
         }
         else
         {

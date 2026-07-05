@@ -21,6 +21,8 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
     private float _maxRotationSpeed = 3f; 
     [SerializeField] private string _dragPromptText = "Arrastrar puerta";
 
+    private float _leverageMultiplier = 1f;
+
     [Header("Configuración de Sprint y Eventos")]
     [SerializeField] private float _sprintBustForce = 150f;
     [SerializeField] private float _maxBustAngle = 35f;
@@ -124,7 +126,7 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
         return _dragPromptText;
     }
 
-    public void OnGrabStart(GameObject interactor)
+    public void OnGrabStart(GameObject interactor, Vector3 grabPoint)
     {
         if (_isLocked)
         {
@@ -134,9 +136,21 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
 
         _hingeJoint.useSpring = false;
 
+        // --- Grab Point Logic ---
+                
+        Vector3 hingePos = transform.position;
+        hingePos.y = 0;
+        Vector3 clickPos = grabPoint;
+        clickPos.y = 0;
+
+        float distanceToHinge = Vector3.Distance(hingePos, clickPos);
+
+        // The further away from the hinge you grip it, the greater the force multiplier will be
+        // The +1 ensures we never multiply by 0 if the grip is right at the center
+        _leverageMultiplier = 1f + (distanceToHinge * 2f);
+
         if (_creakSound != null && AudioManager.Instance != null)
         {
-            //AudioManager.Instance.PlaySFXAtPosition(_creakSound, transform.position, 1f, Random.Range(0.95f, 1.05f));
             NoiseManager.EmitNoise(transform.position, _creakNoiseRadius);
         }
     }
@@ -147,8 +161,8 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
 
         float clampedDeltaX = Mathf.Clamp(mouseDelta.x, -_maxMouseDelta, _maxMouseDelta);
 
-        float appliedForce = clampedDeltaX * _dragSensitivity;
-        
+        float appliedForce = clampedDeltaX * _dragSensitivity * _leverageMultiplier;
+
         _doorRb.AddRelativeTorque(Vector3.up * appliedForce, ForceMode.Force);
     }
 

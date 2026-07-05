@@ -4,7 +4,7 @@ public interface IPhysicsInteractable
 {
     string GetInteractPrompt(GameObject interactor);
     
-    void OnGrabStart(GameObject interactor);
+    void OnGrabStart(GameObject interactor, Vector3 grabPoint);
     
   
     void OnGrabUpdate(Vector2 mouseDelta); 
