@@ -19,7 +19,11 @@ public class DangerousZone : MonoBehaviour
             if (playerMovement != null) playerMovement.SpeedMultiplier = _speedReduction;
 
             _timer += Time.deltaTime;
-            if (_timer >= _hitCooldown) OnHitPlayer?.Invoke();
+            if (_timer >= _hitCooldown)
+            {
+                OnHitPlayer?.Invoke();
+                _timer = 0f;
+            }
         }
     }
 
