@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -20,6 +21,8 @@ public class CrossController : MonoBehaviour
     [SerializeField] private float _stunDuration;
 
     private bool _isUsing = false;
+
+    public static event Action<PlayerInventory.ItemType> OnCrossUse;
 
     void Start()
     {
@@ -62,6 +65,8 @@ public class CrossController : MonoBehaviour
 
     private IEnumerator UseCrossRoutine()
     {
+        OnCrossUse?.Invoke(PlayerInventory.ItemType.Cross);
+
         _isUsing = true;
         _crossVisual.SetActive(true);
 

@@ -6,6 +6,7 @@ public class DangerousZone : MonoBehaviour
     [Header("Zone Settings")]
     [SerializeField] private float _speedReduction = 0.5f;
     [SerializeField] private float _hitCooldown = 1f;
+    [SerializeField] private PurificationZone _purificationZone;
 
     private float _timer;
 
@@ -13,9 +14,16 @@ public class DangerousZone : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
+        PlayerMovement playerMovement = other.GetComponent<PlayerMovement>();
+
+        if (_purificationZone != null && _purificationZone.IsPurified)
+        {
+            if (playerMovement != null) playerMovement.SpeedMultiplier = 1f;
+            return;
+        }
+
         if (other.CompareTag("Player"))
         {
-            PlayerMovement playerMovement = other.GetComponent<PlayerMovement>();
             if (playerMovement != null) playerMovement.SpeedMultiplier = _speedReduction;
 
             _timer += Time.deltaTime;
