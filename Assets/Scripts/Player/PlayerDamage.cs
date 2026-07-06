@@ -49,7 +49,7 @@ public class PlayerDamage : MonoBehaviour
                 _restoreVolumeCoroutine = StartCoroutine(RestoreVolume());
             }
 
-            if (_successiveHits > _maxHits) Debug.Log("Die");
+            if (_successiveHits > _maxHits) GameManager.Instance.GameOver();
         }
     }
 
