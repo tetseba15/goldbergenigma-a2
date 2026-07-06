@@ -14,11 +14,13 @@ public class PurificationZone : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (!other.CompareTag("Player")) return;
         _isPlayerInside = true;
     }
 
     private void OnTriggerExit(Collider other)
     {
+        if (!other.CompareTag("Player")) return;
         _isPlayerInside = false;
     }
 
@@ -34,7 +36,6 @@ public class PurificationZone : MonoBehaviour
 
     private void PurifyZone(PlayerInventory.ItemType itemType)
     {
-        Debug.Log("Purification item: " +  itemType);
         if (itemType == _itemType && _isPlayerInside)
         {
             IsPurified = true;
