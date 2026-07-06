@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PurificationZone : MonoBehaviour
@@ -8,6 +9,8 @@ public class PurificationZone : MonoBehaviour
 
     private bool _isPlayerInside;
     public bool IsPurified { get; private set; }
+
+    public static event Action<Vector3> OnPurified;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -32,6 +35,10 @@ public class PurificationZone : MonoBehaviour
     private void PurifyZone(PlayerInventory.ItemType itemType)
     {
         Debug.Log("Purification item: " +  itemType);
-        if (itemType == _itemType && _isPlayerInside) IsPurified = true;
+        if (itemType == _itemType && _isPlayerInside)
+        {
+            IsPurified = true;
+            OnPurified?.Invoke(transform.position);
+        }
     }
 }
