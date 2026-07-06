@@ -29,10 +29,10 @@ public class CrossController : MonoBehaviour
 
     void Start()
     {
-        if (_crossVisual != null)
-        {
-            _crossVisual.SetActive(false);
-        }
+        //if (_crossVisual != null)
+        //{
+        //    _crossVisual.SetActive(false);
+        //}
 
         _playerInputHandler = GetComponent<PlayerInputHandler>();
     }
@@ -41,14 +41,20 @@ public class CrossController : MonoBehaviour
     {
         if (Keyboard.current == null) return;
 
-        if (_playerInputHandler != null && _playerInputHandler.IsCastingCross && !_isUsing && _inventory.HasItem(PlayerInventory.ItemType.Cross))
+        if (_playerInputHandler != null && _playerInputHandler.IsCastingCross && !_isUsing && _inventory.HasItem(PlayerInventory.ItemType.Cross)) // Start casting
         {
             _castingTime += Time.deltaTime;
+            _crossAnimator.SetBool("IsCasting", true);
         }
-        else if (_castingTime >= _completeCastTime && _playerInputHandler != null && !_playerInputHandler.IsCastingCross && !_isUsing && _inventory.HasItem(PlayerInventory.ItemType.Cross))
+        else if (_castingTime >= _completeCastTime && _playerInputHandler != null && !_playerInputHandler.IsCastingCross && !_isUsing && _inventory.HasItem(PlayerInventory.ItemType.Cross)) // Use cross
         {
             _castingTime = 0;
             StartCoroutine(UseCrossRoutine());
+        }
+        else if (_castingTime > 0 && !_playerInputHandler.IsCastingCross) // Cancel casting
+        {
+            _castingTime = 0;
+            _crossAnimator.SetBool("IsCasting", false);
         }
     }
 
@@ -72,7 +78,7 @@ public class CrossController : MonoBehaviour
         OnCrossUse?.Invoke(PlayerInventory.ItemType.Cross);
 
         _isUsing = true;
-        _crossVisual.SetActive(true);
+        //_crossVisual.SetActive(true);
 
         if (_audioSource != null && _crossSound != null)
         {
@@ -81,6 +87,8 @@ public class CrossController : MonoBehaviour
 
         if (_crossAnimator != null)
         {
+            _crossAnimator.SetBool("IsUsing", true);
+            _crossAnimator.SetBool("IsCasting", false);
             _crossAnimator.SetTrigger("Cross");
         }
 
@@ -100,7 +108,9 @@ public class CrossController : MonoBehaviour
         }
 
         yield return new WaitForSeconds(_animationDuration);
-        _crossVisual.SetActive(false);
+        //_crossVisual.SetActive(false);
+
+        _crossAnimator.SetBool("IsUsing", false);
         _isUsing = false;
     }
 }
