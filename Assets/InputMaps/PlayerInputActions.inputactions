@@ -52,6 +52,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "CastCross",
+                    "type": "Button",
+                    "id": "c3a700ef-c713-49b8-a840-47287863e3bd",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Cancel",
                     "type": "Button",
                     "id": "9c63270f-0f5e-4e73-bd60-83ec182fc61d",
@@ -261,17 +270,6 @@
                 },
                 {
                     "name": "",
-                    "id": "0ce93507-3b55-4539-9878-321320b8dd4a",
-                    "path": "<Keyboard>/c",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "Crouch",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "6023f1ad-9e71-4f44-b06a-526b50b7cd90",
                     "path": "<Gamepad>/buttonEast",
                     "interactions": "",
@@ -388,6 +386,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "PhysicsGrab",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9d4a5171-b75b-4230-86fb-0256f678fb1b",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "CastCross",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

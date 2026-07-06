@@ -17,10 +17,13 @@ public class CrossController : MonoBehaviour
     [Header("Configuración")]
     [SerializeField] private float _animationDuration;
     [SerializeField] private float _effectDistance;
+    [SerializeField] private float _completeCastTime = 1.5f;
     
     [SerializeField] private float _stunDuration;
 
+    private PlayerInputHandler _playerInputHandler;
     private bool _isUsing = false;
+    private float _castingTime;
 
     public static event Action<PlayerInventory.ItemType> OnCrossUse;
 
@@ -30,21 +33,22 @@ public class CrossController : MonoBehaviour
         {
             _crossVisual.SetActive(false);
         }
+
+        _playerInputHandler = GetComponent<PlayerInputHandler>();
     }
 
     void Update()
     {
         if (Keyboard.current == null) return;
 
-        
-        if (Keyboard.current.cKey.wasPressedThisFrame)
+        if (_playerInputHandler != null && _playerInputHandler.IsCastingCross && !_isUsing && _inventory.HasItem(PlayerInventory.ItemType.Cross))
         {
-            bool tieneItem = _inventory.HasItem(PlayerInventory.ItemType.Cross);
-
-            if (tieneItem && !_isUsing)
-            {
-                StartCoroutine(UseCrossRoutine());
-            }
+            _castingTime += Time.deltaTime;
+        }
+        else if (_castingTime >= _completeCastTime && _playerInputHandler != null && !_playerInputHandler.IsCastingCross && !_isUsing && _inventory.HasItem(PlayerInventory.ItemType.Cross))
+        {
+            _castingTime = 0;
+            StartCoroutine(UseCrossRoutine());
         }
     }
 
