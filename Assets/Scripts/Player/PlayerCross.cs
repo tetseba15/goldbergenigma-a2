@@ -27,6 +27,7 @@ public class CrossController : MonoBehaviour
 
     private PlayerInputHandler _playerInputHandler;
     private Light _crossLight;
+
     private bool _isUsing = false;
     private float _castingTime;
 
@@ -50,10 +51,15 @@ public class CrossController : MonoBehaviour
             _crossAnimator.SetBool("IsCasting", true);
             if (_castingParticles != null) _castingParticles.Play();
         }
-        else if (_castingTime >= _completeCastTime && _playerInputHandler != null && !_playerInputHandler.IsCastingCross && !_isUsing && _inventory.HasItem(PlayerInventory.ItemType.Cross)) // Use cross
+        else if (_castingTime >= _completeCastTime && _playerInputHandler != null &&
+            !_playerInputHandler.IsCastingCross &&
+            !_isUsing &&
+            _inventory.HasItem(PlayerInventory.ItemType.Cross) &&
+            FaithController.Instance.ActualFaith >= FaithController.Instance.CrossConsumption) // Use cross
         {
             _castingTime = 0;
             if (_castingParticles != null) _castingParticles.Stop();
+
             StartCoroutine(UseCrossRoutine());
         }
         else if (_castingTime > 0 && !_playerInputHandler.IsCastingCross) // Cancel casting
@@ -61,6 +67,16 @@ public class CrossController : MonoBehaviour
             _castingTime = 0;
             _crossAnimator.SetBool("IsCasting", false);
             if (_castingParticles != null) _castingParticles.Stop();
+        }
+
+        PlayerMovement playerMovement = transform.root.GetComponent<PlayerMovement>();
+        if (_playerInputHandler.IsCastingCross)
+        {
+            if (playerMovement != null) playerMovement.SpeedMultiplier = 0.5f;
+        }
+        else
+        {
+            if (playerMovement != null) playerMovement.SpeedMultiplier = 1f;
         }
     }
 
