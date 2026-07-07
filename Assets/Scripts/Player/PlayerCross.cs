@@ -19,20 +19,25 @@ public class CrossController : MonoBehaviour
     [SerializeField] private float _effectDistance;
     [SerializeField] private float _completeCastTime = 1.5f;
     [SerializeField] private float _stunDuration;
+    [SerializeField] private float _lightChangeSpeed = 10f;
 
     [Header("Partículas")]
     [SerializeField] private ParticleSystem _holyParticles;
     [SerializeField] private ParticleSystem _castingParticles;
 
     private PlayerInputHandler _playerInputHandler;
+    private Light _crossLight;
     private bool _isUsing = false;
     private float _castingTime;
+
+    private Coroutine _lightCoroutine;
 
     public static event Action<PlayerInventory.ItemType> OnCrossUse;
 
     void Start()
     {
         _playerInputHandler = GetComponent<PlayerInputHandler>();
+        _crossLight = _crossVisual.GetComponent<Light>();
     }
 
     void Update()
@@ -92,6 +97,8 @@ public class CrossController : MonoBehaviour
             _crossAnimator.SetTrigger("Cross");
 
             if (_holyParticles != null) _holyParticles.Play();
+
+            _lightCoroutine = StartCoroutine(ChangeLightIntensity(8f));
         }
 
         GameObject enemyObject = GameObject.FindWithTag("Enemy");
@@ -115,5 +122,22 @@ public class CrossController : MonoBehaviour
         _isUsing = false;
 
         if (_holyParticles != null) _holyParticles.Stop();
+
+        if (_lightCoroutine != null) StopCoroutine(_lightCoroutine);
+        _lightCoroutine = StartCoroutine(ChangeLightIntensity(0f));
+    }
+
+    private IEnumerator ChangeLightIntensity(float intensity)
+    {
+        if (_crossLight == null) yield break;
+
+        while (true)
+        {
+            _crossLight.intensity = Mathf.MoveTowards(_crossLight.intensity, intensity, Time.deltaTime * _lightChangeSpeed);
+
+            if (_crossLight.intensity == intensity) break;
+
+            yield return null;
+        }
     }
 }
