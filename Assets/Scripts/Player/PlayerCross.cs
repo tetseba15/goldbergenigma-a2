@@ -18,8 +18,11 @@ public class CrossController : MonoBehaviour
     [SerializeField] private float _animationDuration;
     [SerializeField] private float _effectDistance;
     [SerializeField] private float _completeCastTime = 1.5f;
-    
     [SerializeField] private float _stunDuration;
+
+    [Header("Partículas")]
+    [SerializeField] private ParticleSystem _holyParticles;
+   
 
     private PlayerInputHandler _playerInputHandler;
     private bool _isUsing = false;
@@ -29,11 +32,6 @@ public class CrossController : MonoBehaviour
 
     void Start()
     {
-        //if (_crossVisual != null)
-        //{
-        //    _crossVisual.SetActive(false);
-        //}
-
         _playerInputHandler = GetComponent<PlayerInputHandler>();
     }
 
@@ -78,7 +76,6 @@ public class CrossController : MonoBehaviour
         OnCrossUse?.Invoke(PlayerInventory.ItemType.Cross);
 
         _isUsing = true;
-        //_crossVisual.SetActive(true);
 
         if (_audioSource != null && _crossSound != null)
         {
@@ -90,6 +87,8 @@ public class CrossController : MonoBehaviour
             _crossAnimator.SetBool("IsUsing", true);
             _crossAnimator.SetBool("IsCasting", false);
             _crossAnimator.SetTrigger("Cross");
+
+            if (_holyParticles != null) _holyParticles.Play();
         }
 
         GameObject enemyObject = GameObject.FindWithTag("Enemy");
@@ -108,9 +107,10 @@ public class CrossController : MonoBehaviour
         }
 
         yield return new WaitForSeconds(_animationDuration);
-        //_crossVisual.SetActive(false);
 
         _crossAnimator.SetBool("IsUsing", false);
         _isUsing = false;
+
+        if (_holyParticles != null) _holyParticles.Stop();
     }
 }
