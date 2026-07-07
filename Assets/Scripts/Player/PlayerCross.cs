@@ -22,7 +22,7 @@ public class CrossController : MonoBehaviour
 
     [Header("Partículas")]
     [SerializeField] private ParticleSystem _holyParticles;
-   
+    [SerializeField] private ParticleSystem _castingParticles;
 
     private PlayerInputHandler _playerInputHandler;
     private bool _isUsing = false;
@@ -43,16 +43,19 @@ public class CrossController : MonoBehaviour
         {
             _castingTime += Time.deltaTime;
             _crossAnimator.SetBool("IsCasting", true);
+            if (_castingParticles != null) _castingParticles.Play();
         }
         else if (_castingTime >= _completeCastTime && _playerInputHandler != null && !_playerInputHandler.IsCastingCross && !_isUsing && _inventory.HasItem(PlayerInventory.ItemType.Cross)) // Use cross
         {
             _castingTime = 0;
+            if (_castingParticles != null) _castingParticles.Stop();
             StartCoroutine(UseCrossRoutine());
         }
         else if (_castingTime > 0 && !_playerInputHandler.IsCastingCross) // Cancel casting
         {
             _castingTime = 0;
             _crossAnimator.SetBool("IsCasting", false);
+            if (_castingParticles != null) _castingParticles.Stop();
         }
     }
 
