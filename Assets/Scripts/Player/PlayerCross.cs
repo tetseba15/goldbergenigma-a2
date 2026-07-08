@@ -25,6 +25,9 @@ public class CrossController : MonoBehaviour
     [SerializeField] private ParticleSystem _holyParticles;
     [SerializeField] private ParticleSystem _castingParticles;
 
+    [Header("Ready Icon")]
+    [SerializeField] [Tooltip("Se muestra cuando la cruz está lista para usar")] private SpriteRenderer _readyCrossIcon;
+
     private PlayerInputHandler _playerInputHandler;
     private Light _crossLight;
 
@@ -50,6 +53,7 @@ public class CrossController : MonoBehaviour
             _castingTime += Time.deltaTime;
             _crossAnimator.SetBool("IsCasting", true);
             if (_castingParticles != null) _castingParticles.Play();
+            if (_castingTime >= _completeCastTime && FaithController.Instance.ActualFaith >= FaithController.Instance.CrossConsumption) StartCoroutine(ChangeIconAlpha(1f));
         }
         else if (_castingTime >= _completeCastTime && _playerInputHandler != null &&
             !_playerInputHandler.IsCastingCross &&
@@ -117,6 +121,8 @@ public class CrossController : MonoBehaviour
             _lightCoroutine = StartCoroutine(ChangeLightIntensity(8f));
         }
 
+        StartCoroutine(ChangeIconAlpha(0f));
+
         GameObject enemyObject = GameObject.FindWithTag("Enemy");
         if (enemyObject != null)
         {
@@ -141,6 +147,22 @@ public class CrossController : MonoBehaviour
 
         if (_lightCoroutine != null) StopCoroutine(_lightCoroutine);
         _lightCoroutine = StartCoroutine(ChangeLightIntensity(0f));
+    }
+
+    private IEnumerator ChangeIconAlpha(float alphaDestiny)
+    {
+        if (_readyCrossIcon == null) yield break;
+
+        while (true)
+        {
+            Color color = _readyCrossIcon.color;
+            color.a = Mathf.MoveTowards(color.a, alphaDestiny, _completeCastTime * Time.deltaTime);
+            _readyCrossIcon.color = color;
+
+            if (_readyCrossIcon.color.a == alphaDestiny) yield break;
+
+            yield return null;
+        }
     }
 
     private IEnumerator ChangeLightIntensity(float intensity)
