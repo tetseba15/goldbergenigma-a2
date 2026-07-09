@@ -76,11 +76,11 @@ public class CrossController : MonoBehaviour
         PlayerMovement playerMovement = transform.root.GetComponent<PlayerMovement>();
         if (_playerInputHandler.IsCastingCross)
         {
-            if (playerMovement != null) playerMovement.SpeedMultiplier = 0.5f;
+            if (playerMovement != null) playerMovement.ChangeSpeedMultiplier(gameObject, 0.5f);
         }
         else
         {
-            if (playerMovement != null) playerMovement.SpeedMultiplier = 1f;
+            if (playerMovement != null) playerMovement.ChangeSpeedMultiplier(gameObject, 1f);
         }
     }
 

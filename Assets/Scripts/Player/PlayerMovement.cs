@@ -8,14 +8,14 @@ public class PlayerMovement : MonoBehaviour
     private PlayerInputHandler _inputHandler;
     private PlayerFootsteps _footstepsAudio;
 
-
     [Header("Player Data")]
     [SerializeField] private PlayerData _data;
 
     public float WalkSpeed => _data.walkSpeed;
     public float SprintSpeed => _data.sprintSpeed;
 
-    public float SpeedMultiplier { get; set; } = 1.0f;
+    public float SpeedMultiplier { get; private set; } = 1.0f;
+    private GameObject _lastSpeedChangerSource;
 
     [Header("Noise Settings")]
     [SerializeField] private float _walkNoiseVolume = 5f;
@@ -137,6 +137,29 @@ public class PlayerMovement : MonoBehaviour
         _velocity.y += gravity * Time.deltaTime;
 
         _controller.Move(_velocity * Time.deltaTime);
+
+    }
+
+    public void ChangeSpeedMultiplier(GameObject source, float newMultiplier)
+    {
+        if (_lastSpeedChangerSource == null)
+        {
+            SpeedMultiplier = newMultiplier;
+            _lastSpeedChangerSource = source;
+
+            return;
+        }
+
+        if ((_lastSpeedChangerSource == source || _lastSpeedChangerSource != source) && newMultiplier < SpeedMultiplier)
+        {
+            SpeedMultiplier = newMultiplier;
+            _lastSpeedChangerSource = source;
+        }
+        else if (_lastSpeedChangerSource == source && newMultiplier == 1f)
+        {
+            SpeedMultiplier = newMultiplier;
+            _lastSpeedChangerSource = null;
+        }
 
     }
 }

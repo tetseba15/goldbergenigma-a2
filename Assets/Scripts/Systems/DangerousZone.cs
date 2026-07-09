@@ -18,13 +18,13 @@ public class DangerousZone : MonoBehaviour
 
         if (_purificationZone != null && _purificationZone.IsPurified)
         {
-            if (playerMovement != null) playerMovement.SpeedMultiplier = 1f;
+            if (playerMovement != null) playerMovement.ChangeSpeedMultiplier(gameObject, 1f);
             return;
         }
 
         if (other.CompareTag("Player"))
         {
-            if (playerMovement != null) playerMovement.SpeedMultiplier = _speedReduction;
+            if (playerMovement != null) playerMovement.ChangeSpeedMultiplier(gameObject, _speedReduction);
 
             _timer += Time.deltaTime;
             if (_timer >= _hitCooldown)
@@ -40,7 +40,7 @@ public class DangerousZone : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             PlayerMovement playerMovement = other.GetComponent<PlayerMovement>();
-            if (playerMovement != null) playerMovement.SpeedMultiplier = 1f;
+            if (playerMovement != null) playerMovement.ChangeSpeedMultiplier(gameObject, 1f);
 
             _timer = 0;
         }

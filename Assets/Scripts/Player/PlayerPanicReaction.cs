@@ -246,8 +246,7 @@ public class PlayerPanicReaction : MonoBehaviour
 
     private IEnumerator PanicRoutine(float stunDuration)
     {
-
-        _playerMovementScript.SpeedMultiplier *= _speedMultiplier;
+        _playerMovementScript.ChangeSpeedMultiplier(gameObject, _playerMovementScript.SpeedMultiplier * _speedMultiplier);
 
         if (_impulseSource != null)
         {
@@ -266,8 +265,8 @@ public class PlayerPanicReaction : MonoBehaviour
 
         yield return new WaitForSeconds(stunDuration);
 
+        _playerMovementScript.ChangeSpeedMultiplier(gameObject, 1.0f);
 
-        _playerMovementScript.SpeedMultiplier = 1.0f;
 
         if (_panicVolume != null)
         {
