@@ -208,6 +208,8 @@ public class AudioManager : MonoBehaviour
 
         AudioSource source = _sfxPool.Dequeue();
 
+        if (source == null) return;
+
         source.transform.position = position;
         source.clip = clip;
         source.volume = volume;
