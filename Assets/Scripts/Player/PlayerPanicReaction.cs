@@ -62,6 +62,7 @@ public class PlayerPanicReaction : MonoBehaviour
         Whispering.OnWhispering += TriggerVisualDistortion;
         EnemyAI.OnEnemyRoaring += TriggerJumpscare;
         EnemyAI.OnChaseStateChanged += HandleChaseState;
+        PlayerDamage.OnDamagePlayer += ShakeCamera;
     }
 
     private void OnDisable()
@@ -69,6 +70,7 @@ public class PlayerPanicReaction : MonoBehaviour
         Whispering.OnWhispering -= TriggerVisualDistortion;
         EnemyAI.OnEnemyRoaring -= TriggerJumpscare;
         EnemyAI.OnChaseStateChanged -= HandleChaseState;
+        PlayerDamage.OnDamagePlayer -= ShakeCamera;
     }
 
     private void TriggerVisualDistortion(float distortionDuration)
@@ -276,5 +278,10 @@ public class PlayerPanicReaction : MonoBehaviour
                 yield return null;
             }
         }
+    }
+
+    private void ShakeCamera()
+    {
+        _impulseSource.GenerateImpulse();
     }
 }

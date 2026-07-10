@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,6 +26,8 @@ public class PlayerDamage : MonoBehaviour
 
     private Coroutine _increaseVolumeCoroutine;
     private Coroutine _restoreVolumeCoroutine;
+
+    public static event Action OnDamagePlayer;
 
     public float Health { get; set; } = 1f;
 
@@ -67,7 +70,7 @@ public class PlayerDamage : MonoBehaviour
     {
         if (_gruntClips.Count > 0)
         {
-            AudioManager.Instance.PlaySFX(_gruntClips[Random.Range(0, _gruntClips.Count)]);
+            AudioManager.Instance.PlaySFX(_gruntClips[UnityEngine.Random.Range(0, _gruntClips.Count)]);
         }
 
         _successiveHits++;
@@ -78,6 +81,8 @@ public class PlayerDamage : MonoBehaviour
         if (_restoreVolumeCoroutine != null) StopCoroutine(_restoreVolumeCoroutine);
 
         _increaseVolumeCoroutine = StartCoroutine(IncreaseVolumeEffect());
+
+        OnDamagePlayer?.Invoke();
     }
 
     private IEnumerator IncreaseVolumeEffect()
