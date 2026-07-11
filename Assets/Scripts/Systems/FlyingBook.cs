@@ -1,23 +1,26 @@
 using UnityEngine;
 
-public class FlyingBook : MonoBehaviour
+public class FlyingBook : MonoBehaviour, IPurificable
 {
-    [SerializeField] private float _stopDistance = 10f;
+    [Header("Purification Settings")]
+    [SerializeField] private PurificableData _purificationData;
+
+    public PurificableData PurificationData => _purificationData;
 
     private void OnEnable()
     {
-        PurificationZone.OnPurified += StopBook;
+        CrossController.OnCrossUse += Purify;
     }
 
     private void OnDisable()
     {
-        PurificationZone.OnPurified += StopBook;
+        CrossController.OnCrossUse -= Purify;
     }
 
-    private void StopBook(Vector3 purificationZonePosition)
+    public void Purify(PlayerInventory.ItemType itemType, Vector3 purifySourcePosition)
     {
-        float distanceWithZone = Vector3.Distance(transform.position, purificationZonePosition);
-        if (distanceWithZone > _stopDistance) return;
+        float distanceWithZone = Vector3.Distance(transform.position, purifySourcePosition);
+        if (distanceWithZone > _purificationData._purificationDistance || itemType != _purificationData._purificationItem) return;
 
         Animator animator = GetComponent<Animator>();
         Rigidbody rb = GetComponent<Rigidbody>();

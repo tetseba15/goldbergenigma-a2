@@ -155,7 +155,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1398e479d741f544eb2f9d18e388d904, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlyingBook
-  _stopDistance: 10
+  _purificationData:
+    _purificationDistance: 10
+    _purificationItem: 103
 --- !u!65 &643687357550362170
 BoxCollider:
   m_ObjectHideFlags: 0

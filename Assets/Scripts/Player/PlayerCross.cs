@@ -36,7 +36,7 @@ public class CrossController : MonoBehaviour
 
     private Coroutine _lightCoroutine;
 
-    public static event Action<PlayerInventory.ItemType> OnCrossUse;
+    public static event Action<PlayerInventory.ItemType, Vector3> OnCrossUse;
 
     void Start()
     {
@@ -101,7 +101,7 @@ public class CrossController : MonoBehaviour
 
     private IEnumerator UseCrossRoutine()
     {
-        OnCrossUse?.Invoke(PlayerInventory.ItemType.Cross);
+        OnCrossUse?.Invoke(PlayerInventory.ItemType.Cross, transform.root.transform.position); // Player Position
 
         _isUsing = true;
 

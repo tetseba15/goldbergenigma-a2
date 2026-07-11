@@ -48,7 +48,7 @@ public class FaithController : MonoBehaviour
         CrossController.OnCrossUse -= DecreaseFaith;
     }
 
-    private void DecreaseFaith(PlayerInventory.ItemType itemType)
+    private void DecreaseFaith(PlayerInventory.ItemType itemType, Vector3 purifySourcePosition)
     {
         if (itemType == PlayerInventory.ItemType.Cross) ActualFaith = Math.Clamp(ActualFaith - CrossConsumption, 0f, 1f);
 
