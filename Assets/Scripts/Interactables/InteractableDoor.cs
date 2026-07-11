@@ -222,4 +222,10 @@ public class InteractableDoor : MonoBehaviour, IInteractable
         lockedLimits.max = 1f;
         _hingeJoint.limits = lockedLimits;
     }
+
+    public void Unlock()
+    {
+        _isLocked = false;
+        RemoveNarrativeLock();
+    }
 }
