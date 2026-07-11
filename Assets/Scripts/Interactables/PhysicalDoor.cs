@@ -18,10 +18,16 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
     [SerializeField, Tooltip("Límite de lectura del ratón para evitar fuerzas extremas por DPI altos")]
     private float _maxMouseDelta = 5f;
     [SerializeField, Tooltip("Límite absoluto de velocidad física de giro (Rad/s)")]
-    private float _maxRotationSpeed = 3f; 
+    private float _maxRotationSpeed = 3f;
     [SerializeField] private string _dragPromptText = "Arrastrar puerta";
 
+    // ------ calculations data --------
+
+    private Camera _doorCamera;
+    private Vector3 _localGrabPoint;
     private float _leverageMultiplier = 1f;
+
+    private Transform _interactorTransform;
 
     [Header("Configuración de Sprint y Eventos")]
     [SerializeField] private float _sprintBustForce = 150f;
@@ -48,8 +54,6 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
     [SerializeField] private float _creakNoiseRadius = 2f;
 
     [Header("Audio Continuo (Motor de Crujido)")]
-    //[SerializeField, Tooltip("AudioSource adjunto a la puerta física")]
-    //private AudioSource _creakAudioSource;
 
     [SerializeField, Tooltip("Pitch minimo (lento)")] private float _minPitch = 0.8f;
     [SerializeField, Tooltip("Pitch maximo (rapido)")] private float _maxPitch = 1.3f;
@@ -68,6 +72,10 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
     private float _lastRattleTime = 0f;
     private float _rattleCooldown = 1f;
 
+
+
+
+
     private void OnDisable()
     {
         ReturnCreakSourceIfNeeded();
@@ -78,7 +86,7 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
         if (_doorRb == null) _doorRb = GetComponent<Rigidbody>();
         if (_hingeJoint == null) _hingeJoint = GetComponent<HingeJoint>();
 
-        _doorRb.linearDamping= 2f;
+        _doorRb.linearDamping = 2f;
         _doorRb.angularDamping = 5f;
 
         _doorRb.maxAngularVelocity = _maxRotationSpeed;
@@ -87,14 +95,7 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
 
         if (_isLocked) LockDoorPhysically();
 
-        //if (_creakAudioSource != null && _creakSound != null)
-        //{
-        //    _creakAudioSource.clip = _creakSound;
-        //    _creakAudioSource.loop = true;
-        //    _creakAudioSource.volume = 0f;
-        //    _creakAudioSource.spatialBlend = 1f; 
-        //    _creakAudioSource.Play();
-        //}
+
     }
 
     private void Update()
@@ -126,7 +127,7 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
         return _dragPromptText;
     }
 
-    public void OnGrabStart(GameObject interactor, Vector3 grabPoint)
+    public void OnGrabStart(GameObject interactor, Vector3 grabPoint, Camera playerCamera)
     {
         if (_isLocked)
         {
@@ -135,35 +136,63 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
         }
 
         _hingeJoint.useSpring = false;
+        _doorCamera = playerCamera;
 
-        // --- Grab Point Logic ---
-                
-        Vector3 hingePos = transform.position;
-        hingePos.y = 0;
-        Vector3 clickPos = grabPoint;
-        clickPos.y = 0;
+        // Guardamos el punto local para que rote con la puerta
+        _localGrabPoint = _doorRb.transform.InverseTransformPoint(grabPoint);
 
-        float distanceToHinge = Vector3.Distance(hingePos, clickPos);
+        // Mantenemos el apalancamiento (Para que sea fácil empujar de la manija y difícil desde la bisagra)
+        Vector3 hingePos = transform.position; hingePos.y = 0;
+        Vector3 clickPos = grabPoint; clickPos.y = 0;
+        _leverageMultiplier = 1f + (Vector3.Distance(hingePos, clickPos) * 2f);
 
-        // The further away from the hinge you grip it, the greater the force multiplier will be
-        // The +1 ensures we never multiply by 0 if the grip is right at the center
-        _leverageMultiplier = 1f + (distanceToHinge * 2f);
-
-        if (_creakSound != null && AudioManager.Instance != null)
+        if (_creakSound != null && AudioManager.Instance != null && _borrowedCreakSource == null)
         {
             NoiseManager.EmitNoise(transform.position, _creakNoiseRadius);
         }
     }
 
+
     public void OnGrabUpdate(Vector2 mouseDelta)
     {
-        if (_isLocked) return;
+        if (_isLocked || _doorCamera == null) return;
 
-        float clampedDeltaX = Mathf.Clamp(mouseDelta.x, -_maxMouseDelta, _maxMouseDelta);
+        // 1. Obtenemos el punto 3D exacto donde está agarrada la puerta AHORA mismo
+        Vector3 grabPosWorld = _doorRb.transform.TransformPoint(_localGrabPoint);
+        Vector3 hingePos = transform.position;
 
-        float appliedForce = clampedDeltaX * _dragSensitivity * _leverageMultiplier;
+        // 2. Calculamos el vector del radio (desde la bisagra al agarre)
+        Vector3 radius = grabPosWorld - hingePos;
+        radius.y = 0;
 
-        _doorRb.AddRelativeTorque(Vector3.up * appliedForce, ForceMode.Force);
+        // Prevención de errores si haces clic en el centro atómico de la bisagra
+        if (radius.sqrMagnitude < 0.001f) return;
+
+        // 3. Calculamos la TANGENTE (La dirección 3D hacia donde giraría la puerta en sentido Horario)
+        Vector3 tangent3D = Vector3.Cross(transform.up, radius).normalized;
+
+        // 4. PROYECCIÓN A PANTALLA (La verdadera magia)
+        Vector3 screenPos1 = _doorCamera.WorldToScreenPoint(grabPosWorld);
+        // Sumamos un pedacito de la tangente para ver hacia dónde se mueve en la pantalla
+        Vector3 screenPos2 = _doorCamera.WorldToScreenPoint(grabPosWorld + (tangent3D * 0.1f));
+
+        Vector2 screenTangent = (screenPos2 - screenPos1);
+        if (screenTangent.sqrMagnitude > 0.0001f) screenTangent.Normalize();
+        else screenTangent = Vector2.zero;
+
+        // 5. Comparamos el ratón con la trayectoria en pantalla
+        // Si mueves el ratón visualmente hacia donde va la tangente, da positivo. Si no, negativo.
+        float forceAmount = Vector2.Dot(mouseDelta, screenTangent);
+
+        // Recorte por seguridad contra movimientos bruscos de DPI
+        float clampedForce = Mathf.Clamp(forceAmount, -_maxMouseDelta, _maxMouseDelta);
+
+        // 6. Aplicamos el Torque
+        // Moverse a favor de la tangente (+force) = rotación Horaria (-Y)
+        Vector3 finalTorque = -transform.up * clampedForce * _dragSensitivity * _leverageMultiplier;
+
+        // IMPORTANTE: Cambiamos AddRelativeTorque por AddTorque porque el cálculo ya es global
+        _doorRb.AddTorque(finalTorque, ForceMode.Force);
     }
 
     public void OnGrabEnd()
@@ -196,7 +225,7 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
 
                     _borrowedCreakSource.loop = true;
                     _borrowedCreakSource.spatialBlend = 1f;
-                    _borrowedCreakSource.volume = 0f; 
+                    _borrowedCreakSource.volume = 0f;
 
                     _borrowedCreakSource.time = _savedAudioTime;
 
@@ -213,7 +242,7 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
 
                 float targetPitch = Mathf.Lerp(_minPitch, _maxPitch, speedPercent);
 
-                
+
                 if (currentVelocity < 0)
                 {
                     targetPitch *= -1f;
@@ -344,7 +373,7 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
     {
         JointLimits lockedLimits = _hingeJoint.limits;
         lockedLimits.min = -1f;
-        lockedLimits.max = 1f; 
+        lockedLimits.max = 1f;
         _hingeJoint.limits = lockedLimits;
     }
 
@@ -355,7 +384,7 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
     public void ApplyNarrativeLock()
     {
         _permanentlyLocked = true;
-        _isLocked = true; 
+        _isLocked = true;
         LockDoorPhysically();
     }
 

@@ -24,6 +24,8 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        // -------- DEBUGGING -----------
+
         //if (Keyboard.current.digit9Key.wasPressedThisFrame)
         //{
         //    SceneManager.LoadScene(2);
@@ -32,43 +34,31 @@ public class GameManager : MonoBehaviour
         //if (Keyboard.current.digit8Key.wasPressedThisFrame)
         //{
         //    SceneManager.LoadScene(3);
-
         //}
 
-        if (Keyboard.current.pKey.wasPressedThisFrame)
-        {
-            if (isPaused)
-            {
-                Unpause();
-            }
-            else
-            {
-                Pause();
-            }
-        }
     }
-    public void Pause()
-    {
-        Time.timeScale = 0f;          
-        AudioListener.pause = true;   
-        isPaused = true;
-        if (menuPausaUI != null) menuPausaUI.SetActive(true);
+    //public void Pause()
+    //{
+    //    Time.timeScale = 0f;          
+    //    AudioListener.pause = true;   
+    //    isPaused = true;
+    //    if (menuPausaUI != null) menuPausaUI.SetActive(true);
 
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-    }
+    //    Cursor.lockState = CursorLockMode.None;
+    //    Cursor.visible = true;
+    //}
 
-    public void Unpause()
-    {
-        Time.timeScale = 1f;          
-        AudioListener.pause = false;  
-        isPaused = false;
-        if (menuPausaUI != null) menuPausaUI.SetActive(false);
+    //public void Unpause()
+    //{
+    //    Time.timeScale = 1f;          
+    //    AudioListener.pause = false;  
+    //    isPaused = false;
+    //    if (menuPausaUI != null) menuPausaUI.SetActive(false);
 
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = false;
+    //    Cursor.lockState = CursorLockMode.None;
+    //    Cursor.visible = false;
 
-    }
+    //}
     private void OnEnable()
     {
         

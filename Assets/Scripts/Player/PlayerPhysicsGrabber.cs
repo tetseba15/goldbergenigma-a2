@@ -27,8 +27,13 @@ public class PlayerPhysicsGrabber : MonoBehaviour
     private Transform _hoveredTransform;
     private Vector3 _exactHitPoint;
 
+    private Vector3 _grabPointLocal;
+
     private string _lastPromptMessage = string.Empty;
     private bool _requireNewClick = false;
+
+
+    
 
     private void Awake()
     {
@@ -90,7 +95,7 @@ public class PlayerPhysicsGrabber : MonoBehaviour
             _currentGrabbedObject = _hoveredObject;
             _grabbedTransform = _hoveredTransform;
             
-            _currentGrabbedObject.OnGrabStart(gameObject, _exactHitPoint); 
+            _currentGrabbedObject.OnGrabStart(gameObject, _exactHitPoint, _mainCamera); 
             
             if (UIManager.Instance != null) UIManager.Instance.HideInteractPrompt();
         }
@@ -118,15 +123,15 @@ public class PlayerPhysicsGrabber : MonoBehaviour
     {
         if (_grabbedTransform == null) return true;
 
-        float distance = Vector3.Distance(_mainCamera.transform.position, _grabbedTransform.position);
+        Vector3 currentHitPointWorld = _grabbedTransform.TransformPoint(_grabPointLocal);
 
-        Vector3 directionToObject = (_grabbedTransform.position - _mainCamera.transform.position).normalized;
-
+        float distance = Vector3.Distance(_mainCamera.transform.position, currentHitPointWorld);
+        Vector3 directionToObject = (currentHitPointWorld - _mainCamera.transform.position).normalized;
         float angle = Vector3.Angle(_mainCamera.transform.forward, directionToObject);
 
-        if (distance < 3f)
+        if (distance < 1.5f)
         {
-            angle = 0f;
+            angle = 0f; 
         }
 
         return distance > _breakDistance || angle > _breakAngle;
