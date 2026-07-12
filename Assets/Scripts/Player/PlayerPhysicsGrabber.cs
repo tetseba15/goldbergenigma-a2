@@ -90,7 +90,7 @@ public class PlayerPhysicsGrabber : MonoBehaviour
     private void HandleGrabbing()
     {
         // Grab
-        if (_inputHandler.IsPhysicsGrabbing && !_requireNewClick && _currentGrabbedObject == null && _hoveredObject != null)
+        /*if (_inputHandler.IsPhysicsGrabbing && !_requireNewClick && _currentGrabbedObject == null && _hoveredObject != null)
         {
             _currentGrabbedObject = _hoveredObject;
             _grabbedTransform = _hoveredTransform;
@@ -98,6 +98,21 @@ public class PlayerPhysicsGrabber : MonoBehaviour
             //_currentGrabbedObject.OnGrabStart(gameObject, _exactHitPoint, _mainCamera); 
 
             _grabPointLocal = _grabbedTransform.InverseTransformPoint(_exactHitPoint);
+
+            if (UIManager.Instance != null) UIManager.Instance.HideInteractPrompt();
+        }*/
+
+        if (_inputHandler.IsPhysicsGrabbing && !_requireNewClick && _currentGrabbedObject == null && _hoveredObject != null)
+        {
+            _currentGrabbedObject = _hoveredObject;
+            _grabbedTransform = _hoveredTransform;
+
+            _currentGrabbedObject.OnGrabStart(gameObject, _exactHitPoint);
+
+            _grabPointLocal = _grabbedTransform.InverseTransformPoint(_exactHitPoint);
+
+
+
 
             if (UIManager.Instance != null) UIManager.Instance.HideInteractPrompt();
         }
