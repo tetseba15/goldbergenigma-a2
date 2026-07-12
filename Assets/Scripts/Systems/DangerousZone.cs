@@ -14,6 +14,13 @@ public class DangerousZone : MonoBehaviour, IPurificable
     public PurificableData PurificationData => _purificationData;
     public static event Action OnHitPlayer;
 
+    private ObjectiveReporter _objectiveReporter;
+
+    private void Awake()
+    {
+        _objectiveReporter = GetComponent<ObjectiveReporter>();
+    }
+
     private void OnEnable()
     {
         CrossController.OnCrossUse += Purify;
@@ -60,11 +67,18 @@ public class DangerousZone : MonoBehaviour, IPurificable
 
     public void Purify(PlayerInventory.ItemType itemType, Vector3 purifySourcePosition)
     {
+        if (_purified) return;
+
         float distance = Vector3.Distance(transform.position, purifySourcePosition);
 
         if (distance <= _purificationData._purificationDistance && itemType == _purificationData._purificationItem)
         {
             _purified = true;
+
+            if (_objectiveReporter != null)
+            {
+                _objectiveReporter.ReportObjective();
+            }
         }
     }
 }

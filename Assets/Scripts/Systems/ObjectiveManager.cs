@@ -17,7 +17,8 @@ public class ObjectiveManager : MonoBehaviour
         Barbecue,
         CommunicateWithOuija,
         Workshop,
-        FinalChallenge
+        FinalChallenge,
+        FlyingBooks
     }
 
     private class ObjectiveData

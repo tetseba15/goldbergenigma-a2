@@ -5,6 +5,13 @@ public class EvilAura : MonoBehaviour, IPurificable
     [SerializeField] private PurificableData _purificableData;
     public PurificableData PurificationData => _purificableData;
 
+    private ObjectiveReporter _objectiveReporter;
+
+    private void Awake()
+    {
+        _objectiveReporter = GetComponent<ObjectiveReporter>();
+    }
+
     private void OnEnable()
     {
         CrossController.OnCrossUse += Purify;
@@ -38,6 +45,11 @@ public class EvilAura : MonoBehaviour, IPurificable
             {
                 interactableDoor.Unlock();
                 Destroy(gameObject);
+            }
+
+            if (_objectiveReporter != null)
+            {
+                _objectiveReporter.ReportObjective();
             }
         }
     }
