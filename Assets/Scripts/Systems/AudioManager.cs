@@ -229,7 +229,7 @@ public class AudioManager : MonoBehaviour
 
         foreach (AudioSource source in _sfxPool)
         {
-            if (source.transform.position == position && source.isPlaying)
+            if (source != null && source.transform.position == position && source.isPlaying)
             {
                 source.Stop();
             }
