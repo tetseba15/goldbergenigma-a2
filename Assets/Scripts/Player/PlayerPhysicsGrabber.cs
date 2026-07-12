@@ -94,9 +94,11 @@ public class PlayerPhysicsGrabber : MonoBehaviour
         {
             _currentGrabbedObject = _hoveredObject;
             _grabbedTransform = _hoveredTransform;
-            
-            _currentGrabbedObject.OnGrabStart(gameObject, _exactHitPoint, _mainCamera); 
-            
+
+            //_currentGrabbedObject.OnGrabStart(gameObject, _exactHitPoint, _mainCamera); 
+
+            _grabPointLocal = _grabbedTransform.InverseTransformPoint(_exactHitPoint);
+
             if (UIManager.Instance != null) UIManager.Instance.HideInteractPrompt();
         }
 
@@ -129,7 +131,7 @@ public class PlayerPhysicsGrabber : MonoBehaviour
         Vector3 directionToObject = (currentHitPointWorld - _mainCamera.transform.position).normalized;
         float angle = Vector3.Angle(_mainCamera.transform.forward, directionToObject);
 
-        if (distance < 1.5f)
+        if (distance < 2.5f)
         {
             angle = 0f; 
         }

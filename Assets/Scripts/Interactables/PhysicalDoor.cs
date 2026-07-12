@@ -27,6 +27,10 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
     private Vector3 _localGrabPoint;
     private float _leverageMultiplier = 1f;
 
+
+    private float _sideMultiplier = 1f;
+    private float _hingeSideMultiplier = 1f;
+
     private Transform _interactorTransform;
 
     [Header("Configuración de Sprint y Eventos")]
@@ -127,7 +131,7 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
         return _dragPromptText;
     }
 
-    public void OnGrabStart(GameObject interactor, Vector3 grabPoint, Camera playerCamera)
+    /*public void OnGrabStart(GameObject interactor, Vector3 grabPoint, Camera playerCamera)
     {
         if (_isLocked)
         {
@@ -150,10 +154,36 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
         {
             NoiseManager.EmitNoise(transform.position, _creakNoiseRadius);
         }
+    }*/
+
+    public void OnGrabStart(GameObject interactor, Vector3 grabPoint)
+    {
+        if (_isLocked)
+        {
+            HandleLockedInteraction(interactor);
+            return;
+        }
+
+        _hingeJoint.useSpring = false;
+        _interactorTransform = interactor.transform;
+
+        Vector3 hingePos = transform.position; hingePos.y = 0;
+        Vector3 clickPos = grabPoint; clickPos.y = 0;
+        _leverageMultiplier = 1f + (Vector3.Distance(hingePos, clickPos) * 2f);
+
+        Vector3 dirToPlayer = (_interactorTransform.position - _doorRb.transform.position).normalized;
+        _sideMultiplier = Mathf.Sign(Vector3.Dot(_doorRb.transform.forward, dirToPlayer));
+
+        Vector3 localGrabPoint = _doorRb.transform.InverseTransformPoint(grabPoint);
+        _hingeSideMultiplier = localGrabPoint.x >= 0 ? 1f : -1f;
+
+        if (_creakSound != null && AudioManager.Instance != null && _borrowedCreakSource == null)
+        {
+            NoiseManager.EmitNoise(transform.position, _creakNoiseRadius);
+        }
     }
 
-
-    public void OnGrabUpdate(Vector2 mouseDelta)
+    /*public void OnGrabUpdate(Vector2 mouseDelta)
     {
         if (_isLocked || _doorCamera == null) return;
 
@@ -193,6 +223,21 @@ public class PhysicalDoor : MonoBehaviour, IPhysicsInteractable
 
         // IMPORTANTE: Cambiamos AddRelativeTorque por AddTorque porque el cálculo ya es global
         _doorRb.AddTorque(finalTorque, ForceMode.Force);
+    }*/
+
+    public void OnGrabUpdate(Vector2 mouseDelta)
+    {
+        if (_isLocked) return;
+
+        float lookDot = Mathf.Abs(Vector3.Dot(_interactorTransform.forward, _doorRb.transform.forward));
+
+        float mappedInput = Mathf.Lerp(mouseDelta.y, mouseDelta.x, lookDot);
+
+        float clampedInput = Mathf.Clamp(mappedInput, -_maxMouseDelta, _maxMouseDelta);
+
+        float appliedForce = clampedInput * _dragSensitivity * _leverageMultiplier * _sideMultiplier * _hingeSideMultiplier;
+
+        _doorRb.AddRelativeTorque(Vector3.up * appliedForce, ForceMode.Force);
     }
 
     public void OnGrabEnd()
