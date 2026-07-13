@@ -31,7 +31,7 @@ public class Whispering : MonoBehaviour
     {
         if (gameEventType == _gameEventType)
         {
-            AudioManager.Instance.PlaySFX(_clip, 1f);
+            AudioManager.Instance.PlaySFX(_clip, .7f);
             EnemyAI.TriggerRoar(_stunDuration, _stunDuration);
 
             OnWhispering?.Invoke(_whisperDistortionDuration);
